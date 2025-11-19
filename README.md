@@ -175,7 +175,13 @@ npm run dev           # запускает edge + interface в одном про
 
 - **Homeostasis Manager** собирает метрики heartbeat/circulation/storage/transmutation/sleep, вычисляет `stressScore` и формирует рекомендации — усилить очистку, вызвать сон, притормозить Edge.
 - Новый эндпоинт `GET /api/system/homeostasis` отдаёт текущее состояние гомеостаза, а `/api/system/health` включает секцию `homeostasis`.
-- Расширенная петля теперь осмысляется и регулируется: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Edge**.
+- Расширенная петля теперь осмысляется и регулируется: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Edge**.
+
+## Iteration 9 — Reflex / Nervous System
+
+- **ReflexEngine** в `reflex/` слушает стресс от Homeostasis и важные события других органов, фиксирует сигналы и производит быстрые защитные решения.
+- Новый эндпоинт `GET /api/system/reflex` отдаёт последние события/действия рефлексов, а `/api/system/health` включает краткую сводку о последнем срабатывании.
+- Жизненный цикл дополнен нервной системой: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Edge**.
 
 ---
 

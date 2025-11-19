@@ -1,5 +1,5 @@
 import express from 'express';
-import { heartbeat, resonance, runtime, storage, circulation, transmutation, sleep, homeostasis } from '../core/systemContext';
+import { heartbeat, resonance, runtime, storage, circulation, transmutation, sleep, homeostasis, reflex } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
 
@@ -18,6 +18,7 @@ export const createInterfaceApp = () => {
     const transmutationMetrics = transmutation.getMetrics();
     const sleepState = sleep.getState();
     const homeostasisState = homeostasis.getState();
+    const reflexState = reflex.getState();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       transmutation: {
@@ -35,6 +36,11 @@ export const createInterfaceApp = () => {
         stressScore: homeostasisState.stressScore,
         loadLevel: homeostasisState.loadLevel,
       },
+      reflex: {
+        lastActionSeverity: reflexState.lastActions.at(-1)?.severity ?? null,
+        lastActionReason: reflexState.lastActions.at(-1)?.reason,
+        actionsCount: reflexState.lastActions.length,
+      },
     }));
     const circulationState =
       beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
@@ -51,6 +57,7 @@ export const createInterfaceApp = () => {
         transmutation: beat.transmutation,
         sleep: beat.sleep,
         homeostasis: beat.homeostasis,
+        reflex: beat.reflex,
       },
     });
   });
@@ -105,6 +112,10 @@ export const createInterfaceApp = () => {
 
   app.get('/api/system/homeostasis', (_req, res) => {
     res.json(homeostasis.getState());
+  });
+
+  app.get('/api/system/reflex', (_req, res) => {
+    res.json(reflex.getState());
   });
 
   app.post('/api/system/sleep', async (_req, res) => {

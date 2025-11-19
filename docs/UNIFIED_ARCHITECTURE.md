@@ -96,7 +96,12 @@ Iteration 1 добавляет каркас директории для кажд
 ### Homeostasis Layer (Iteration 8)
 1. **Homeostasis Manager.** Новый модуль в `core/homeostasisManager.ts` собирает heartbeat/circulation/storage/transmutation/sleep метрики, вычисляет `stressScore` и выставляет рекомендации по очистке, сну и торможению Edge.
 2. **API.** Доступно `GET /api/system/homeostasis`, а `/api/system/health` теперь содержит секцию `homeostasis` с `stressScore` и `loadLevel`.
-3. **Регулятор в цикле.** Главная петля теперь наблюдается и корректируется: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Edge**.
+3. **Регулятор в цикле.** Главная петля теперь наблюдается и корректируется: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Edge**.
+
+### Reflex / Nervous System Layer (Iteration 9)
+1. **ReflexEngine.** Модуль в `reflex/` агрегирует сигналы (homeostasis стресс, runtime/circulation события), держит историю событий/действий и выдаёт быстрые рекомендации.
+2. **API.** Доступно `GET /api/system/reflex`, а `/api/system/health` показывает краткую сводку по последнему рефлексу (severity/reason/count).
+3. **Цикл с нервной системой.** Обновлённый контур: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Edge**.
 
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
