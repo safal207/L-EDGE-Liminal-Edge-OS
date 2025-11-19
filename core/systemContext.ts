@@ -5,6 +5,8 @@ import { InMemoryRuntimeAdapter } from '../runtime/runtimeAdapter';
 import { MockResonanceEngine } from '../resonance/resonanceEngine';
 import { CirculationPump } from '../circulation/pump';
 import { CirculationEngine } from '../circulation/circulationEngine';
+import { TransmutationEngine } from '../transmutation/transmutationEngine';
+import { SleepCycle } from '../sleep/sleepCycle';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -20,9 +22,12 @@ const heartbeat = new HeartbeatService({
 });
 
 const pump = new CirculationPump({ storage, resonance, awareness, runtime });
+const transmutation = new TransmutationEngine({ storage, pump });
+const sleep = new SleepCycle({ storage, transmutation });
 const circulation = new CirculationEngine({ pump, heartbeat });
 
+sleep.start();
 circulation.start();
 heartbeat.start();
 
-export { storage, runtime, awareness, resonance, heartbeat, circulation };
+export { storage, runtime, awareness, resonance, heartbeat, circulation, transmutation, sleep };

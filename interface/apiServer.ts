@@ -1,5 +1,5 @@
 import express from 'express';
-import { heartbeat, resonance, runtime, storage, circulation } from '../core/systemContext';
+import { heartbeat, resonance, runtime, storage, circulation, transmutation, sleep } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
 
@@ -15,7 +15,22 @@ export const createInterfaceApp = () => {
   const app = express();
 
   app.get('/api/system/health', async (_req, res) => {
-    const beat = await heartbeat.capture();
+    const transmutationMetrics = transmutation.getMetrics();
+    const sleepState = sleep.getState();
+    const beat = await heartbeat.capture((state) => ({
+      ...state,
+      transmutation: {
+        lastMutation: transmutationMetrics.lastMutation,
+        purified: transmutationMetrics.purifiedEvents,
+        entropy: transmutationMetrics.discardedEntropy,
+        signalStrength: transmutationMetrics.signalStrength,
+      },
+      sleep: {
+        lastSleep: sleepState.lastSleep,
+        noiseCleared: sleepState.noiseCleared,
+        dreamIterations: sleepState.dreamIterations,
+      },
+    }));
     const circulationState =
       beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
     res.json({
@@ -28,6 +43,8 @@ export const createInterfaceApp = () => {
         awareness: { decisions: beat.awarenessDecisions },
         runtime: { active: beat.runtimeActive },
         circulation: circulationState,
+        transmutation: beat.transmutation,
+        sleep: beat.sleep,
       },
     });
   });
@@ -74,6 +91,19 @@ export const createInterfaceApp = () => {
       latest: history[0] ?? circulation.getLatestSnapshot(),
       history,
     });
+  });
+
+  app.get('/api/system/transmutation', (_req, res) => {
+    res.json(transmutation.getMetrics());
+  });
+
+  app.post('/api/system/sleep', async (_req, res) => {
+    const metrics = await sleep.trigger('manual');
+    res.json({ status: 'started', timestamp: metrics.lastSleep });
+  });
+
+  app.get('/api/system/sleep/state', (_req, res) => {
+    res.json(sleep.getState());
   });
 
   return app;
