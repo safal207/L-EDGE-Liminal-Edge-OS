@@ -57,6 +57,37 @@ flowchart TD
 2. **Resonance loop:** LiminalBD feeds SOMA → SOMA issues policies via LTP → Garden orchestrates pods → pods emit runtime events back to LiminalBD.
 3. **Operator loop:** LRI consumes telemetry + policies → surfaces human input → SOMA adjusts decisions → DAO_lim updates routing/guarding.
 
+### Physical repository mapping
+
+Iteration 1 добавляет каркас директории для каждого слоя:
+
+| Layer | Directory | Key files |
+| ----- | --------- | --------- |
+| Core contracts | `core/` | `types.ts`, `constants.ts`, `systemContext.ts`, `heartbeat.ts` — базовые типы + единый контейнер и heartbeat |
+| Edge SomaSeed | `edge/` | `edgeService.ts`, `edgeEventSink.ts`, `storageEdgeEventSink.ts` — HTTP `/health`, `/echo`, передача `EdgeEvent` в storage |
+| Transport | `transport/` | `ltpClient.ts` — `LtpClient` интерфейс и in-memory реализация |
+| Runtime adapters | `runtime/` | `runtimeAdapter.ts` — mock-интеграция с GardenLiminal и in-memory процессы |
+| Storage | `storage/` | `storage.ts`, `mockStorage.ts`, `SCHEMA.md` — интерфейс к LiminalBD, TTL, фильтры, heartbeat/decisions |
+| Resonance | `resonance/` | `resonanceEngine.ts` — мост к SOMA, буфер событий, генерация `PolicyDecision` |
+| Awareness | `awareness/` | `awarenessGateway.ts` — контракты DAO_lim, перевод PolicyDecision → Runtime signals |
+| Interface | `interface/` | `apiServer.ts`, `services/devCluster.ts` — backend для LRI `/api/*`, запуск edge+interface |
+| Circulation | `circulation/` | `pump.ts`, `circulationEngine.ts`, `types.ts` — циркуляция событий + расчёт метрик кровотока |
+
+Каждый каталог содержит README с дальнейшими шагами по интеграции с соответствующими внешними репозиториями (LiminalBD, DAO_lim, SOMA, GardenLiminal, L-THREAD, LRI).
+
+### Event Lifecycle (Iteration 2)
+1. **Edge → Storage.** `edge/edgeService.ts` принимает `/echo`, формирует `EdgeEvent` с `TraceId`, пишет через `StorageEdgeEventSink`.
+2. **Storage → Resonance.** `storage/mockStorage.ts` хранит последние 300 событий и через `onEdgeEventSaved` передаёт их в `MockResonanceEngine`.
+3. **Resonance batching.** `resonance/resonanceEngine.ts` буферизует события 1–2 секунды и выпускает `PolicyDecision` с метаданными оригинального события.
+4. **Awareness translation.** `awareness/awarenessGateway.ts` логирует решения, превращает их в `AwarenessSignal` (start/update/stop) и отдаёт в runtime.
+5. **Runtime reaction.** `runtime/runtimeAdapter.ts` обновляет in-memory процессы по ссылке на `targetNode`, сохраняет состояния для `getSystemState()`.
+6. **Heartbeat & Interface.** `core/heartbeat.ts` снимает метрики (storage size, pending resonance, decisions, active runtime) и пишет их в сторадж; `interface/apiServer.ts` отдаёт `/api/system/health`, `/api/system/heartbeat`, `/api/runtime/state`, `/api/decisions`.
+
+### Circulation Layer (Iteration 4)
+1. **Circulation pump.** `circulation/pump.ts` подписывается на `storage.onEdgeEventSaved` и `resonance.onDecision`, гарантируя, что каждое `EdgeEvent` проходит Awareness → Runtime → Heartbeat без потерь.
+2. **Metrics & history.** `circulation/circulationEngine.ts` вычисляет скорость потока, «температуру» resonance, давление сигналов, насыщенность и деградацию («oretic loss») и синхронизирует их с `HeartbeatService`.
+3. **Observation.** Интерфейсный слой получил `GET /api/system/circulation`, а `HeartbeatState` теперь содержит `circulation` блок — операторы видят температуру резонанса, пульс (compression/expansion) и давление потока в реальном времени.
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|
