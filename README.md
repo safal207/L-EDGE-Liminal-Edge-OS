@@ -93,5 +93,60 @@
 
 ---
 
+## Iteration 1 — Physical Scaffolding
+
+В репозитории развёрнут семиуровневый каркас LIMINAL OS:
+
+- `core/` — общие типы (`EdgeEvent`, `RuntimeEvent`, `PolicyDecision`), константы и `systemContext`.
+- `edge/` — SomaSeed gateway на Express с `/health` и `/echo`, который формирует события и пишет их через `EdgeEventSink`.
+- `transport/` — контракты L-THREAD / LTP и mock `LtpClient`.
+- `runtime/` — адаптер к GardenLiminal с in-memory состоянием процессов.
+- `storage/` — интерфейс к LiminalBD, схема `SCHEMA.md` и in-memory сторадж.
+- `resonance/`, `awareness/` — мосты к SOMA и DAO_lim с логирующими заглушками.
+- `interface/` — backend для LRI c `/api/edge/events` и `/api/system/health`.
+
+## Iteration 2 — Event Flow Activation
+
+Вторая итерация добавляет «пульс» организма:
+
+- Событие `/echo` превращается в `EdgeEvent`, попадает в `storage/`, буфер `resonance/`, затем в `awareness/` и `runtime/`.
+- `MockResonanceEngine` батчит события и генерирует фиктивные `PolicyDecision`, которые Awareness переводит в сигналы запуск/обновление/стоп процессов.
+- `runtime/` ведёт реестр процессов и отдаёт сводку через `getSystemState()`.
+- `core/heartbeat.ts` собирает состояние всех слоёв каждые 2 секунды и пишет «пульс» в сторадж.
+- `interface/apiServer.ts` расширен эндпоинтами `/api/decisions`, `/api/runtime/state`, `/api/system/heartbeat`, `/api/resonance/state`.
+
+### Локальный запуск / наблюдение
+
+```bash
+npm install
+npm run dev           # запускает edge + interface в одном процессе (порты 4000 и 4100)
+# опционально: npm run dev:edge / npm run dev:interface для отдельных процессов
+```
+
+- Проверка типизации: `npm run check`
+- Юнит-тест стораджа: `npm run test`
+
+### How to observe live event flow
+
+1. Отправь событие:
+   ```bash
+   curl -XPOST http://localhost:4000/echo -H 'content-type: application/json' -d '{"hello":"liminal"}'
+   ```
+2. Посмотри текущее здоровье организма:
+   ```bash
+   curl http://localhost:4100/api/system/health | jq
+   ```
+3. Сними последние события/решения/пульс:
+   ```bash
+   curl 'http://localhost:4100/api/edge/events?limit=5'
+   curl 'http://localhost:4100/api/decisions?limit=5'
+   curl 'http://localhost:4100/api/system/heartbeat?limit=5'
+   curl http://localhost:4100/api/runtime/state
+   ```
+
+`/api/system/health` теперь показывает сводку: состояние edge, размер хранилища событий, очередь resonance, количество решений и активных процессов.
+
+---
+
 ## 🤝 Лицензия
 Проект распространяется под лицензией MIT. См. [LICENSE](LICENSE).
