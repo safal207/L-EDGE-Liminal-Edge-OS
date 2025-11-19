@@ -57,6 +57,23 @@ flowchart TD
 2. **Resonance loop:** LiminalBD feeds SOMA → SOMA issues policies via LTP → Garden orchestrates pods → pods emit runtime events back to LiminalBD.
 3. **Operator loop:** LRI consumes telemetry + policies → surfaces human input → SOMA adjusts decisions → DAO_lim updates routing/guarding.
 
+### Physical repository mapping
+
+Iteration 1 добавляет каркас директории для каждого слоя:
+
+| Layer | Directory | Key files |
+| ----- | --------- | --------- |
+| Core contracts | `core/` | `types.ts`, `constants.ts` — базовые идентификаторы, события, LTP-конверт |
+| Edge SomaSeed | `edge/` | `edgeService.ts`, `edgeEventSink.ts` — HTTP `/health`, `/echo`, передача `EdgeEvent` в storage |
+| Transport | `transport/` | `ltpClient.ts` — `LtpClient` интерфейс и in-memory реализация |
+| Runtime adapters | `runtime/` | `runtimeAdapter.ts` — mock-интеграция с GardenLiminal |
+| Storage | `storage/` | `storage.ts`, `mockStorage.ts`, `SCHEMA.md` — интерфейс к LiminalBD |
+| Resonance | `resonance/` | `resonanceEngine.ts` — мост к SOMA и генерация `PolicyDecision` |
+| Awareness | `awareness/` | `awarenessGateway.ts` — контракты DAO_lim |
+| Interface | `interface/` | `apiServer.ts` — backend для LRI `/api/edge/events`, `/api/system/health` |
+
+Каждый каталог содержит README с дальнейшими шагами по интеграции с соответствующими внешними репозиториями (LiminalBD, DAO_lim, SOMA, GardenLiminal, L-THREAD, LRI).
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|

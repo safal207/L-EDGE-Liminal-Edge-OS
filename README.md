@@ -93,5 +93,29 @@
 
 ---
 
+## Iteration 1 — Physical Scaffolding
+
+В репозитории развёрнут семиуровневый каркас LIMINAL OS:
+
+- `core/` — общие типы (`EdgeEvent`, `RuntimeEvent`, `PolicyDecision`) и константы шины.
+- `edge/` — SomaSeed gateway на Express с `/health` и `/echo`, который формирует события и пишет их через `EdgeEventSink`.
+- `transport/` — контракты L-THREAD / LTP и mock `LtpClient`.
+- `runtime/` — адаптер к GardenLiminal с in-memory состоянием процессов.
+- `storage/` — интерфейс к LiminalBD, схема `SCHEMA.md` и in-memory сторадж.
+- `resonance/`, `awareness/` — мосты к SOMA и DAO_lim с логирующими заглушками.
+- `interface/` — backend для LRI c `/api/edge/events` и `/api/system/health`.
+
+### Локальный запуск
+
+```bash
+npm install
+npm run dev:edge      # запускает SomaSeed gateway на :4000
+npm run dev:interface # запускает backend LRI на :4100
+```
+
+Проверка типизации: `npm run check`.
+
+---
+
 ## 🤝 Лицензия
 Проект распространяется под лицензией MIT. См. [LICENSE](LICENSE).
