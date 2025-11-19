@@ -11,6 +11,7 @@ import { HomeostasisManager } from './homeostasisManager';
 import { HeartbeatState } from './types';
 import { ReflexEngine } from '../reflex/reflexEngine';
 import { PerceptionEngine } from '../perception/perceptionEngine';
+import { MemoryEngine } from '../memory/memoryEngine';
 import { v4 as uuidv4 } from 'uuid';
 
 const storage = createInMemoryLiminalStorage();
@@ -30,6 +31,7 @@ const pump = new CirculationPump({ storage, resonance, awareness, runtime });
 const transmutation = new TransmutationEngine({ storage, pump });
 const sleep = new SleepCycle({ storage, transmutation });
 const perception = new PerceptionEngine();
+const memory = new MemoryEngine();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 
@@ -49,6 +51,17 @@ heartbeat.onBeat((beat) => {
   homeostasis.tick();
   const homeostasisState = homeostasis.getState();
   const perceptionSnapshot = perception.getSnapshot();
+  const circulationSnapshot = circulation.getLatestSnapshot();
+
+  if (circulationSnapshot) {
+    memory.remember({
+      source: 'circulation',
+      type: 'circulation.loop',
+      ts: Date.now(),
+      intensity: Math.min(1, circulationSnapshot.pressure / 150),
+      payload: circulationSnapshot,
+    });
+  }
 
   if (homeostasisState.loadLevel === 'high' || homeostasisState.loadLevel === 'critical') {
     reflex.ingestEvent({
@@ -57,6 +70,14 @@ heartbeat.onBeat((beat) => {
       source: 'homeostasis',
       kind: homeostasisState.loadLevel === 'critical' ? 'stress.critical' : 'stress.high',
       details: { stressScore: homeostasisState.stressScore },
+    });
+
+    memory.remember({
+      source: 'homeostasis',
+      type: homeostasisState.loadLevel === 'critical' ? 'stress.critical' : 'stress.high',
+      ts: Date.now(),
+      intensity: homeostasisState.stressScore,
+      payload: homeostasisState,
     });
   }
 
@@ -68,9 +89,34 @@ heartbeat.onBeat((beat) => {
       kind: perceptionSnapshot.status === 'critical' ? 'perception.critical' : 'perception.degraded',
       details: perceptionSnapshot,
     });
+
+    memory.remember({
+      source: 'perception',
+      type: perceptionSnapshot.status === 'critical' ? 'perception.critical' : 'perception.degraded',
+      ts: Date.now(),
+      intensity: perceptionSnapshot.noiseLevel,
+      payload: perceptionSnapshot,
+    });
   }
 
+  const actionsBefore = reflex.getState().lastActions.length;
   reflex.evaluate(homeostasisState);
+  const actionsAfter = reflex.getState().lastActions.length;
+
+  if (actionsAfter > actionsBefore) {
+    const action = reflex.getState().lastActions.at(-1);
+    if (action) {
+      memory.remember({
+        source: 'reflex',
+        type: `reflex.${action.severity}`,
+        ts: action.ts,
+        intensity: action.severity === 'critical' ? 1 : 0.75,
+        payload: action,
+      });
+    }
+  }
+
+  memory.decay();
 });
 
 heartbeat.onBeat((beat) => {
@@ -85,6 +131,25 @@ heartbeat.onBeat((beat) => {
       edgeStatus: beat.edgeStatus,
     },
   });
+
+  memory.remember({
+    source: 'heartbeat',
+    type: 'heartbeat.snapshot',
+    ts: Date.now(),
+    intensity: Math.min(1, beat.runtimeActive / 20),
+    payload: beat,
+  });
+});
+
+sleep.on('cycle', (metrics) => {
+  memory.remember({
+    source: 'sleep',
+    type: 'sleep.cycle',
+    ts: metrics.lastSleep,
+    intensity: Math.min(1, metrics.noiseCleared / 10),
+    payload: metrics,
+  });
+  memory.consolidate();
 });
 
 sleep.start();
@@ -92,4 +157,17 @@ circulation.start();
 heartbeat.start();
 homeostasis.tick();
 
-export { storage, runtime, awareness, resonance, heartbeat, circulation, transmutation, sleep, homeostasis, reflex, perception };
+export {
+  storage,
+  runtime,
+  awareness,
+  resonance,
+  heartbeat,
+  circulation,
+  transmutation,
+  sleep,
+  homeostasis,
+  reflex,
+  perception,
+  memory,
+};

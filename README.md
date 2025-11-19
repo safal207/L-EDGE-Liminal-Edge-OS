@@ -29,6 +29,9 @@
 7. **Transmutation Layer** — фильтрует шум/энтропию, переосмысляет состояние и возвращает очищенный контекст в цикл.
 8. **Sleep Cycle Layer** — ночной режим организма: консолидация памяти, чистка шума, dream-sandbox для реконфигурации связей.
 9. **Homeostasis Layer** — центральный регулятор, вычисляет стресс системы и даёт рекомендации по очистке/замедлению/сну.
+10. **Reflex / Nervous Layer** — быстрые защитные реакции при высоком стрессе, рекомендации по торможению и усилению очистки.
+11. **Perception / Sensorium Layer** — принимает внешние/внутренние сигналы, нормализует их и даёт снимок восприятия.
+12. **Memory Layer** — краткосрочная и долговременная память, перенос опыта через циклы сна/стресса.
 
 ---
 
@@ -147,6 +150,8 @@ npm run dev           # запускает edge + interface в одном про
    curl 'http://localhost:4100/api/system/heartbeat?limit=5'
    curl 'http://localhost:4100/api/system/circulation?limit=5'
    curl http://localhost:4100/api/system/transmutation
+   curl http://localhost:4100/api/system/perception
+   curl http://localhost:4100/api/system/memory
    curl http://localhost:4100/api/system/homeostasis
    curl http://localhost:4100/api/system/sleep/state
    curl http://localhost:4100/api/runtime/state
@@ -188,6 +193,12 @@ npm run dev           # запускает edge + interface в одном про
 - Новый модуль `perception/` принимает внешние и системные сигналы, фильтрует шум, выделяет аномалии и собирает нормализованный `perception snapshot`.
 - Состояние восприятия передаётся в homeostasis и reflex, доступно через `GET /api/system/perception`, можно отправить сигнал через `POST /api/system/perception/signal`, а `/api/system/health` дополняется блоком perception.
 - Полная петля организма теперь чувствует внешний мир перед пульсом: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Awareness**.
+
+## Iteration 11 — Memory Layer (Short-term / Long-term)
+
+- Модуль `memory/` добавляет связку `shortTermMemory` + `longTermMemory` с автоматическим decay и консолидацией во время `sleepCycle`.
+- Новый `MemoryEngine` принимает события от циркуляции, homeostasis/reflex и сна, агрегирует их в снимки и даёт recall через API (`GET /api/system/memory`, `/short`, `/long`, `POST /api/system/memory/recall`).
+- `/api/system/health`, `/api/system/homeostasis` и `/api/system/reflex` показывают сводку памяти, а цикл дополняется памятью: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Memory → Awareness**.
 
 ---
 

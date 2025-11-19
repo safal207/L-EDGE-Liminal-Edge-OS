@@ -10,6 +10,7 @@ import {
   homeostasis,
   reflex,
   perception,
+  memory,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -32,6 +33,7 @@ export const createInterfaceApp = () => {
     const homeostasisState = homeostasis.getState();
     const reflexState = reflex.getState();
     const perceptionSnapshot = perception.getSnapshot();
+    const memoryState = memory.getState();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -39,6 +41,12 @@ export const createInterfaceApp = () => {
         signalLevel: perceptionSnapshot.signalLevel,
         anomalies: perceptionSnapshot.anomalies,
         status: perceptionSnapshot.status,
+      },
+      memory: {
+        shortTerm: memoryState.shortTerm.length,
+        longTerm: memoryState.longTerm.length,
+        lastConsolidatedAt: memoryState.lastConsolidatedAt,
+        status: memoryState.status,
       },
       transmutation: {
         lastMutation: transmutationMetrics.lastMutation,
@@ -73,6 +81,7 @@ export const createInterfaceApp = () => {
         awareness: { decisions: beat.awarenessDecisions },
         runtime: { active: beat.runtimeActive },
         perception: beat.perception,
+        memory: beat.memory,
         circulation: circulationState,
         transmutation: beat.transmutation,
         sleep: beat.sleep,
@@ -131,11 +140,29 @@ export const createInterfaceApp = () => {
   });
 
   app.get('/api/system/homeostasis', (_req, res) => {
-    res.json({ homeostasis: homeostasis.getState(), perception: perception.getSnapshot() });
+    res.json({ homeostasis: homeostasis.getState(), perception: perception.getSnapshot(), memory: memory.getState() });
   });
 
   app.get('/api/system/reflex', (_req, res) => {
-    res.json({ ...reflex.getState(), perception: perception.getSnapshot() });
+    res.json({ ...reflex.getState(), perception: perception.getSnapshot(), memory: memory.getState() });
+  });
+
+  app.get('/api/system/memory', (_req, res) => {
+    res.json(memory.getState());
+  });
+
+  app.get('/api/system/memory/short', (_req, res) => {
+    res.json({ events: memory.getState().shortTerm });
+  });
+
+  app.get('/api/system/memory/long', (_req, res) => {
+    res.json({ snapshots: memory.getState().longTerm });
+  });
+
+  app.post('/api/system/memory/recall', (req, res) => {
+    const criteria = typeof req.body === 'object' && req.body ? req.body : {};
+    const result = memory.recall(criteria);
+    res.json(result);
   });
 
   app.get('/api/system/perception', (_req, res) => {

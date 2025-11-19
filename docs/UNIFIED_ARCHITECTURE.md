@@ -109,6 +109,12 @@ Iteration 1 добавляет каркас директории для кажд
 2. **API.** Доступно `GET /api/system/reflex`, а `/api/system/health` показывает краткую сводку по последнему рефлексу (severity/reason/count).
 3. **Цикл с нервной системой.** Обновлённый контур: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Edge**.
 
+### Memory Layer (Iteration 11)
+1. **Short/long-term fabric.** Каталог `memory/` держит short-term события (bounded history с decay) и консолидирует их в long-term snapshots через `memoryEngine`.
+2. **Integration points.** Memory слушает циркуляцию, восприятие, homeostasis/reflex и циклы сна; консолидация триггерится `sleepCycle`, а новые события добавляются из heartbeat/perception/reflex.
+3. **API.** Наблюдаемость через `GET /api/system/memory`, `/short`, `/long`, а `POST /api/system/memory/recall` ищет по критериям (source/type/текст).
+4. **Lifecycle position.** Полный цикл включает память: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Memory → Awareness**.
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|
@@ -128,7 +134,7 @@ Iteration 1 добавляет каркас директории для кажд
 5. **Resonance Decisioning:** SOMA queries LiminalBD (e.g., `SELECT * FROM traffic_events WHERE anomaly_score > 0.7`) to detect resonances, runs council deliberations (Pythia, Architect, Morpheus) and emits new policies (e.g., "quarantine path /login").
 6. **Runtime Execution:** Policies published over LTP target Garden pods or direct L-EDGE cells. Garden updates pods, applies security pacts, logs runtime_events back to LiminalBD.
 7. **Operator Feedback:** LRI subscribes to telemetry (`/ws/resonance`) plus SOMA policy bus, renders flows/anomalies/decisions. Operator adjustments (e.g., "boost node_eu-west latency weight") go through LRI → SOMA → DAO_lim.
-8. **Transmutation & Sleep:** После циркуляции очищенные состояния попадают в Transmutation Layer (entropy drop + signal tagging), а затем Sleep Cycle консолидирует память и очищает шум. Обновлённый контекст возвращается в Edge как свежие параметры для следующего витка событий.
+8. **Perception → Transmutation → Sleep → Memory:** После восприятия и циркуляции очищенные состояния попадают в Transmutation Layer (entropy drop + signal tagging), затем Sleep Cycle консолидирует и очищает шум, а Memory переносит свежие события в long-term snapshots. Обновлённый контекст и память возвращаются в Awareness/Edge как топливо для следующего витка событий.
 
 ## 4. Storage Model — LiminalBD
 ### Core Entities
