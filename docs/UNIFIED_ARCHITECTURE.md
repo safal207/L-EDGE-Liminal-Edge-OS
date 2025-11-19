@@ -88,6 +88,16 @@ Iteration 1 добавляет каркас директории для кажд
 2. **Metrics & history.** `circulation/circulationEngine.ts` вычисляет скорость потока, «температуру» resonance, давление сигналов, насыщенность и деградацию («oretic loss») и синхронизирует их с `HeartbeatService`.
 3. **Observation.** Интерфейсный слой получил `GET /api/system/circulation`, а `HeartbeatState` теперь содержит `circulation` блок — операторы видят температуру резонанса, пульс (compression/expansion) и давление потока в реальном времени.
 
+### Transmutation & Sleep Layers (Iteration 7)
+1. **Transmutation Layer.** Орган в `transmutation/` слушает те же циркуляционные петли, прогоняет события через `entropyCleaner → signalSeparator → stateMutator` и возвращает очищенное состояние в `systemContext`. Метрики доступны на `GET /api/system/transmutation`.
+2. **Sleep Cycle Layer.** Каталог `sleep/` добавляет консолидацию памяти и dream-sandbox. Цикл запускается вручную (`POST /api/system/sleep`) или автоматически через `SleepScheduler`, а состояние можно прочитать по `GET /api/system/sleep/state`.
+3. **Расширенный heartbeat.** `/api/system/health` теперь содержит блоки `transmutation` (lastMutation/purified/entropy/signal) и `sleep` (lastSleep/noiseCleared). Цикл организма завершён: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Edge**.
+
+### Homeostasis Layer (Iteration 8)
+1. **Homeostasis Manager.** Новый модуль в `core/homeostasisManager.ts` собирает heartbeat/circulation/storage/transmutation/sleep метрики, вычисляет `stressScore` и выставляет рекомендации по очистке, сну и торможению Edge.
+2. **API.** Доступно `GET /api/system/homeostasis`, а `/api/system/health` теперь содержит секцию `homeostasis` с `stressScore` и `loadLevel`.
+3. **Регулятор в цикле.** Главная петля теперь наблюдается и корректируется: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Edge**.
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|
@@ -107,6 +117,7 @@ Iteration 1 добавляет каркас директории для кажд
 5. **Resonance Decisioning:** SOMA queries LiminalBD (e.g., `SELECT * FROM traffic_events WHERE anomaly_score > 0.7`) to detect resonances, runs council deliberations (Pythia, Architect, Morpheus) and emits new policies (e.g., "quarantine path /login").
 6. **Runtime Execution:** Policies published over LTP target Garden pods or direct L-EDGE cells. Garden updates pods, applies security pacts, logs runtime_events back to LiminalBD.
 7. **Operator Feedback:** LRI subscribes to telemetry (`/ws/resonance`) plus SOMA policy bus, renders flows/anomalies/decisions. Operator adjustments (e.g., "boost node_eu-west latency weight") go through LRI → SOMA → DAO_lim.
+8. **Transmutation & Sleep:** После циркуляции очищенные состояния попадают в Transmutation Layer (entropy drop + signal tagging), а затем Sleep Cycle консолидирует память и очищает шум. Обновлённый контекст возвращается в Edge как свежие параметры для следующего витка событий.
 
 ## 4. Storage Model — LiminalBD
 ### Core Entities
