@@ -157,6 +157,7 @@ export interface HeartbeatState {
   sleep?: HeartbeatSleep;
   homeostasis?: HeartbeatHomeostasis;
   reflex?: HeartbeatReflex;
+  perception?: HeartbeatPerception;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -199,4 +200,11 @@ export interface HeartbeatReflex {
   lastActionSeverity: string | null;
   lastActionReason?: string;
   actionsCount: number;
+}
+
+export interface HeartbeatPerception {
+  noiseLevel: number;
+  signalLevel: number;
+  anomalies: number;
+  status: string;
 }

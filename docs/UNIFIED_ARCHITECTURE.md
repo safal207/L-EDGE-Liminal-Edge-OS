@@ -98,6 +98,12 @@ Iteration 1 добавляет каркас директории для кажд
 2. **API.** Доступно `GET /api/system/homeostasis`, а `/api/system/health` теперь содержит секцию `homeostasis` с `stressScore` и `loadLevel`.
 3. **Регулятор в цикле.** Главная петля теперь наблюдается и корректируется: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Edge**.
 
+### Perception / Sensorium Layer (Iteration 10)
+1. **Signal ingestion.** Новый орган в `perception/` принимает системные и внешние сигналы (telemetry/alert/anomaly/noise) и поддерживает историю в нормализованном формате.
+2. **Noise filtering.** `perceptionEngine.ts` фильтрует шум, выделяет аномалии, считает уровень сигнала/шума и публикует срез состояния со статусом `ok|noisy|degraded|critical`.
+3. **Integration.** Snapshot прокидывается в homeostasis и reflex, доступен через `/api/system/perception` и `POST /api/system/perception/signal`, а резюме выводится в `/api/system/health`.
+4. **Lifecycle position.** Полный виток теперь: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Awareness**.
+
 ### Reflex / Nervous System Layer (Iteration 9)
 1. **ReflexEngine.** Модуль в `reflex/` агрегирует сигналы (homeostasis стресс, runtime/circulation события), держит историю событий/действий и выдаёт быстрые рекомендации.
 2. **API.** Доступно `GET /api/system/reflex`, а `/api/system/health` показывает краткую сводку по последнему рефлексу (severity/reason/count).

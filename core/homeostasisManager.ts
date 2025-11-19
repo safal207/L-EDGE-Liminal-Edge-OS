@@ -2,6 +2,7 @@ import { EDGE_EVENT_LIMIT } from './constants';
 import { CirculationSnapshot, HeartbeatState } from './types';
 import { SleepMetrics } from '../sleep/sleepCycle';
 import { TransmutationMetrics } from '../transmutation/contracts';
+import { PerceptionSnapshot } from '../perception/types';
 
 export interface StorageMetrics {
   size: number;
@@ -30,6 +31,7 @@ interface HomeostasisDeps {
   getStorageMetrics: () => StorageMetrics;
   getTransmutationMetrics: () => TransmutationMetrics;
   getSleepMetrics: () => SleepMetrics;
+  getPerceptionMetrics: () => PerceptionSnapshot;
 }
 
 export class HomeostasisManager {
@@ -56,8 +58,9 @@ export class HomeostasisManager {
     const storage = this.deps.getStorageMetrics();
     const transmutation = this.deps.getTransmutationMetrics();
     const sleep = this.deps.getSleepMetrics();
+    const perception = this.deps.getPerceptionMetrics();
 
-    const stressScore = this.computeStress({ heartbeat, circulation, storage, transmutation, sleep });
+    const stressScore = this.computeStress({ heartbeat, circulation, storage, transmutation, sleep, perception });
     const loadLevel = this.resolveLoadLevel(stressScore);
     const recommendations = this.resolveRecommendations(stressScore);
 
@@ -75,6 +78,7 @@ export class HomeostasisManager {
     storage: StorageMetrics;
     transmutation: TransmutationMetrics;
     sleep: SleepMetrics;
+    perception: PerceptionSnapshot;
   }): number {
     const storagePressure = clamp(params.storage.size / EDGE_EVENT_LIMIT);
     const resonanceLoad = clamp((params.heartbeat?.resonancePending ?? 0) / 20);
@@ -85,14 +89,18 @@ export class HomeostasisManager {
         (params.transmutation.purifiedEvents + params.transmutation.discardedEntropy + 1)
     );
     const sleepDebt = this.computeSleepDebt(params.sleep.lastSleep);
+    const perceptionNoise = clamp(params.perception.noiseLevel);
+    const perceptionAnomalies = clamp(params.perception.anomalies / 10);
 
     const stressScore =
-      storagePressure * 0.25 +
-      resonanceLoad * 0.2 +
-      runtimeLoad * 0.15 +
-      circulationPressure * 0.15 +
-      entropyLoad * 0.15 +
-      sleepDebt * 0.1;
+      storagePressure * 0.2 +
+      resonanceLoad * 0.15 +
+      runtimeLoad * 0.1 +
+      circulationPressure * 0.1 +
+      entropyLoad * 0.1 +
+      sleepDebt * 0.1 +
+      perceptionNoise * 0.15 +
+      perceptionAnomalies * 0.1;
 
     return clamp(stressScore);
   }

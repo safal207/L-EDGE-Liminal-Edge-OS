@@ -1,5 +1,6 @@
 import assert from 'assert';
 import { HomeostasisManager, HomeostasisState } from '../../core/homeostasisManager';
+import { PerceptionStatus } from '../../perception/types';
 import { CirculationSnapshot } from '../../core/types';
 
 const now = Date.now();
@@ -42,6 +43,14 @@ const defaultDeps = () => ({
     dreamIterations: 2,
     noiseCleared: 1,
   }),
+  getPerceptionMetrics: () => ({
+    noiseLevel: 0.1,
+    signalLevel: 0.6,
+    anomalies: 0,
+    signalsProcessed: 3,
+    status: 'ok' as PerceptionStatus,
+    lastUpdated: now,
+  }),
 });
 
 const assertLevel = (state: HomeostasisState, expected: HomeostasisState['loadLevel']) => {
@@ -63,12 +72,12 @@ async function run() {
   const heavy = makeManager({
     getHeartbeatMetrics: () => ({
       edgeStatus: 'hot',
-      storageSize: 260,
-      resonancePending: 15,
-      runtimeActive: 10,
+      storageSize: 280,
+      resonancePending: 18,
+      runtimeActive: 12,
     }),
-    getCirculationMetrics: () => ({ ...baseCirculation, pressure: 90, resonanceTemperature: 90 }),
-    getStorageMetrics: () => ({ size: 260 }),
+    getCirculationMetrics: () => ({ ...baseCirculation, pressure: 110, resonanceTemperature: 95 }),
+    getStorageMetrics: () => ({ size: 280 }),
     getTransmutationMetrics: () => ({
       lastMutation: now,
       purifiedEvents: 5,
@@ -80,6 +89,14 @@ async function run() {
       consolidationEvents: 3,
       dreamIterations: 4,
       noiseCleared: 2,
+    }),
+    getPerceptionMetrics: () => ({
+      noiseLevel: 0.6,
+      signalLevel: 0.8,
+      anomalies: 3,
+      signalsProcessed: 10,
+      status: 'degraded' as PerceptionStatus,
+      lastUpdated: now,
     }),
   });
   heavy.tick();
@@ -110,6 +127,14 @@ async function run() {
       consolidationEvents: 4,
       dreamIterations: 5,
       noiseCleared: 3,
+    }),
+    getPerceptionMetrics: () => ({
+      noiseLevel: 0.9,
+      signalLevel: 0.9,
+      anomalies: 8,
+      signalsProcessed: 16,
+      status: 'critical' as PerceptionStatus,
+      lastUpdated: now,
     }),
   });
   critical.tick();

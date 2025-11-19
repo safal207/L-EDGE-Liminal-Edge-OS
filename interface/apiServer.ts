@@ -1,5 +1,16 @@
 import express from 'express';
-import { heartbeat, resonance, runtime, storage, circulation, transmutation, sleep, homeostasis, reflex } from '../core/systemContext';
+import {
+  heartbeat,
+  resonance,
+  runtime,
+  storage,
+  circulation,
+  transmutation,
+  sleep,
+  homeostasis,
+  reflex,
+  perception,
+} from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
 
@@ -13,14 +24,22 @@ const parseLimit = (value: unknown, fallback: number, max: number): number => {
 
 export const createInterfaceApp = () => {
   const app = express();
+  app.use(express.json());
 
   app.get('/api/system/health', async (_req, res) => {
     const transmutationMetrics = transmutation.getMetrics();
     const sleepState = sleep.getState();
     const homeostasisState = homeostasis.getState();
     const reflexState = reflex.getState();
+    const perceptionSnapshot = perception.getSnapshot();
     const beat = await heartbeat.capture((state) => ({
       ...state,
+      perception: {
+        noiseLevel: perceptionSnapshot.noiseLevel,
+        signalLevel: perceptionSnapshot.signalLevel,
+        anomalies: perceptionSnapshot.anomalies,
+        status: perceptionSnapshot.status,
+      },
       transmutation: {
         lastMutation: transmutationMetrics.lastMutation,
         purified: transmutationMetrics.purifiedEvents,
@@ -53,6 +72,7 @@ export const createInterfaceApp = () => {
         resonance: { pending: beat.resonancePending, decisions: beat.decisionsGenerated },
         awareness: { decisions: beat.awarenessDecisions },
         runtime: { active: beat.runtimeActive },
+        perception: beat.perception,
         circulation: circulationState,
         transmutation: beat.transmutation,
         sleep: beat.sleep,
@@ -111,11 +131,25 @@ export const createInterfaceApp = () => {
   });
 
   app.get('/api/system/homeostasis', (_req, res) => {
-    res.json(homeostasis.getState());
+    res.json({ homeostasis: homeostasis.getState(), perception: perception.getSnapshot() });
   });
 
   app.get('/api/system/reflex', (_req, res) => {
-    res.json(reflex.getState());
+    res.json({ ...reflex.getState(), perception: perception.getSnapshot() });
+  });
+
+  app.get('/api/system/perception', (_req, res) => {
+    res.json(perception.getSnapshot());
+  });
+
+  app.post('/api/system/perception/signal', (req, res) => {
+    const { source, type, intensity, payload } = req.body ?? {};
+    if (typeof source !== 'string' || typeof type !== 'string' || typeof intensity !== 'number') {
+      res.status(400).json({ error: 'source, type and intensity are required' });
+      return;
+    }
+    perception.ingestSignal({ source, type, intensity, payload, ts: Date.now() });
+    res.json({ status: 'accepted' });
   });
 
   app.post('/api/system/sleep', async (_req, res) => {
