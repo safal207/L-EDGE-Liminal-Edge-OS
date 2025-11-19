@@ -93,6 +93,11 @@ Iteration 1 добавляет каркас директории для кажд
 2. **Sleep Cycle Layer.** Каталог `sleep/` добавляет консолидацию памяти и dream-sandbox. Цикл запускается вручную (`POST /api/system/sleep`) или автоматически через `SleepScheduler`, а состояние можно прочитать по `GET /api/system/sleep/state`.
 3. **Расширенный heartbeat.** `/api/system/health` теперь содержит блоки `transmutation` (lastMutation/purified/entropy/signal) и `sleep` (lastSleep/noiseCleared). Цикл организма завершён: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Edge**.
 
+### Homeostasis Layer (Iteration 8)
+1. **Homeostasis Manager.** Новый модуль в `core/homeostasisManager.ts` собирает heartbeat/circulation/storage/transmutation/sleep метрики, вычисляет `stressScore` и выставляет рекомендации по очистке, сну и торможению Edge.
+2. **API.** Доступно `GET /api/system/homeostasis`, а `/api/system/health` теперь содержит секцию `homeostasis` с `stressScore` и `loadLevel`.
+3. **Регулятор в цикле.** Главная петля теперь наблюдается и корректируется: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Edge**.
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|

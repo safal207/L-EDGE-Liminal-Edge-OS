@@ -12,11 +12,12 @@
     "dev:interface": "ts-node interface/apiServer.ts",
     "build": "tsc -p tsconfig.json",
     "check": "tsc --noEmit",
-    "test": "npm-run-all --serial test:storage test:circulation test:transmutation test:sleep",
+    "test": "npm-run-all --serial test:storage test:circulation test:transmutation test:sleep test:homeostasis",
     "test:storage": "ts-node tests/mockStorage.test.ts",
     "test:circulation": "ts-node tests/circulation.test.ts",
     "test:transmutation": "ts-node transmutation/tests/transmutationEngine.test.ts",
-    "test:sleep": "ts-node sleep/tests/sleepCycle.test.ts"
+    "test:sleep": "ts-node sleep/tests/sleepCycle.test.ts",
+    "test:homeostasis": "ts-node tests/homeostasis/homeostasisManager.test.ts"
   },
   "keywords": [],
   "author": "",

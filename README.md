@@ -28,6 +28,7 @@
 6. **Liminal Worker Cells** — мигрирующие воркеры; локальное мышление на клетках.
 7. **Transmutation Layer** — фильтрует шум/энтропию, переосмысляет состояние и возвращает очищенный контекст в цикл.
 8. **Sleep Cycle Layer** — ночной режим организма: консолидация памяти, чистка шума, dream-sandbox для реконфигурации связей.
+9. **Homeostasis Layer** — центральный регулятор, вычисляет стресс системы и даёт рекомендации по очистке/замедлению/сну.
 
 ---
 
@@ -146,6 +147,7 @@ npm run dev           # запускает edge + interface в одном про
    curl 'http://localhost:4100/api/system/heartbeat?limit=5'
    curl 'http://localhost:4100/api/system/circulation?limit=5'
    curl http://localhost:4100/api/system/transmutation
+   curl http://localhost:4100/api/system/homeostasis
    curl http://localhost:4100/api/system/sleep/state
    curl http://localhost:4100/api/runtime/state
    ```
@@ -168,6 +170,12 @@ npm run dev           # запускает edge + interface в одном про
 - **Transmutation Engine** слушает циркуляционные петли, использует связку `entropyCleaner → signalSeparator → stateMutator`, чтобы превратить события в очищенное состояние (`GET /api/system/transmutation`).
 - **Sleep Cycle** консолидирует память, запускает dream-итерации и восстанавливает энергию, доступно через `POST /api/system/sleep` и `GET /api/system/sleep/state`.
 - `/api/system/health` теперь содержит блоки `transmutation` и `sleep`, а единый цикл завершает петлю **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Edge**.
+
+## Iteration 8 — Homeostasis Controller
+
+- **Homeostasis Manager** собирает метрики heartbeat/circulation/storage/transmutation/sleep, вычисляет `stressScore` и формирует рекомендации — усилить очистку, вызвать сон, притормозить Edge.
+- Новый эндпоинт `GET /api/system/homeostasis` отдаёт текущее состояние гомеостаза, а `/api/system/health` включает секцию `homeostasis`.
+- Расширенная петля теперь осмысляется и регулируется: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Edge**.
 
 ---
 
