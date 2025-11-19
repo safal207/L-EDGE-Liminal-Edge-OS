@@ -71,6 +71,7 @@ Iteration 1 добавляет каркас директории для кажд
 | Resonance | `resonance/` | `resonanceEngine.ts` — мост к SOMA, буфер событий, генерация `PolicyDecision` |
 | Awareness | `awareness/` | `awarenessGateway.ts` — контракты DAO_lim, перевод PolicyDecision → Runtime signals |
 | Interface | `interface/` | `apiServer.ts`, `services/devCluster.ts` — backend для LRI `/api/*`, запуск edge+interface |
+| Circulation | `circulation/` | `pump.ts`, `circulationEngine.ts`, `types.ts` — циркуляция событий + расчёт метрик кровотока |
 
 Каждый каталог содержит README с дальнейшими шагами по интеграции с соответствующими внешними репозиториями (LiminalBD, DAO_lim, SOMA, GardenLiminal, L-THREAD, LRI).
 
@@ -81,6 +82,11 @@ Iteration 1 добавляет каркас директории для кажд
 4. **Awareness translation.** `awareness/awarenessGateway.ts` логирует решения, превращает их в `AwarenessSignal` (start/update/stop) и отдаёт в runtime.
 5. **Runtime reaction.** `runtime/runtimeAdapter.ts` обновляет in-memory процессы по ссылке на `targetNode`, сохраняет состояния для `getSystemState()`.
 6. **Heartbeat & Interface.** `core/heartbeat.ts` снимает метрики (storage size, pending resonance, decisions, active runtime) и пишет их в сторадж; `interface/apiServer.ts` отдаёт `/api/system/health`, `/api/system/heartbeat`, `/api/runtime/state`, `/api/decisions`.
+
+### Circulation Layer (Iteration 4)
+1. **Circulation pump.** `circulation/pump.ts` подписывается на `storage.onEdgeEventSaved` и `resonance.onDecision`, гарантируя, что каждое `EdgeEvent` проходит Awareness → Runtime → Heartbeat без потерь.
+2. **Metrics & history.** `circulation/circulationEngine.ts` вычисляет скорость потока, «температуру» resonance, давление сигналов, насыщенность и деградацию («oretic loss») и синхронизирует их с `HeartbeatService`.
+3. **Observation.** Интерфейсный слой получил `GET /api/system/circulation`, а `HeartbeatState` теперь содержит `circulation` блок — операторы видят температуру резонанса, пульс (compression/expansion) и давление потока в реальном времени.
 
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |

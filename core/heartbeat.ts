@@ -3,7 +3,7 @@ import { ResonanceEngine } from '../resonance/resonanceEngine';
 import { RuntimeAdapter } from '../runtime/runtimeAdapter';
 import { LiminalStorage } from '../storage/storage';
 import { HEARTBEAT_INTERVAL_MS } from './constants';
-import { HeartbeatState } from './types';
+import { CirculationSnapshot, HeartbeatState } from './types';
 
 interface HeartbeatDeps {
   storage: LiminalStorage;
@@ -13,6 +13,8 @@ interface HeartbeatDeps {
   edgeStatusProvider?: () => string;
   intervalMs?: number;
 }
+
+type HeartbeatEnricher = (state: HeartbeatState) => HeartbeatState;
 
 export class HeartbeatService {
   private timer?: NodeJS.Timeout;
@@ -38,7 +40,7 @@ export class HeartbeatService {
     this.running = false;
   }
 
-  async capture(): Promise<HeartbeatState> {
+  async capture(enrich?: HeartbeatEnricher): Promise<HeartbeatState> {
     const { storage, resonance, awareness, runtime, edgeStatusProvider } = this.deps;
     const runtimeState = await runtime.getSystemState();
     const heartbeat: HeartbeatState = {
@@ -51,11 +53,23 @@ export class HeartbeatService {
       runtimeActive: runtimeState.running,
     };
 
-    await storage.saveHeartbeat(heartbeat);
-    return heartbeat;
+    const enriched = enrich ? enrich(heartbeat) : heartbeat;
+    await storage.saveHeartbeat(enriched);
+    return enriched;
   }
 
   async getRecent(limit = 20): Promise<HeartbeatState[]> {
     return this.deps.storage.listHeartbeats(limit);
   }
 }
+
+export const toHeartbeatCirculation = (snapshot: CirculationSnapshot | undefined) =>
+  snapshot
+    ? {
+        flowSpeedMs: snapshot.flowSpeedMs,
+        resonanceTemperature: snapshot.resonanceTemperature,
+        pressure: snapshot.pressure,
+        pulsation: snapshot.pulsation,
+        degradationRate: snapshot.degradationRate,
+      }
+    : undefined;

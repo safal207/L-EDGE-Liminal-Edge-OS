@@ -152,4 +152,23 @@ export interface HeartbeatState {
   decisionsGenerated: number;
   awarenessDecisions: number;
   runtimeActive: number;
+  circulation?: HeartbeatCirculation;
+}
+
+export type PulsationPhase = 'compression' | 'expansion';
+
+export interface HeartbeatCirculation {
+  flowSpeedMs: number;
+  resonanceTemperature: number;
+  pressure: number;
+  pulsation: PulsationPhase;
+  degradationRate: number;
+}
+
+export interface CirculationSnapshot extends HeartbeatCirculation {
+  timestamp: string;
+  loopsCompleted: number;
+  saturation: number;
+  direction: string;
+  lastDecisionId?: string;
 }

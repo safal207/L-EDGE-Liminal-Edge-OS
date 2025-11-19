@@ -1,6 +1,7 @@
 import express from 'express';
-import { heartbeat, resonance, runtime, storage } from '../core/systemContext';
+import { heartbeat, resonance, runtime, storage, circulation } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
+import { toHeartbeatCirculation } from '../core/heartbeat';
 
 const parseLimit = (value: unknown, fallback: number, max: number): number => {
   const parsed = Number(value);
@@ -15,6 +16,8 @@ export const createInterfaceApp = () => {
 
   app.get('/api/system/health', async (_req, res) => {
     const beat = await heartbeat.capture();
+    const circulationState =
+      beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
     res.json({
       status: 'ok',
       heartbeat: beat,
@@ -24,6 +27,7 @@ export const createInterfaceApp = () => {
         resonance: { pending: beat.resonancePending, decisions: beat.decisionsGenerated },
         awareness: { decisions: beat.awarenessDecisions },
         runtime: { active: beat.runtimeActive },
+        circulation: circulationState,
       },
     });
   });
@@ -60,6 +64,16 @@ export const createInterfaceApp = () => {
 
   app.get('/api/resonance/state', (_req, res) => {
     res.json({ pending: resonance.getPendingCount(), decisions: resonance.getDecisionCount() });
+  });
+
+  app.get('/api/system/circulation', (req, res) => {
+    const limit = parseLimit(req.query.limit, 10, 50);
+    const history = circulation.listSnapshots(limit);
+    res.json({
+      direction: circulation.getDirection(),
+      latest: history[0] ?? circulation.getLatestSnapshot(),
+      history,
+    });
   });
 
   return app;

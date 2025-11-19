@@ -104,6 +104,7 @@
 - `storage/` — интерфейс к LiminalBD, схема `SCHEMA.md` и in-memory сторадж.
 - `resonance/`, `awareness/` — мосты к SOMA и DAO_lim с логирующими заглушками.
 - `interface/` — backend для LRI c `/api/edge/events` и `/api/system/health`.
+- `circulation/` — движок замкнутого кровотока сигналов и расчёт метрик «пульса».
 
 ## Iteration 2 — Event Flow Activation
 
@@ -141,10 +142,22 @@ npm run dev           # запускает edge + interface в одном про
    curl 'http://localhost:4100/api/edge/events?limit=5'
    curl 'http://localhost:4100/api/decisions?limit=5'
    curl 'http://localhost:4100/api/system/heartbeat?limit=5'
+   curl 'http://localhost:4100/api/system/circulation?limit=5'
    curl http://localhost:4100/api/runtime/state
    ```
 
 `/api/system/health` теперь показывает сводку: состояние edge, размер хранилища событий, очередь resonance, количество решений и активных процессов.
+
+## Iteration 4 — Circulation Layer
+
+Четвёртая итерация оживления добавляет **слой циркуляции** — `circulation/` объединяет все органы в замкнутую петлю:
+
+- `pump.ts` слушает `storage` и `resonance`, прогоняет события через Awareness → Runtime.
+- `circulationEngine.ts` считает скорость потока, давление сигналов, температуру resonance и «пульсацию» (сжатие/расширение).
+- Heartbeat записывает эти метрики, поэтому `/api/system/health` отражает не только размеры очередей, но и характер кровотока.
+- Новый эндпоинт `/api/system/circulation` показывает историю последних пульсов (скорость, температура, давление, направление).
+
+Слои Edge → Storage → Resonance → Awareness → Runtime → Heartbeat образуют настоящую «кровеносную систему», данные возвращаются в Edge через `systemContext`, и L-EDGE становится организмом с ощутимой динамикой.
 
 ---
 

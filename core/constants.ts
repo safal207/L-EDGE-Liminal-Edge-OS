@@ -10,3 +10,4 @@ export const EDGE_EVENT_LIMIT = 300;
 export const POLICY_DECISION_LIMIT = 200;
 export const HEARTBEAT_LIMIT = 200;
 export const HEARTBEAT_INTERVAL_MS = 2000;
+export const CIRCULATION_HISTORY_LIMIT = 50;
