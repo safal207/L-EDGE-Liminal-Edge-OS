@@ -66,3 +66,9 @@
 - Подготовить прототип docker-compose: soma-gateway (Node+Rust), influxdb, pythia, dashboard mock.
 - Сконфигурировать CI: линт Node/Rust, smoke-тест ingress → cache → metrics.
 - Определить формат сигналов для State Bus (JSON/Protobuf) и для Pythia.
+
+## 8. Tech choices snapshot
+- **Data plane:** Node.js (Express) + Rust proxy/agent.
+- **Metrics:** InfluxDB для паттернов и сигналов.
+- **Analysis:** Pythia (Python или Rust) с обратной связью для LG/LFB.
+- **Orchestration:** Docker Compose для MVP → далее Kubernetes/Nomad.
