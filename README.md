@@ -26,6 +26,8 @@
 4. **Liminal CDN Lite** — распределённый кеш на узлах, самоочистка и самообучение.
 5. **Liminal GraphDNS** — графовое DNS; возвращает взвешенную карту ответов для устойчивости.
 6. **Liminal Worker Cells** — мигрирующие воркеры; локальное мышление на клетках.
+7. **Transmutation Layer** — фильтрует шум/энтропию, переосмысляет состояние и возвращает очищенный контекст в цикл.
+8. **Sleep Cycle Layer** — ночной режим организма: консолидация памяти, чистка шума, dream-sandbox для реконфигурации связей.
 
 ---
 
@@ -143,6 +145,8 @@ npm run dev           # запускает edge + interface в одном про
    curl 'http://localhost:4100/api/decisions?limit=5'
    curl 'http://localhost:4100/api/system/heartbeat?limit=5'
    curl 'http://localhost:4100/api/system/circulation?limit=5'
+   curl http://localhost:4100/api/system/transmutation
+   curl http://localhost:4100/api/system/sleep/state
    curl http://localhost:4100/api/runtime/state
    ```
 
@@ -158,6 +162,12 @@ npm run dev           # запускает edge + interface в одном про
 - Новый эндпоинт `/api/system/circulation` показывает историю последних пульсов (скорость, температура, давление, направление).
 
 Слои Edge → Storage → Resonance → Awareness → Runtime → Heartbeat образуют настоящую «кровеносную систему», данные возвращаются в Edge через `systemContext`, и L-EDGE становится организмом с ощутимой динамикой.
+
+## Iteration 7 — Transmutation + Sleep Layers
+
+- **Transmutation Engine** слушает циркуляционные петли, использует связку `entropyCleaner → signalSeparator → stateMutator`, чтобы превратить события в очищенное состояние (`GET /api/system/transmutation`).
+- **Sleep Cycle** консолидирует память, запускает dream-итерации и восстанавливает энергию, доступно через `POST /api/system/sleep` и `GET /api/system/sleep/state`.
+- `/api/system/health` теперь содержит блоки `transmutation` и `sleep`, а единый цикл завершает петлю **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Edge**.
 
 ---
 

@@ -153,6 +153,8 @@ export interface HeartbeatState {
   awarenessDecisions: number;
   runtimeActive: number;
   circulation?: HeartbeatCirculation;
+  transmutation?: HeartbeatTransmutation;
+  sleep?: HeartbeatSleep;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -171,4 +173,17 @@ export interface CirculationSnapshot extends HeartbeatCirculation {
   saturation: number;
   direction: string;
   lastDecisionId?: string;
+}
+
+export interface HeartbeatTransmutation {
+  lastMutation: number;
+  purified: number;
+  entropy: number;
+  signalStrength: number;
+}
+
+export interface HeartbeatSleep {
+  lastSleep: number;
+  noiseCleared: number;
+  dreamIterations?: number;
 }
