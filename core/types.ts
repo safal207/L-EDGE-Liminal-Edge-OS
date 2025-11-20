@@ -208,9 +208,10 @@ export interface HeartbeatReflex {
 }
 
 export interface HeartbeatPerception {
+  pressure: number;
+  threatScore: number;
+  opportunityScore: number;
   noiseLevel: number;
-  signalLevel: number;
-  anomalies: number;
   status: string;
 }
 

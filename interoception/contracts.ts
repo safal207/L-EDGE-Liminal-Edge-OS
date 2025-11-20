@@ -2,7 +2,7 @@ import { HomeostasisState } from '../core/homeostasisManager';
 import { HeartbeatState } from '../core/types';
 import { IntentState } from '../intent/types';
 import { MemoryState } from '../memory/memoryTypes';
-import { PerceptionSnapshot } from '../perception/types';
+import { PerceptionSummary } from '../perception/types';
 import { ReflexState } from '../reflex/types';
 import { ReplayState } from '../replay/types';
 import { SleepMetrics } from '../sleep/sleepCycle';
@@ -44,7 +44,7 @@ export interface InteroceptionContext {
   reflex: ReflexState;
   replay: ReplayState;
   transmutation: TransmutationMetrics;
-  perception: PerceptionSnapshot;
+  perception: PerceptionSummary;
   intent: IntentState;
   circulation?: CirculationSnapshot;
   memory?: MemoryState;

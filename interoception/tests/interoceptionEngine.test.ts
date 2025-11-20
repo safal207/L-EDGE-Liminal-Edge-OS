@@ -3,7 +3,7 @@ import { InteroceptionEngine } from '../interoceptionEngine';
 import { InteroceptionContext } from '../contracts';
 import { ReflexState } from '../../reflex/types';
 import { ReplayState } from '../../replay/types';
-import { PerceptionSnapshot } from '../../perception/types';
+import { PerceptionSummary } from '../../perception/types';
 import { MemoryState } from '../../memory/memoryTypes';
 import { MetaState } from '../../meta/types';
 
@@ -20,8 +20,16 @@ const buildContext = (overrides?: Partial<InteroceptionContext>): InteroceptionC
       lastResults: [],
       lastEpisodes: [],
     } satisfies ReplayState);
-  const perception: PerceptionSnapshot =
-    overrides?.perception ?? ({ noiseLevel: 0.1, signalLevel: 0.6, anomalies: 0, status: 'ok', signalsProcessed: 0, lastUpdated: Date.now() } satisfies PerceptionSnapshot);
+  const perception: PerceptionSummary =
+    overrides?.perception ?? ({
+      pressure: 0.2,
+      threatScore: 0.1,
+      opportunityScore: 0.4,
+      noiseLevel: 0.1,
+      status: 'calm',
+      signalsProcessed: 0,
+      lastUpdated: Date.now(),
+    } satisfies PerceptionSummary);
   const memory: MemoryState =
     overrides?.memory ?? ({ shortTerm: [], longTerm: [], lastConsolidatedAt: 0, shortTermLimit: 50, status: 'idle' } satisfies MemoryState);
   const meta: MetaState = overrides?.meta ?? { observations: [], summary: { coherence: 1, stressTrend: 'stable', adaptationPhase: 'steady-state', dominantIntent: 'CALM', anomalies: [], lastUpdated: Date.now(), reflexFrequency: 0, replayRelief: 0 } };
@@ -78,7 +86,15 @@ const buildContext = (overrides?: Partial<InteroceptionContext>): InteroceptionC
   assert.strictEqual(calm.summary.status, 'stable');
   assert(calm.summary.readiness > 0.6, 'readiness should stay high when system is calm');
 
-  const stressedPerception: PerceptionSnapshot = { noiseLevel: 0.8, signalLevel: 0.2, anomalies: 4, status: 'critical', signalsProcessed: 5, lastUpdated: Date.now() };
+  const stressedPerception: PerceptionSummary = {
+    pressure: 0.7,
+    threatScore: 0.8,
+    opportunityScore: 0.1,
+    noiseLevel: 0.8,
+    status: 'alert',
+    signalsProcessed: 5,
+    lastUpdated: Date.now(),
+  };
   const stressedReplay: ReplayState = {
     status: 'idle',
     lastRunAt: Date.now(),

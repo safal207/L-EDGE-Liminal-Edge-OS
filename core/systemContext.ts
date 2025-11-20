@@ -49,7 +49,7 @@ const homeostasis = new HomeostasisManager({
   getStorageMetrics: () => ({ size: lastHeartbeat?.storageSize ?? 0 }),
   getTransmutationMetrics: () => transmutation.getMetrics(),
   getSleepMetrics: () => sleep.getState(),
-  getPerceptionMetrics: () => perception.getSnapshot(),
+  getPerceptionMetrics: () => perception.getState().summary,
   getReplayMetrics: () => replay.getState(),
 });
 
@@ -59,7 +59,7 @@ heartbeat.onBeat((beat) => {
   lastHeartbeat = beat;
   homeostasis.tick();
   const homeostasisState = homeostasis.getState();
-  const perceptionSnapshot = perception.getSnapshot();
+  const perceptionState = perception.getState();
   const circulationSnapshot = circulation.getLatestSnapshot();
   const replayState = replay.getState();
   const transmutationMetrics = transmutation.getMetrics();
@@ -70,7 +70,7 @@ heartbeat.onBeat((beat) => {
     reflex: reflex.getState(),
     replay: replayState,
     transmutation: transmutationMetrics,
-    perception: perceptionSnapshot,
+    perception: perceptionState.summary,
     intent: intentSnapshot,
     circulation: circulationSnapshot,
     heartbeat: beat,
@@ -82,7 +82,7 @@ heartbeat.onBeat((beat) => {
     reflex: reflex.getState(),
     replay: replayState,
     memory: memory.getState(),
-    perception: perceptionSnapshot,
+    perception: perceptionState.summary,
     interoception: interoceptionState,
   });
 
@@ -114,21 +114,21 @@ heartbeat.onBeat((beat) => {
     });
   }
 
-  if (perceptionSnapshot.status === 'degraded' || perceptionSnapshot.status === 'critical') {
+  if (perceptionState.summary.status === 'alert' || perceptionState.summary.status === 'critical') {
     reflex.ingestEvent({
       id: uuidv4(),
       ts: Date.now(),
       source: 'homeostasis',
-      kind: perceptionSnapshot.status === 'critical' ? 'perception.critical' : 'perception.degraded',
-      details: perceptionSnapshot,
+      kind: perceptionState.summary.status === 'critical' ? 'perception.critical' : 'perception.watch',
+      details: perceptionState.summary,
     });
 
     memory.remember({
       source: 'perception',
-      type: perceptionSnapshot.status === 'critical' ? 'perception.critical' : 'perception.degraded',
+      type: perceptionState.summary.status === 'critical' ? 'perception.critical' : 'perception.watch',
       ts: Date.now(),
-      intensity: perceptionSnapshot.noiseLevel,
-      payload: perceptionSnapshot,
+      intensity: perceptionState.summary.threatScore,
+      payload: perceptionState.summary,
     });
   }
 
@@ -180,7 +180,7 @@ heartbeat.onBeat((beat) => {
   perception.ingestSignal({
     source: 'heartbeat',
     ts: Date.now(),
-    type: beat.edgeStatus === 'ok' ? 'telemetry' : 'alert',
+    kind: beat.edgeStatus === 'ok' ? 'telemetry' : 'environmentPressure',
     intensity: Math.min(1, (beat.resonancePending + beat.runtimeActive) / 50),
     payload: {
       resonancePending: beat.resonancePending,

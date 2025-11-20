@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { HomeostasisManager, HomeostasisState } from '../../core/homeostasisManager';
-import { PerceptionStatus } from '../../perception/types';
+import { PerceptionSummary } from '../../perception/types';
 import { CirculationSnapshot } from '../../core/types';
 
 const now = Date.now();
@@ -22,7 +22,14 @@ const makeManager = (overrides: Partial<ReturnType<typeof defaultDeps>>) => {
   return new HomeostasisManager(deps);
 };
 
-const defaultDeps = () => ({
+const defaultDeps = (): {
+  getHeartbeatMetrics: () => { edgeStatus: string; storageSize: number; resonancePending: number; runtimeActive: number };
+  getCirculationMetrics: () => CirculationSnapshot;
+  getStorageMetrics: () => { size: number };
+  getTransmutationMetrics: () => { lastMutation: number; purifiedEvents: number; discardedEntropy: number; signalStrength: number };
+  getSleepMetrics: () => { lastSleep: number; consolidationEvents: number; dreamIterations: number; noiseCleared: number };
+  getPerceptionMetrics: () => PerceptionSummary;
+} => ({
   getHeartbeatMetrics: () => ({
     edgeStatus: 'ok',
     storageSize: 50,
@@ -43,12 +50,13 @@ const defaultDeps = () => ({
     dreamIterations: 2,
     noiseCleared: 1,
   }),
-  getPerceptionMetrics: () => ({
+  getPerceptionMetrics: (): PerceptionSummary => ({
+    pressure: 0.2,
+    threatScore: 0.1,
+    opportunityScore: 0.4,
     noiseLevel: 0.1,
-    signalLevel: 0.6,
-    anomalies: 0,
     signalsProcessed: 3,
-    status: 'ok' as PerceptionStatus,
+    status: 'calm',
     lastUpdated: now,
   }),
 });
@@ -91,13 +99,14 @@ async function run() {
       noiseCleared: 2,
     }),
     getPerceptionMetrics: () => ({
+      pressure: 0.7,
+      threatScore: 0.6,
+      opportunityScore: 0.2,
       noiseLevel: 0.6,
-      signalLevel: 0.8,
-      anomalies: 3,
       signalsProcessed: 10,
-      status: 'degraded' as PerceptionStatus,
+      status: 'alert',
       lastUpdated: now,
-    }),
+    } satisfies PerceptionSummary),
   });
   heavy.tick();
   const stressed = heavy.getState();
@@ -129,13 +138,14 @@ async function run() {
       noiseCleared: 3,
     }),
     getPerceptionMetrics: () => ({
+      pressure: 0.95,
+      threatScore: 0.92,
+      opportunityScore: 0.1,
       noiseLevel: 0.9,
-      signalLevel: 0.9,
-      anomalies: 8,
       signalsProcessed: 16,
-      status: 'critical' as PerceptionStatus,
+      status: 'critical',
       lastUpdated: now,
-    }),
+    } satisfies PerceptionSummary),
   });
   critical.tick();
   const criticalState = critical.getState();

@@ -1,36 +1,35 @@
 import assert from 'assert';
 import { PerceptionEngine } from '../perceptionEngine';
-import { PerceptionSignalType } from '../types';
+import { ExternalSignalKind } from '../types';
 
-const createSignal = (type: PerceptionSignalType, intensity: number, source = 'test') => ({
+const createSignal = (kind: ExternalSignalKind, intensity: number, source = 'test') => ({
   ts: Date.now(),
   source,
-  type,
+  kind,
   intensity,
 });
 
 async function run() {
-  const engine = new PerceptionEngine({ maxHistory: 5, noiseThreshold: 0.2, anomalyThreshold: 0.8 });
+  const engine = new PerceptionEngine({ maxHistory: 5 });
 
-  engine.ingestSignal(createSignal('telemetry', 0.6));
-  engine.ingestSignal(createSignal('noise', 0.05));
-  engine.ingestSignal(createSignal('alert', 0.9));
+  engine.ingestSignal(createSignal('telemetry', 0.3));
+  engine.ingestSignal(createSignal('environmentPressure', 0.7));
+  engine.ingestSignal(createSignal('threatDetected', 0.9));
 
-  const snapshot = engine.getSnapshot();
-  assert.strictEqual(snapshot.noiseLevel > 0, true, 'noise should be recorded');
-  assert.strictEqual(snapshot.anomalies, 1, 'alert above threshold should count as anomaly');
-  assert.strictEqual(snapshot.status, 'noisy', 'mixed signals should mark status as noisy or higher');
+  const state = engine.getState();
+  assert.strictEqual(state.summary.threatScore > 0.5, true, 'threat score should rise with threat signals');
+  assert.strictEqual(state.summary.pressure > 0.5, true, 'pressure should reflect environmental stress');
+  assert.strictEqual(['watch', 'alert', 'critical'].includes(state.summary.status), true, 'status should escalate');
 
-  engine.ingestSignal(createSignal('anomaly', 0.95));
-  engine.ingestSignal(createSignal('anomaly', 0.95));
-  engine.ingestSignal(createSignal('anomaly', 0.95));
-  const heavyNoise = engine.getSnapshot();
-  assert.strictEqual(heavyNoise.status === 'degraded' || heavyNoise.status === 'critical', true);
+  engine.ingestSignal(createSignal('externalOpportunity', 0.8));
+  const withOpportunity = engine.getSummary();
+  assert.ok(withOpportunity.opportunityScore > 0.15, 'opportunity score should climb');
 
   // history limit respected
-  engine.ingestSignal(createSignal('telemetry', 0.4));
-  engine.ingestSignal(createSignal('telemetry', 0.4));
-  const signalsLength = (engine as any).signals?.length as number;
+  engine.ingestSignal(createSignal('resourceRisk', 0.4));
+  engine.ingestSignal(createSignal('syncLoss', 0.6));
+  engine.ingestSignal(createSignal('upstreamDelaySpike', 0.6));
+  const signalsLength = engine.getState().events.length;
   assert.ok(signalsLength <= 5, 'history should be bounded');
 }
 

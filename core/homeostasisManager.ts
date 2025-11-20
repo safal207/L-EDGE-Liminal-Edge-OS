@@ -2,7 +2,7 @@ import { EDGE_EVENT_LIMIT } from './constants';
 import { CirculationSnapshot, HeartbeatState } from './types';
 import { SleepMetrics } from '../sleep/sleepCycle';
 import { TransmutationMetrics } from '../transmutation/contracts';
-import { PerceptionSnapshot } from '../perception/types';
+import { PerceptionSummary } from '../perception/types';
 import { ReplayState } from '../replay/types';
 
 export interface StorageMetrics {
@@ -32,7 +32,7 @@ interface HomeostasisDeps {
   getStorageMetrics: () => StorageMetrics;
   getTransmutationMetrics: () => TransmutationMetrics;
   getSleepMetrics: () => SleepMetrics;
-  getPerceptionMetrics: () => PerceptionSnapshot;
+  getPerceptionMetrics: () => PerceptionSummary;
   getReplayMetrics?: () => ReplayState | undefined;
 }
 
@@ -81,7 +81,7 @@ export class HomeostasisManager {
     storage: StorageMetrics;
     transmutation: TransmutationMetrics;
     sleep: SleepMetrics;
-    perception: PerceptionSnapshot;
+    perception: PerceptionSummary;
     replay?: ReplayState;
   }): number {
     const storagePressure = clamp(params.storage.size / EDGE_EVENT_LIMIT);
@@ -93,20 +93,22 @@ export class HomeostasisManager {
         (params.transmutation.purifiedEvents + params.transmutation.discardedEntropy + 1)
     );
     const sleepDebt = this.computeSleepDebt(params.sleep.lastSleep);
+    const perceptionPressure = clamp(params.perception.pressure);
+    const perceptionThreat = clamp(params.perception.threatScore);
     const perceptionNoise = clamp(params.perception.noiseLevel);
-    const perceptionAnomalies = clamp(params.perception.anomalies / 10);
 
     const replayRelief = params.replay ? clamp(params.replay.reliefScore * 0.2 + params.replay.avgIntegrationScore * 0.1) : 0;
 
     const stressScore =
-      storagePressure * 0.2 +
-      resonanceLoad * 0.15 +
-      runtimeLoad * 0.1 +
+      storagePressure * 0.18 +
+      resonanceLoad * 0.12 +
+      runtimeLoad * 0.08 +
       circulationPressure * 0.1 +
       entropyLoad * 0.1 +
       sleepDebt * 0.1 +
-      perceptionNoise * 0.15 +
-      perceptionAnomalies * 0.1 -
+      perceptionNoise * 0.05 +
+      perceptionPressure * 0.15 +
+      perceptionThreat * 0.12 -
       replayRelief;
 
     return clamp(stressScore);

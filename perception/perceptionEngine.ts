@@ -1,102 +1,131 @@
 import { v4 as uuidv4 } from 'uuid';
-import { PerceptionSignal, PerceptionSnapshot, PerceptionStatus } from './types';
-
-interface PerceptionEngineOptions {
-  maxHistory?: number;
-  noiseThreshold?: number;
-  anomalyThreshold?: number;
-}
+import { PerceptionClassification, PerceptionEngineOptions } from './contracts';
+import { ExternalSignal, ExternalSignalKind, PerceptionState, PerceptionSummary } from './types';
 
 export class PerceptionEngine {
   private readonly maxHistory: number;
-  private readonly noiseThreshold: number;
-  private readonly anomalyThreshold: number;
-  private signals: PerceptionSignal[] = [];
-  private snapshot: PerceptionSnapshot = {
+  private readonly pressureWeights: Record<ExternalSignalKind, number>;
+  private readonly threatWeights: Record<ExternalSignalKind, number>;
+  private readonly opportunityWeights: Record<ExternalSignalKind, number>;
+  private events: ExternalSignal[] = [];
+  private summary: PerceptionSummary = {
+    pressure: 0,
+    threatScore: 0,
+    opportunityScore: 0,
     noiseLevel: 0,
-    signalLevel: 0,
-    anomalies: 0,
+    status: 'calm',
     signalsProcessed: 0,
-    status: 'ok',
     lastUpdated: Date.now(),
   };
 
   constructor(options?: PerceptionEngineOptions) {
-    this.maxHistory = options?.maxHistory ?? 200;
-    this.noiseThreshold = options?.noiseThreshold ?? 0.2;
-    this.anomalyThreshold = options?.anomalyThreshold ?? 0.7;
+    this.maxHistory = options?.maxHistory ?? 300;
+    const baseWeights: Record<ExternalSignalKind, number> = {
+      environmentPressure: 1,
+      resourceRisk: 0.9,
+      upstreamDelaySpike: 0.8,
+      syncLoss: 0.7,
+      threatDetected: 1,
+      externalOpportunity: 0.6,
+      telemetry: 0.2,
+    };
+    this.pressureWeights = { ...baseWeights, ...(options?.pressureWeights ?? {}) } as Record<ExternalSignalKind, number>;
+    this.threatWeights = {
+      ...baseWeights,
+      externalOpportunity: 0,
+      telemetry: 0,
+      ...(options?.threatWeights ?? {}),
+    } as Record<ExternalSignalKind, number>;
+    this.opportunityWeights = {
+      ...baseWeights,
+      externalOpportunity: 1,
+      environmentPressure: 0,
+      resourceRisk: 0,
+      syncLoss: 0,
+      threatDetected: 0,
+      upstreamDelaySpike: 0,
+      telemetry: 0.3,
+      ...(options?.opportunityWeights ?? {}),
+    } as Record<ExternalSignalKind, number>;
   }
 
-  ingestSignal(signal: Omit<PerceptionSignal, 'id'> & { id?: string }): void {
-    const normalized = {
+  ingestSignal(signal: Omit<ExternalSignal, 'id'> & { id?: string }): void {
+    const normalized: ExternalSignal = {
       ...signal,
       id: signal.id ?? uuidv4(),
       intensity: clamp(signal.intensity),
-    } satisfies PerceptionSignal;
-
-    this.signals = this.trim([...this.signals, normalized]);
-    this.snapshot = this.computeSnapshot();
+    };
+    this.events = this.trim([...this.events, normalized]);
+    this.summary = this.computeSummary();
   }
 
-  getSnapshot(): PerceptionSnapshot {
-    return this.snapshot;
+  evaluate(): PerceptionClassification {
+    this.summary = this.computeSummary();
+    return { level: this.summary.status, summary: this.summary };
+  }
+
+  getSnapshot(): PerceptionSummary {
+    return this.summary;
+  }
+
+  getSummary(): PerceptionSummary {
+    return this.summary;
+  }
+
+  getState(): PerceptionState {
+    return { summary: this.summary, events: this.events };
+  }
+
+  listEvents(limit: number): ExternalSignal[] {
+    return this.events.slice(-limit).reverse();
   }
 
   clear(): void {
-    this.signals = [];
-    this.snapshot = {
+    this.events = [];
+    this.summary = {
+      pressure: 0,
+      threatScore: 0,
+      opportunityScore: 0,
       noiseLevel: 0,
-      signalLevel: 0,
-      anomalies: 0,
+      status: 'calm',
       signalsProcessed: 0,
-      status: 'ok',
       lastUpdated: Date.now(),
     };
   }
 
-  private computeSnapshot(): PerceptionSnapshot {
-    if (this.signals.length === 0) {
-      return { ...this.snapshot, noiseLevel: 0, signalLevel: 0, anomalies: 0, status: 'ok', lastUpdated: Date.now() };
+  private computeSummary(): PerceptionSummary {
+    if (this.events.length === 0) {
+      return { ...this.summary, pressure: 0, threatScore: 0, opportunityScore: 0, noiseLevel: 0, status: 'calm', lastUpdated: Date.now(), signalsProcessed: 0 };
     }
 
-    const noiseSignals = this.signals.filter((s) => s.type === 'noise' || s.intensity < this.noiseThreshold);
-    const anomalySignals = this.signals.filter(
-      (s) => s.type === 'anomaly' || (s.type === 'alert' && s.intensity >= this.anomalyThreshold)
-    );
-    const meaningfulSignals = this.signals.filter((s) => !noiseSignals.includes(s));
-
-    const noiseLevel = clamp(noiseSignals.length / this.signals.length);
-    const signalLevel = meaningfulSignals.length
-      ? clamp(meaningfulSignals.reduce((sum, s) => sum + s.intensity, 0) / meaningfulSignals.length)
-      : 0;
-    const anomalies = anomalySignals.length;
-    const status = this.resolveStatus({ noiseLevel, signalLevel, anomalies });
+    const weightedPressure = this.weightedScore(this.pressureWeights);
+    const weightedThreat = this.weightedScore(this.threatWeights);
+    const weightedOpportunity = this.weightedScore(this.opportunityWeights);
+    const noiseLevel = clamp(this.events.filter((e) => e.kind === 'telemetry' && e.intensity < 0.25).length / this.events.length);
+    const status = this.resolveStatus(weightedThreat, weightedPressure, weightedOpportunity);
 
     return {
+      pressure: weightedPressure,
+      threatScore: weightedThreat,
+      opportunityScore: weightedOpportunity,
       noiseLevel,
-      signalLevel,
-      anomalies,
       status,
-      signalsProcessed: this.signals.length,
+      signalsProcessed: this.events.length,
       lastUpdated: Date.now(),
     };
   }
 
-  private resolveStatus(snapshot: {
-    noiseLevel: number;
-    signalLevel: number;
-    anomalies: number;
-  }): PerceptionStatus {
-    if (snapshot.anomalies > 5 || snapshot.noiseLevel > 0.7) {
-      return 'critical';
-    }
-    if (snapshot.anomalies > 2 || snapshot.noiseLevel > 0.5) {
-      return 'degraded';
-    }
-    if (snapshot.noiseLevel > 0.25) {
-      return 'noisy';
-    }
-    return 'ok';
+  private weightedScore(weights: Record<ExternalSignalKind, number>): number {
+    if (!this.events.length) return 0;
+    const total = this.events.reduce((sum, evt) => sum + weights[evt.kind] * evt.intensity, 0);
+    return clamp(total / this.events.length);
+  }
+
+  private resolveStatus(threat: number, pressure: number, opportunity: number): PerceptionSummary['status'] {
+    if (threat > 0.85 || pressure > 0.9) return 'critical';
+    if (threat > 0.65 || pressure > 0.75) return 'alert';
+    if (threat > 0.4 || pressure > 0.4 || opportunity > 0.6) return 'watch';
+    return 'calm';
   }
 
   private trim<T>(items: T[]): T[] {

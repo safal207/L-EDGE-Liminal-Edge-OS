@@ -315,3 +315,6 @@ Iteration 1 добавляет каркас директории для кажд
 
 ---
 **Next Step:** Implement MVP iteration (Section 10) on branch `codex/mvp-somaseed-gateway-001` and keep this document as the authoritative reference for multi-repo integration.
+
+### Perception (External Sensing)
+PerceptionEngine ingests external network/runtime/storage signals, classifies them into pressure/threat/opportunity categories, and feeds summaries into homeostasis, reflex, intent, and meta cycles. Health surfaces now include perception summaries alongside interoception metrics.

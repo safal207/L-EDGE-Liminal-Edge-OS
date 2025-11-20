@@ -36,7 +36,7 @@ export const createInterfaceApp = () => {
     const sleepState = sleep.getState();
     const homeostasisState = homeostasis.getState();
     const reflexState = reflex.getState();
-    const perceptionSnapshot = perception.getSnapshot();
+    const perceptionSummary = perception.getSummary();
     const memoryState = memory.getState();
     const replayState = replay.getState();
     const intentState = intent.getState();
@@ -45,10 +45,11 @@ export const createInterfaceApp = () => {
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
-        noiseLevel: perceptionSnapshot.noiseLevel,
-        signalLevel: perceptionSnapshot.signalLevel,
-        anomalies: perceptionSnapshot.anomalies,
-        status: perceptionSnapshot.status,
+        pressure: perceptionSummary.pressure,
+        threatScore: perceptionSummary.threatScore,
+        opportunityScore: perceptionSummary.opportunityScore,
+        noiseLevel: perceptionSummary.noiseLevel,
+        status: perceptionSummary.status,
       },
       memory: {
         shortTerm: memoryState.shortTerm.length,
@@ -185,7 +186,7 @@ export const createInterfaceApp = () => {
   app.get('/api/system/homeostasis', (_req, res) => {
     res.json({
       homeostasis: homeostasis.getState(),
-      perception: perception.getSnapshot(),
+      perception: perception.getSummary(),
       memory: memory.getState(),
       replay: replay.getState(),
       intent: intent.getState(),
@@ -197,7 +198,7 @@ export const createInterfaceApp = () => {
   app.get('/api/system/reflex', (_req, res) => {
     res.json({
       ...reflex.getState(),
-      perception: perception.getSnapshot(),
+      perception: perception.getSummary(),
       memory: memory.getState(),
       replay: replay.getState(),
       intent: intent.getState(),
@@ -225,7 +226,16 @@ export const createInterfaceApp = () => {
   });
 
   app.get('/api/system/perception', (_req, res) => {
-    res.json(perception.getSnapshot());
+    res.json(perception.getState());
+  });
+
+  app.get('/api/system/perception/events', (req, res) => {
+    const limit = parseLimit(req.query.limit, 20, 200);
+    res.json({ events: perception.listEvents(limit) });
+  });
+
+  app.get('/api/system/perception/summary', (_req, res) => {
+    res.json(perception.getSummary());
   });
 
   app.get('/api/system/replay', (_req, res) => {

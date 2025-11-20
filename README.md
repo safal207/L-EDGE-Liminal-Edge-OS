@@ -230,3 +230,6 @@ npm run dev           # запускает edge + interface в одном про
 
 ## 🤝 Лицензия
 Проект распространяется под лицензией MIT. См. [LICENSE](LICENSE).
+
+### Perception Layer
+External sensing organ that ingests environment pressure, threats, opportunities, and sync issues. It maintains bounded history, publishes perception summaries to downstream organs (Reflex/Homeostasis/Intent/Meta), and is observable via `/api/system/perception`, `/api/system/perception/events`, and `/api/system/perception/summary`.
