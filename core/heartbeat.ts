@@ -16,11 +16,18 @@ interface HeartbeatDeps {
 
 type HeartbeatEnricher = (state: HeartbeatState) => HeartbeatState;
 
+type HeartbeatListener = (state: HeartbeatState) => void;
+
 export class HeartbeatService {
   private timer?: NodeJS.Timeout;
   private running = false;
+  private readonly listeners: HeartbeatListener[] = [];
 
   constructor(private readonly deps: HeartbeatDeps) {}
+
+  onBeat(listener: HeartbeatListener): void {
+    this.listeners.push(listener);
+  }
 
   start(): void {
     if (this.running) {
@@ -55,6 +62,7 @@ export class HeartbeatService {
 
     const enriched = enrich ? enrich(heartbeat) : heartbeat;
     await storage.saveHeartbeat(enriched);
+    this.listeners.forEach((listener) => listener(enriched));
     return enriched;
   }
 
