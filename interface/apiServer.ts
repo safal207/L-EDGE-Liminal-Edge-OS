@@ -12,6 +12,7 @@ import {
   perception,
   memory,
   replay,
+  intent,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -36,6 +37,7 @@ export const createInterfaceApp = () => {
     const perceptionSnapshot = perception.getSnapshot();
     const memoryState = memory.getState();
     const replayState = replay.getState();
+    const intentState = intent.getState();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -77,6 +79,13 @@ export const createInterfaceApp = () => {
         lastActionReason: reflexState.lastActions.at(-1)?.reason,
         actionsCount: reflexState.lastActions.length,
       },
+      intent: {
+        mode: intentState.mode,
+        allowHeavyTasks: intentState.decision.allowHeavyTasks,
+        throttleNonCritical: intentState.decision.throttleNonCritical,
+        forceSleepSoon: intentState.decision.forceSleepSoon,
+        degradedMode: intentState.decision.degradedMode,
+      },
     }));
     const circulationState =
       beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
@@ -97,6 +106,7 @@ export const createInterfaceApp = () => {
         sleep: beat.sleep,
         homeostasis: beat.homeostasis,
         reflex: beat.reflex,
+        intent: beat.intent,
       },
     });
   });
@@ -155,11 +165,18 @@ export const createInterfaceApp = () => {
       perception: perception.getSnapshot(),
       memory: memory.getState(),
       replay: replay.getState(),
+      intent: intent.getState(),
     });
   });
 
   app.get('/api/system/reflex', (_req, res) => {
-    res.json({ ...reflex.getState(), perception: perception.getSnapshot(), memory: memory.getState(), replay: replay.getState() });
+    res.json({
+      ...reflex.getState(),
+      perception: perception.getSnapshot(),
+      memory: memory.getState(),
+      replay: replay.getState(),
+      intent: intent.getState(),
+    });
   });
 
   app.get('/api/system/memory', (_req, res) => {
@@ -199,6 +216,20 @@ export const createInterfaceApp = () => {
   app.post('/api/system/replay/trigger', (_req, res) => {
     const state = replay.runReplayCycle('manual');
     res.json(state);
+  });
+
+  app.get('/api/system/intent', (_req, res) => {
+    res.json(intent.getState());
+  });
+
+  app.post('/api/system/intent/override', (req, res) => {
+    const { mode, decision } = req.body ?? {};
+    if (typeof mode !== 'string') {
+      res.status(400).json({ error: 'mode is required' });
+      return;
+    }
+    intent.setOverride(mode, decision);
+    res.json({ status: 'override-set', mode });
   });
 
   app.post('/api/system/perception/signal', (req, res) => {

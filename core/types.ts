@@ -160,6 +160,7 @@ export interface HeartbeatState {
   perception?: HeartbeatPerception;
   memory?: HeartbeatMemory;
   replay?: HeartbeatReplay;
+  intent?: HeartbeatIntent;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -224,4 +225,12 @@ export interface HeartbeatReplay {
   avgIntegrationScore: number;
   reliefScore: number;
   status: string;
+}
+
+export interface HeartbeatIntent {
+  mode: string;
+  allowHeavyTasks: boolean;
+  throttleNonCritical: boolean;
+  forceSleepSoon: boolean;
+  degradedMode: boolean;
 }

@@ -13,6 +13,7 @@ import { ReflexEngine } from '../reflex/reflexEngine';
 import { PerceptionEngine } from '../perception/perceptionEngine';
 import { MemoryEngine } from '../memory/memoryEngine';
 import { DreamReplayEngine } from '../replay/dreamReplayEngine';
+import { IntentEngine } from '../intent/intentEngine';
 import { v4 as uuidv4 } from 'uuid';
 
 const storage = createInMemoryLiminalStorage();
@@ -34,6 +35,7 @@ const sleep = new SleepCycle({ storage, transmutation });
 const perception = new PerceptionEngine();
 const memory = new MemoryEngine();
 const replay = new DreamReplayEngine({ memory, transmutation, config: { maxEpisodes: 5, minStressThreshold: 0.15 } });
+const intent = new IntentEngine();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 
@@ -56,6 +58,13 @@ heartbeat.onBeat((beat) => {
   const perceptionSnapshot = perception.getSnapshot();
   const circulationSnapshot = circulation.getLatestSnapshot();
   const replayState = replay.getState();
+  const intentState = intent.evaluate({
+    homeostasis: homeostasisState,
+    reflex: reflex.getState(),
+    replay: replayState,
+    memory: memory.getState(),
+    perception: perceptionSnapshot,
+  });
 
   if (circulationSnapshot) {
     memory.remember({
@@ -134,6 +143,8 @@ heartbeat.onBeat((beat) => {
   }
 
   memory.decay();
+
+  void runtime.applyIntentDecision(intentState.decision);
 });
 
 heartbeat.onBeat((beat) => {
@@ -189,4 +200,5 @@ export {
   perception,
   memory,
   replay,
+  intent,
 };

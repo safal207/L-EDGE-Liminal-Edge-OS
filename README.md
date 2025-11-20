@@ -33,6 +33,7 @@
 11. **Perception / Sensorium Layer** — принимает внешние/внутренние сигналы, нормализует их и даёт снимок восприятия.
 12. **Memory Layer** — краткосрочная и долговременная память, перенос опыта через циклы сна/стресса.
 13. **DreamReplay / Experience Layer** — повторное проигрывание эпизодов во сне, интеграция паттернов обратно в память и регуляцию.
+14. **Intent / Volition Layer** — превращает стресс/рефлексы/память/сноведение в понятный режим работы и директивы для edge/runtime.
 
 ---
 
@@ -154,6 +155,7 @@ npm run dev           # запускает edge + interface в одном про
    curl http://localhost:4100/api/system/perception
    curl http://localhost:4100/api/system/memory
    curl http://localhost:4100/api/system/replay
+   curl http://localhost:4100/api/system/intent
    curl http://localhost:4100/api/system/homeostasis
    curl http://localhost:4100/api/system/sleep/state
    curl http://localhost:4100/api/runtime/state
