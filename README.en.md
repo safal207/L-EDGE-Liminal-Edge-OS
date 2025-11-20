@@ -25,6 +25,11 @@
 5. **Liminal GraphDNS** — graph-based DNS; returns a weighted map of answers for resilience.
 6. **Liminal Worker Cells** — migratable workers; local thinking on the cells.
 
+### Emotion / Proto-Emotion Layer
+- **Organ:** `emotion/emotionEngine.ts` combines interoception/homeostasis/reflex and external perception signals (plus intent/meta/replay context) to emit proto-emotional states like `calmReady`, `focusThreat`, `exploreOpportunity`, `recovering`, and `overloadProtect` while tracking volatility.
+- **Integration:** refreshed every heartbeat, feeds Reflex/Intent/Meta decisions, exposed via `/api/system/emotion` and `/api/system/emotion/history`, and included inside `/api/system/health`.
+- **Purpose:** adds emotional modulation so the organism can prioritize protective reflexes under threat, lean into opportunities when calm, and signal recovery when fatigued.
+
 ---
 
 ## 🛠️ 2-week MVP
