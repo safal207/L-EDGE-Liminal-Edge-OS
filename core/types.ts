@@ -162,6 +162,7 @@ export interface HeartbeatState {
   replay?: HeartbeatReplay;
   intent?: HeartbeatIntent;
   meta?: HeartbeatMeta;
+  interoception?: HeartbeatInteroception;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -242,4 +243,15 @@ export interface HeartbeatMeta {
   adaptationPhase: string;
   dominantIntent: string;
   anomalies: string[];
+}
+
+export interface HeartbeatInteroception {
+  fatigue: number;
+  tension: number;
+  entropyPressure: number;
+  readiness: number;
+  clarity: number;
+  overload: number;
+  status: string;
+  annotations: string[];
 }

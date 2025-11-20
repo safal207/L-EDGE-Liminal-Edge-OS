@@ -39,6 +39,20 @@ export class IntentEngine {
         status: 'idle',
       },
       perception: undefined,
+      interoception: {
+        signals: [],
+        summary: {
+          fatigue: 0,
+          tension: 0,
+          entropyPressure: 0,
+          readiness: 1,
+          clarity: 1,
+          overload: 0,
+          status: 'stable',
+          annotations: [],
+          lastUpdated: Date.now(),
+        },
+      },
     };
 
     this.state = {
@@ -83,6 +97,11 @@ export class IntentEngine {
     const replayRelief = context.replay.reliefScore;
     const memoryDebt = Math.max(0, context.memory.shortTerm.length - context.memory.longTerm.length * 2) /
       Math.max(1, context.memory.shortTermLimit);
+    const interoception = context.interoception?.summary;
+
+    if (interoception?.status === 'critical' || (interoception?.overload ?? 0) > 0.85) {
+      return 'CRITICAL';
+    }
 
     if (stress >= 0.9 || lastReflex?.severity === 'critical') {
       return 'CRITICAL';
@@ -90,6 +109,10 @@ export class IntentEngine {
 
     if (stress >= 0.75 || context.homeostasis.loadLevel === 'critical') {
       return 'DEGRADED';
+    }
+
+    if (interoception?.status === 'depleted' || (interoception?.fatigue ?? 0) > 0.65) {
+      return 'HEALING';
     }
 
     if (stress >= 0.5 || lastReflex?.severity === 'warning') {

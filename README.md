@@ -35,6 +35,7 @@
 13. **DreamReplay / Experience Layer** — повторное проигрывание эпизодов во сне, интеграция паттернов обратно в память и регуляцию.
 14. **Intent / Volition Layer** — превращает стресс/рефлексы/память/сноведение в понятный режим работы и директивы для edge/runtime.
 15. **Meta / Observer Layer** — надсмотрщик, который отслеживает тренды по всем органам, вычисляет когерентность, отмечает аномалии и отдаёт сводку состояния организма.
+16. **Interoception / SenseEngine** — внутреннее чувство организма: превращает метрики стресса/шума/сна/нагрузки в «ощущение тела» (усталость, напряжение, перегруз) и отдаёт это Intent/Reflex/Homeostasis.
 
 ---
 
@@ -42,6 +43,11 @@
 - **Орган:** `meta/metaEngine.ts` + `patternDetector.ts` собирают стресс/рефлексы/сон/реплей/интент и дают мета-сводку (coherence, stress trend, adaptation phase, anomalies).
 - **Интеграция:** каждое сердцебиение обновляет `systemContext.meta`; эндпоинты `/api/system/meta` и блок `meta` в `/api/system/health` показывают текущее осознавание.
 - **Назначение:** помогает видеть всю систему целиком, подсвечивать нестабильность, слабые сигналы трансмутации и частые рефлексы.
+
+### Interoception / SenseEngine
+- **Орган:** `interoception/interoceptionEngine.ts` агрегирует сигналы из homeostasis/reflex/sleep/replay/perception/transmutation + heartbeat и вычисляет `fatigue`, `tension`, `entropyPressure`, `overload`, `clarity`, `status`, `annotations`.
+- **Интеграция:** обновляется на каждом heartbeat, доступен через `/api/system/interoception` и включён в `/api/system/health` рядом с meta/intent/reflex.
+- **Назначение:** даёт организму «ощущение тела», чтобы Intent/Reflex/Homeostasis могли опираться на усталость/перегруз, а не только на сухие метрики.
 
 ---
 
@@ -163,6 +169,8 @@ npm run dev           # запускает edge + interface в одном про
    curl http://localhost:4100/api/system/perception
    curl http://localhost:4100/api/system/memory
    curl http://localhost:4100/api/system/replay
+   curl http://localhost:4100/api/system/interoception
+   curl http://localhost:4100/api/system/interoception/state
    curl http://localhost:4100/api/system/intent
    curl http://localhost:4100/api/system/homeostasis
    curl http://localhost:4100/api/system/sleep/state

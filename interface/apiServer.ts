@@ -14,6 +14,7 @@ import {
   replay,
   intent,
   meta,
+  interoception,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -40,6 +41,7 @@ export const createInterfaceApp = () => {
     const replayState = replay.getState();
     const intentState = intent.getState();
     const metaState = meta.getState();
+    const interoceptionState = interoception.getState();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -88,6 +90,23 @@ export const createInterfaceApp = () => {
         forceSleepSoon: intentState.decision.forceSleepSoon,
         degradedMode: intentState.decision.degradedMode,
       },
+      meta: {
+        coherence: metaState.summary.coherence,
+        stressTrend: metaState.summary.stressTrend,
+        adaptationPhase: metaState.summary.adaptationPhase,
+        dominantIntent: metaState.summary.dominantIntent,
+        anomalies: metaState.summary.anomalies,
+      },
+      interoception: {
+        fatigue: interoceptionState.summary.fatigue,
+        tension: interoceptionState.summary.tension,
+        entropyPressure: interoceptionState.summary.entropyPressure,
+        readiness: interoceptionState.summary.readiness,
+        clarity: interoceptionState.summary.clarity,
+        overload: interoceptionState.summary.overload,
+        status: interoceptionState.summary.status,
+        annotations: interoceptionState.summary.annotations,
+      },
     }));
     const circulationState =
       beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
@@ -110,6 +129,7 @@ export const createInterfaceApp = () => {
         reflex: beat.reflex,
         intent: beat.intent,
         meta: beat.meta,
+        interoception: beat.interoception,
       },
     });
   });
@@ -170,6 +190,7 @@ export const createInterfaceApp = () => {
       replay: replay.getState(),
       intent: intent.getState(),
       meta: meta.getState(),
+      interoception: interoception.getState(),
     });
   });
 
@@ -181,6 +202,7 @@ export const createInterfaceApp = () => {
       replay: replay.getState(),
       intent: intent.getState(),
       meta: meta.getState(),
+      interoception: interoception.getState(),
     });
   });
 
@@ -225,6 +247,14 @@ export const createInterfaceApp = () => {
 
   app.get('/api/system/meta', (_req, res) => {
     res.json(meta.getState());
+  });
+
+  app.get('/api/system/interoception', (_req, res) => {
+    res.json(interoception.getState().summary);
+  });
+
+  app.get('/api/system/interoception/state', (_req, res) => {
+    res.json(interoception.getState());
   });
 
   app.get('/api/system/intent', (_req, res) => {
