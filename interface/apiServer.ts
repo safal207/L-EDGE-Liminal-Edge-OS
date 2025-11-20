@@ -88,13 +88,6 @@ export const createInterfaceApp = () => {
         forceSleepSoon: intentState.decision.forceSleepSoon,
         degradedMode: intentState.decision.degradedMode,
       },
-      meta: {
-        coherence: metaState.summary.coherence,
-        stressTrend: metaState.summary.stressTrend,
-        adaptationPhase: metaState.summary.adaptationPhase,
-        dominantIntent: metaState.summary.dominantIntent,
-        anomalies: metaState.summary.anomalies,
-      },
     }));
     const circulationState =
       beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
