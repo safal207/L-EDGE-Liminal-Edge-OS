@@ -153,6 +153,13 @@ export interface HeartbeatState {
   awarenessDecisions: number;
   runtimeActive: number;
   circulation?: HeartbeatCirculation;
+  transmutation?: HeartbeatTransmutation;
+  sleep?: HeartbeatSleep;
+  homeostasis?: HeartbeatHomeostasis;
+  reflex?: HeartbeatReflex;
+  perception?: HeartbeatPerception;
+  memory?: HeartbeatMemory;
+  replay?: HeartbeatReplay;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -171,4 +178,50 @@ export interface CirculationSnapshot extends HeartbeatCirculation {
   saturation: number;
   direction: string;
   lastDecisionId?: string;
+}
+
+export interface HeartbeatTransmutation {
+  lastMutation: number;
+  purified: number;
+  entropy: number;
+  signalStrength: number;
+}
+
+export interface HeartbeatSleep {
+  lastSleep: number;
+  noiseCleared: number;
+  dreamIterations?: number;
+}
+
+export interface HeartbeatHomeostasis {
+  stressScore: number;
+  loadLevel: string;
+}
+
+export interface HeartbeatReflex {
+  lastActionSeverity: string | null;
+  lastActionReason?: string;
+  actionsCount: number;
+}
+
+export interface HeartbeatPerception {
+  noiseLevel: number;
+  signalLevel: number;
+  anomalies: number;
+  status: string;
+}
+
+export interface HeartbeatMemory {
+  shortTerm: number;
+  longTerm: number;
+  lastConsolidatedAt: number;
+  status: string;
+}
+
+export interface HeartbeatReplay {
+  lastRunAt: number;
+  episodes: number;
+  avgIntegrationScore: number;
+  reliefScore: number;
+  status: string;
 }
