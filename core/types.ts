@@ -161,6 +161,7 @@ export interface HeartbeatState {
   memory?: HeartbeatMemory;
   replay?: HeartbeatReplay;
   intent?: HeartbeatIntent;
+  meta?: HeartbeatMeta;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -233,4 +234,12 @@ export interface HeartbeatIntent {
   throttleNonCritical: boolean;
   forceSleepSoon: boolean;
   degradedMode: boolean;
+}
+
+export interface HeartbeatMeta {
+  coherence: number;
+  stressTrend: string;
+  adaptationPhase: string;
+  dominantIntent: string;
+  anomalies: string[];
 }

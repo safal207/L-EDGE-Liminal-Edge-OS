@@ -13,6 +13,7 @@ import {
   memory,
   replay,
   intent,
+  meta,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -38,6 +39,7 @@ export const createInterfaceApp = () => {
     const memoryState = memory.getState();
     const replayState = replay.getState();
     const intentState = intent.getState();
+    const metaState = meta.getState();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -107,6 +109,7 @@ export const createInterfaceApp = () => {
         homeostasis: beat.homeostasis,
         reflex: beat.reflex,
         intent: beat.intent,
+        meta: beat.meta,
       },
     });
   });
@@ -166,6 +169,7 @@ export const createInterfaceApp = () => {
       memory: memory.getState(),
       replay: replay.getState(),
       intent: intent.getState(),
+      meta: meta.getState(),
     });
   });
 
@@ -176,6 +180,7 @@ export const createInterfaceApp = () => {
       memory: memory.getState(),
       replay: replay.getState(),
       intent: intent.getState(),
+      meta: meta.getState(),
     });
   });
 
@@ -216,6 +221,10 @@ export const createInterfaceApp = () => {
   app.post('/api/system/replay/trigger', (_req, res) => {
     const state = replay.runReplayCycle('manual');
     res.json(state);
+  });
+
+  app.get('/api/system/meta', (_req, res) => {
+    res.json(meta.getState());
   });
 
   app.get('/api/system/intent', (_req, res) => {
