@@ -12,6 +12,7 @@ import { HeartbeatState } from './types';
 import { ReflexEngine } from '../reflex/reflexEngine';
 import { PerceptionEngine } from '../perception/perceptionEngine';
 import { MemoryEngine } from '../memory/memoryEngine';
+import { DreamReplayEngine } from '../replay/dreamReplayEngine';
 import { v4 as uuidv4 } from 'uuid';
 
 const storage = createInMemoryLiminalStorage();
@@ -32,6 +33,7 @@ const transmutation = new TransmutationEngine({ storage, pump });
 const sleep = new SleepCycle({ storage, transmutation });
 const perception = new PerceptionEngine();
 const memory = new MemoryEngine();
+const replay = new DreamReplayEngine({ memory, transmutation, config: { maxEpisodes: 5, minStressThreshold: 0.15 } });
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 
@@ -42,6 +44,7 @@ const homeostasis = new HomeostasisManager({
   getTransmutationMetrics: () => transmutation.getMetrics(),
   getSleepMetrics: () => sleep.getState(),
   getPerceptionMetrics: () => perception.getSnapshot(),
+  getReplayMetrics: () => replay.getState(),
 });
 
 const reflex = new ReflexEngine();
@@ -52,6 +55,7 @@ heartbeat.onBeat((beat) => {
   const homeostasisState = homeostasis.getState();
   const perceptionSnapshot = perception.getSnapshot();
   const circulationSnapshot = circulation.getLatestSnapshot();
+  const replayState = replay.getState();
 
   if (circulationSnapshot) {
     memory.remember({
@@ -116,6 +120,19 @@ heartbeat.onBeat((beat) => {
     }
   }
 
+  if (replayState.lastResults.length) {
+    const lastResult = replayState.lastResults.at(-1);
+    if (lastResult) {
+      reflex.ingestEvent({
+        id: uuidv4(),
+        ts: Date.now(),
+        source: 'replay',
+        kind: lastResult.integrationScore >= 0.7 ? 'replay.success' : 'replay.minor',
+        details: lastResult,
+      });
+    }
+  }
+
   memory.decay();
 });
 
@@ -150,6 +167,7 @@ sleep.on('cycle', (metrics) => {
     payload: metrics,
   });
   memory.consolidate();
+  replay.runReplayCycle('sleep');
 });
 
 sleep.start();
@@ -170,4 +188,5 @@ export {
   reflex,
   perception,
   memory,
+  replay,
 };

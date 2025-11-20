@@ -11,6 +11,7 @@ import {
   reflex,
   perception,
   memory,
+  replay,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -34,6 +35,7 @@ export const createInterfaceApp = () => {
     const reflexState = reflex.getState();
     const perceptionSnapshot = perception.getSnapshot();
     const memoryState = memory.getState();
+    const replayState = replay.getState();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -47,6 +49,13 @@ export const createInterfaceApp = () => {
         longTerm: memoryState.longTerm.length,
         lastConsolidatedAt: memoryState.lastConsolidatedAt,
         status: memoryState.status,
+      },
+      replay: {
+        lastRunAt: replayState.lastRunAt,
+        episodes: replayState.episodesProcessed,
+        avgIntegrationScore: replayState.avgIntegrationScore,
+        reliefScore: replayState.reliefScore,
+        status: replayState.status,
       },
       transmutation: {
         lastMutation: transmutationMetrics.lastMutation,
@@ -82,6 +91,7 @@ export const createInterfaceApp = () => {
         runtime: { active: beat.runtimeActive },
         perception: beat.perception,
         memory: beat.memory,
+        replay: beat.replay,
         circulation: circulationState,
         transmutation: beat.transmutation,
         sleep: beat.sleep,
@@ -140,11 +150,16 @@ export const createInterfaceApp = () => {
   });
 
   app.get('/api/system/homeostasis', (_req, res) => {
-    res.json({ homeostasis: homeostasis.getState(), perception: perception.getSnapshot(), memory: memory.getState() });
+    res.json({
+      homeostasis: homeostasis.getState(),
+      perception: perception.getSnapshot(),
+      memory: memory.getState(),
+      replay: replay.getState(),
+    });
   });
 
   app.get('/api/system/reflex', (_req, res) => {
-    res.json({ ...reflex.getState(), perception: perception.getSnapshot(), memory: memory.getState() });
+    res.json({ ...reflex.getState(), perception: perception.getSnapshot(), memory: memory.getState(), replay: replay.getState() });
   });
 
   app.get('/api/system/memory', (_req, res) => {
@@ -167,6 +182,23 @@ export const createInterfaceApp = () => {
 
   app.get('/api/system/perception', (_req, res) => {
     res.json(perception.getSnapshot());
+  });
+
+  app.get('/api/system/replay', (_req, res) => {
+    res.json(replay.getSummary());
+  });
+
+  app.get('/api/system/replay/state', (_req, res) => {
+    res.json(replay.getState());
+  });
+
+  app.get('/api/system/replay/episodes', (_req, res) => {
+    res.json({ episodes: replay.getEpisodes(), results: replay.getResults() });
+  });
+
+  app.post('/api/system/replay/trigger', (_req, res) => {
+    const state = replay.runReplayCycle('manual');
+    res.json(state);
   });
 
   app.post('/api/system/perception/signal', (req, res) => {

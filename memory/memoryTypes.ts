@@ -8,6 +8,7 @@ export type MemorySource =
   | 'runtime'
   | 'edge'
   | 'homeostasis'
+  | 'replay'
   | 'external';
 
 export interface MemoryEvent {
@@ -27,6 +28,8 @@ export interface MemorySnapshot {
   eventTypes: Record<string, number>;
   volume: number;
   lastEventAt?: number;
+  averageIntensity?: number;
+  stressScore?: number;
 }
 
 export interface MemoryState {

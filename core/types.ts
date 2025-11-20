@@ -159,6 +159,7 @@ export interface HeartbeatState {
   reflex?: HeartbeatReflex;
   perception?: HeartbeatPerception;
   memory?: HeartbeatMemory;
+  replay?: HeartbeatReplay;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -214,5 +215,13 @@ export interface HeartbeatMemory {
   shortTerm: number;
   longTerm: number;
   lastConsolidatedAt: number;
+  status: string;
+}
+
+export interface HeartbeatReplay {
+  lastRunAt: number;
+  episodes: number;
+  avgIntegrationScore: number;
+  reliefScore: number;
   status: string;
 }

@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { MemoryEvent, MemorySnapshot } from './memoryTypes';
 
+const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+
 interface LongTermMemoryOptions {
   limit?: number;
 }
@@ -32,6 +34,10 @@ export class LongTermMemory {
       .slice(0, 3)
       .map(([source]) => source);
 
+    const averageIntensity = events.reduce((sum, evt) => sum + (evt.intensity ?? 0.5), 0) / events.length;
+    const stressSignals = (eventTypes['stress.critical'] ?? 0) + (eventTypes['stress.high'] ?? 0);
+    const stressScore = clamp((stressSignals / Math.max(events.length, 1)) * 0.6 + averageIntensity * 0.4);
+
     const snapshot: MemorySnapshot = {
       id: uuidv4(),
       ts: Date.now(),
@@ -40,6 +46,8 @@ export class LongTermMemory {
       eventTypes,
       volume: events.length,
       lastEventAt: Math.max(...events.map((e) => e.ts)),
+      averageIntensity,
+      stressScore,
     };
 
     this.snapshots.unshift(snapshot);

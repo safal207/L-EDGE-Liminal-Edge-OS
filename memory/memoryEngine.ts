@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import type { ReplayResult } from '../replay/types';
 import { LongTermMemory } from './longTermMemory';
 import { ShortTermMemory } from './shortTermMemory';
 import { MemoryEvent, MemoryState, RecallCriteria, RecallResult } from './memoryTypes';
@@ -47,6 +48,27 @@ export class MemoryEngine {
 
   decay(): void {
     this.shortTerm.decay();
+  }
+
+  ingestReplayResults(results: ReplayResult[], origin: string = 'replay.cycle'): void {
+    if (results.length === 0) return;
+
+    const events: MemoryEvent[] = results.map((result) => ({
+      id: uuidv4(),
+      ts: Date.now(),
+      source: 'replay',
+      type: origin,
+      intensity: clamp(result.integrationScore),
+      payload: {
+        episodeId: result.episodeId,
+        snapshotId: result.snapshotId,
+        reducedStress: result.reducedStress,
+        patternTags: result.patternTags,
+      },
+    }));
+
+    this.longTerm.addSnapshot(events);
+    this.lastConsolidatedAt = Date.now();
   }
 
   getState(): MemoryState {

@@ -32,6 +32,7 @@
 10. **Reflex / Nervous Layer** — быстрые защитные реакции при высоком стрессе, рекомендации по торможению и усилению очистки.
 11. **Perception / Sensorium Layer** — принимает внешние/внутренние сигналы, нормализует их и даёт снимок восприятия.
 12. **Memory Layer** — краткосрочная и долговременная память, перенос опыта через циклы сна/стресса.
+13. **DreamReplay / Experience Layer** — повторное проигрывание эпизодов во сне, интеграция паттернов обратно в память и регуляцию.
 
 ---
 
@@ -152,6 +153,7 @@ npm run dev           # запускает edge + interface в одном про
    curl http://localhost:4100/api/system/transmutation
    curl http://localhost:4100/api/system/perception
    curl http://localhost:4100/api/system/memory
+   curl http://localhost:4100/api/system/replay
    curl http://localhost:4100/api/system/homeostasis
    curl http://localhost:4100/api/system/sleep/state
    curl http://localhost:4100/api/runtime/state
@@ -199,6 +201,12 @@ npm run dev           # запускает edge + interface в одном про
 - Модуль `memory/` добавляет связку `shortTermMemory` + `longTermMemory` с автоматическим decay и консолидацией во время `sleepCycle`.
 - Новый `MemoryEngine` принимает события от циркуляции, homeostasis/reflex и сна, агрегирует их в снимки и даёт recall через API (`GET /api/system/memory`, `/short`, `/long`, `POST /api/system/memory/recall`).
 - `/api/system/health`, `/api/system/homeostasis` и `/api/system/reflex` показывают сводку памяти, а цикл дополняется памятью: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Memory → Awareness**.
+
+## Iteration 12 — DreamReplay / Experience Replayer
+
+- Модуль `replay/` с `DreamReplayEngine` выбирает стрессовые или новые эпизоды из долгосрочной памяти, прогоняет их через условную «песочницу» трансмутации и возвращает интеграцию обратно в память.
+- API-наблюдение: `GET /api/system/replay`, `/state`, `/episodes` и `POST /api/system/replay/trigger` для ручного прогона в dev-режиме.
+- `/api/system/health`, `/api/system/homeostasis` и `/api/system/reflex` содержат блок DreamReplay, а жизненный цикл включает этап **Sleep → DreamReplay → Memory → Homeostasis → Reflex** для интеграции опыта.
 
 ---
 

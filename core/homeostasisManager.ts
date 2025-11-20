@@ -3,6 +3,7 @@ import { CirculationSnapshot, HeartbeatState } from './types';
 import { SleepMetrics } from '../sleep/sleepCycle';
 import { TransmutationMetrics } from '../transmutation/contracts';
 import { PerceptionSnapshot } from '../perception/types';
+import { ReplayState } from '../replay/types';
 
 export interface StorageMetrics {
   size: number;
@@ -32,6 +33,7 @@ interface HomeostasisDeps {
   getTransmutationMetrics: () => TransmutationMetrics;
   getSleepMetrics: () => SleepMetrics;
   getPerceptionMetrics: () => PerceptionSnapshot;
+  getReplayMetrics?: () => ReplayState | undefined;
 }
 
 export class HomeostasisManager {
@@ -59,8 +61,9 @@ export class HomeostasisManager {
     const transmutation = this.deps.getTransmutationMetrics();
     const sleep = this.deps.getSleepMetrics();
     const perception = this.deps.getPerceptionMetrics();
+    const replay = this.deps.getReplayMetrics?.();
 
-    const stressScore = this.computeStress({ heartbeat, circulation, storage, transmutation, sleep, perception });
+    const stressScore = this.computeStress({ heartbeat, circulation, storage, transmutation, sleep, perception, replay });
     const loadLevel = this.resolveLoadLevel(stressScore);
     const recommendations = this.resolveRecommendations(stressScore);
 
@@ -79,6 +82,7 @@ export class HomeostasisManager {
     transmutation: TransmutationMetrics;
     sleep: SleepMetrics;
     perception: PerceptionSnapshot;
+    replay?: ReplayState;
   }): number {
     const storagePressure = clamp(params.storage.size / EDGE_EVENT_LIMIT);
     const resonanceLoad = clamp((params.heartbeat?.resonancePending ?? 0) / 20);
@@ -92,6 +96,8 @@ export class HomeostasisManager {
     const perceptionNoise = clamp(params.perception.noiseLevel);
     const perceptionAnomalies = clamp(params.perception.anomalies / 10);
 
+    const replayRelief = params.replay ? clamp(params.replay.reliefScore * 0.2 + params.replay.avgIntegrationScore * 0.1) : 0;
+
     const stressScore =
       storagePressure * 0.2 +
       resonanceLoad * 0.15 +
@@ -100,7 +106,8 @@ export class HomeostasisManager {
       entropyLoad * 0.1 +
       sleepDebt * 0.1 +
       perceptionNoise * 0.15 +
-      perceptionAnomalies * 0.1;
+      perceptionAnomalies * 0.1 -
+      replayRelief;
 
     return clamp(stressScore);
   }

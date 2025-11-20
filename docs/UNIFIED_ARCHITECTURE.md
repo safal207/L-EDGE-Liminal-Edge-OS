@@ -91,29 +91,35 @@ Iteration 1 добавляет каркас директории для кажд
 ### Transmutation & Sleep Layers (Iteration 7)
 1. **Transmutation Layer.** Орган в `transmutation/` слушает те же циркуляционные петли, прогоняет события через `entropyCleaner → signalSeparator → stateMutator` и возвращает очищенное состояние в `systemContext`. Метрики доступны на `GET /api/system/transmutation`.
 2. **Sleep Cycle Layer.** Каталог `sleep/` добавляет консолидацию памяти и dream-sandbox. Цикл запускается вручную (`POST /api/system/sleep`) или автоматически через `SleepScheduler`, а состояние можно прочитать по `GET /api/system/sleep/state`.
-3. **Расширенный heartbeat.** `/api/system/health` теперь содержит блоки `transmutation` (lastMutation/purified/entropy/signal) и `sleep` (lastSleep/noiseCleared). Цикл организма завершён: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Edge**.
+3. **Расширенный heartbeat.** `/api/system/health` теперь содержит блоки `transmutation` (lastMutation/purified/entropy/signal) и `sleep` (lastSleep/noiseCleared). Цикл организма завершён: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Edge**.
 
 ### Homeostasis Layer (Iteration 8)
 1. **Homeostasis Manager.** Новый модуль в `core/homeostasisManager.ts` собирает heartbeat/circulation/storage/transmutation/sleep метрики, вычисляет `stressScore` и выставляет рекомендации по очистке, сну и торможению Edge.
 2. **API.** Доступно `GET /api/system/homeostasis`, а `/api/system/health` теперь содержит секцию `homeostasis` с `stressScore` и `loadLevel`.
-3. **Регулятор в цикле.** Главная петля теперь наблюдается и корректируется: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Edge**.
+3. **Регулятор в цикле.** Главная петля теперь наблюдается и корректируется: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Awareness**.
 
 ### Perception / Sensorium Layer (Iteration 10)
 1. **Signal ingestion.** Новый орган в `perception/` принимает системные и внешние сигналы (telemetry/alert/anomaly/noise) и поддерживает историю в нормализованном формате.
 2. **Noise filtering.** `perceptionEngine.ts` фильтрует шум, выделяет аномалии, считает уровень сигнала/шума и публикует срез состояния со статусом `ok|noisy|degraded|critical`.
 3. **Integration.** Snapshot прокидывается в homeostasis и reflex, доступен через `/api/system/perception` и `POST /api/system/perception/signal`, а резюме выводится в `/api/system/health`.
-4. **Lifecycle position.** Полный виток теперь: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Awareness**.
+4. **Lifecycle position.** Полный виток теперь: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Awareness**.
 
 ### Reflex / Nervous System Layer (Iteration 9)
 1. **ReflexEngine.** Модуль в `reflex/` агрегирует сигналы (homeostasis стресс, runtime/circulation события), держит историю событий/действий и выдаёт быстрые рекомендации.
 2. **API.** Доступно `GET /api/system/reflex`, а `/api/system/health` показывает краткую сводку по последнему рефлексу (severity/reason/count).
-3. **Цикл с нервной системой.** Обновлённый контур: **Edge → Storage → Resonance → Awareness → Runtime → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Edge**.
+3. **Цикл с нервной системой.** Обновлённый контур: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Awareness**.
 
 ### Memory Layer (Iteration 11)
 1. **Short/long-term fabric.** Каталог `memory/` держит short-term события (bounded history с decay) и консолидирует их в long-term snapshots через `memoryEngine`.
 2. **Integration points.** Memory слушает циркуляцию, восприятие, homeostasis/reflex и циклы сна; консолидация триггерится `sleepCycle`, а новые события добавляются из heartbeat/perception/reflex.
 3. **API.** Наблюдаемость через `GET /api/system/memory`, `/short`, `/long`, а `POST /api/system/memory/recall` ищет по критериям (source/type/текст).
-4. **Lifecycle position.** Полный цикл включает память: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Homeostasis → Reflex → Memory → Awareness**.
+4. **Lifecycle position.** Полный цикл включает память и сонное переосмысление: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Awareness**.
+
+### DreamReplay Layer (Iteration 12)
+1. **Experience replayer.** `replay/dreamReplayEngine.ts` подбирает стрессовые/новые снимки из long-term memory, прогоняет их через «what-if» вариации трансмутации и вычисляет интеграцию.
+2. **Sleep trigger.** После завершения `sleepCycle` вызывается `runReplayCycle`, который записывает результаты обратно в память и уведомляет reflex/homeostasis через системный контекст.
+3. **API.** `/api/system/replay`, `/state`, `/episodes` отдают сводку и историю, а `POST /api/system/replay/trigger` позволяет вручную инициировать цикл в dev-сценариях.
+4. **Lifecycle position.** Ночная петля дополняется звеном переосмысления: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Awareness**.
 
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
