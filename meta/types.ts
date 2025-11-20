@@ -4,6 +4,7 @@ import { ReplayState } from '../replay/types';
 import { ReflexState } from '../reflex/types';
 import { IntentState } from '../intent/types';
 import { TransmutationMetrics } from '../transmutation/contracts';
+import { EmotionState } from '../emotion/contracts';
 
 export type StressTrend = 'rising' | 'falling' | 'stable';
 export type AdaptationPhase = 'steady-state' | 'escalation' | 'recovery';
@@ -40,4 +41,5 @@ export interface MetaContext {
   replay: ReplayState;
   intent: IntentState;
   transmutation?: TransmutationMetrics;
+  emotion?: EmotionState;
 }

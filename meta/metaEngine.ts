@@ -32,8 +32,15 @@ export class MetaEngine {
 
     const stressTrend = computeStressTrend(this.state.observations);
     const reflexFrequency = computeReflexFrequency(this.state.observations);
-    const anomalies = this.detectAnomalies(context, stressTrend, reflexFrequency);
-    const coherence = this.computeCoherence(context.homeostasis, reflexFrequency, observation.replayRelief, anomalies.length);
+    const emotionVolatility = context.emotion?.current.volatility ?? 0;
+    const anomalies = this.detectAnomalies(context, stressTrend, reflexFrequency, emotionVolatility);
+    const coherence = this.computeCoherence(
+      context.homeostasis,
+      reflexFrequency,
+      observation.replayRelief,
+      anomalies.length,
+      emotionVolatility,
+    );
     const adaptationPhase = this.resolveAdaptationPhase(stressTrend, observation.replayRelief, context.homeostasis.stressScore);
 
     this.state.summary = {
@@ -83,7 +90,12 @@ export class MetaEngine {
     };
   }
 
-  private detectAnomalies(context: MetaContext, trend: StressTrend, reflexFrequency: number): string[] {
+  private detectAnomalies(
+    context: MetaContext,
+    trend: StressTrend,
+    reflexFrequency: number,
+    emotionVolatility: number,
+  ): string[] {
     const anomalies: string[] = [];
     if (context.homeostasis.loadLevel === 'critical') {
       anomalies.push('stress.critical');
@@ -120,6 +132,14 @@ export class MetaEngine {
       anomalies.push('transmutation.weakSignal');
     }
 
+    if (emotionVolatility > 0.6) {
+      anomalies.push('emotion.volatility');
+    }
+
+    if (context.emotion?.current.state === 'overloadProtect') {
+      anomalies.push('emotion.protective');
+    }
+
     return anomalies;
   }
 
@@ -128,12 +148,14 @@ export class MetaEngine {
     reflexFrequency: number,
     replayRelief: number,
     anomalies: number,
+    emotionVolatility: number,
   ): number {
     const stressPenalty = homeostasis.stressScore * 0.5;
     const reflexPenalty = clamp(reflexFrequency * 0.1, 0, 0.3);
     const reliefBonus = replayRelief * 0.2;
     const anomalyPenalty = clamp(anomalies * 0.05, 0, 0.4);
-    const raw = 1 - stressPenalty - reflexPenalty - anomalyPenalty + reliefBonus;
+    const emotionPenalty = clamp(emotionVolatility * 0.15, 0, 0.25);
+    const raw = 1 - stressPenalty - reflexPenalty - anomalyPenalty - emotionPenalty + reliefBonus;
     return clamp(raw);
   }
 

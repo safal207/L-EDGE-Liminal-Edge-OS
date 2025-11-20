@@ -36,6 +36,7 @@
 14. **Intent / Volition Layer** — превращает стресс/рефлексы/память/сноведение в понятный режим работы и директивы для edge/runtime.
 15. **Meta / Observer Layer** — надсмотрщик, который отслеживает тренды по всем органам, вычисляет когерентность, отмечает аномалии и отдаёт сводку состояния организма.
 16. **Interoception / SenseEngine** — внутреннее чувство организма: превращает метрики стресса/шума/сна/нагрузки в «ощущение тела» (усталость, напряжение, перегруз) и отдаёт это Intent/Reflex/Homeostasis.
+17. **Emotion / Proto-Emotion Layer** — интегрирует внутренние (interoception/homeostasis/reflex) и внешние (perception) сигналы с Intent/Meta, вычисляя функциональные состояния (calmReady, focusThreat, exploreOpportunity и др.) и их волатильность.
 
 ---
 
@@ -48,6 +49,11 @@
 - **Орган:** `interoception/interoceptionEngine.ts` агрегирует сигналы из homeostasis/reflex/sleep/replay/perception/transmutation + heartbeat и вычисляет `fatigue`, `tension`, `entropyPressure`, `overload`, `clarity`, `status`, `annotations`.
 - **Интеграция:** обновляется на каждом heartbeat, доступен через `/api/system/interoception` и включён в `/api/system/health` рядом с meta/intent/reflex.
 - **Назначение:** даёт организму «ощущение тела», чтобы Intent/Reflex/Homeostasis могли опираться на усталость/перегруз, а не только на сухие метрики.
+
+### Emotion / Proto-Emotion Layer
+- **Орган:** `emotion/emotionEngine.ts` строит прототипические эмоциональные состояния из interoception/homeostasis/reflex/perception + intent/meta/replay контекста и хранит ограниченную историю с волатильностью.
+- **Интеграция:** обновляется каждый heartbeat, снабжает Reflex/Intent/Meta состоянием и доступен через `/api/system/emotion` и `/api/system/emotion/history`, включён в `/api/system/health`.
+- **Назначение:** добавляет эмоциональную модуляцию поведения (focusThreat, exploreOpportunity, recovering, overloadProtect), чтобы решения были гибкими, а защитные реакции — приоритетными.
 
 ---
 
@@ -167,6 +173,8 @@ npm run dev           # запускает edge + interface в одном про
    curl 'http://localhost:4100/api/system/circulation?limit=5'
    curl http://localhost:4100/api/system/transmutation
    curl http://localhost:4100/api/system/perception
+   curl http://localhost:4100/api/system/emotion
+   curl http://localhost:4100/api/system/emotion/history
    curl http://localhost:4100/api/system/memory
    curl http://localhost:4100/api/system/replay
    curl http://localhost:4100/api/system/interoception

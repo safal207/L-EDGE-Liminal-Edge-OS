@@ -163,6 +163,7 @@ export interface HeartbeatState {
   intent?: HeartbeatIntent;
   meta?: HeartbeatMeta;
   interoception?: HeartbeatInteroception;
+  emotion?: HeartbeatEmotion;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -254,5 +255,12 @@ export interface HeartbeatInteroception {
   clarity: number;
   overload: number;
   status: string;
+  annotations: string[];
+}
+
+export interface HeartbeatEmotion {
+  state: string;
+  confidence: number;
+  volatility: number;
   annotations: string[];
 }

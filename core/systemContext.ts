@@ -16,6 +16,7 @@ import { DreamReplayEngine } from '../replay/dreamReplayEngine';
 import { IntentEngine } from '../intent/intentEngine';
 import { MetaEngine } from '../meta/metaEngine';
 import { InteroceptionEngine } from '../interoception/interoceptionEngine';
+import { EmotionEngine } from '../emotion/emotionEngine';
 import { v4 as uuidv4 } from 'uuid';
 
 const storage = createInMemoryLiminalStorage();
@@ -40,6 +41,7 @@ const replay = new DreamReplayEngine({ memory, transmutation, config: { maxEpiso
 const intent = new IntentEngine();
 const meta = new MetaEngine();
 const interoception = new InteroceptionEngine();
+const emotion = new EmotionEngine();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 
@@ -64,6 +66,15 @@ heartbeat.onBeat((beat) => {
   const replayState = replay.getState();
   const transmutationMetrics = transmutation.getMetrics();
   const intentSnapshot = intent.getState();
+  const emotionSnapshot = emotion.evaluate({
+    homeostasis: homeostasisState,
+    interoception: interoception.getState(),
+    reflex: reflex.getState(),
+    perception: perceptionState.summary,
+    intent: intentSnapshot,
+    meta: meta.getState(),
+    replay: replayState,
+  });
   const interoceptionState = interoception.evaluate({
     homeostasis: homeostasisState,
     sleep: sleep.getState(),
@@ -84,6 +95,7 @@ heartbeat.onBeat((beat) => {
     memory: memory.getState(),
     perception: perceptionState.summary,
     interoception: interoceptionState,
+    emotion: emotionSnapshot,
   });
 
   if (circulationSnapshot) {
@@ -133,7 +145,7 @@ heartbeat.onBeat((beat) => {
   }
 
   const actionsBefore = reflex.getState().lastActions.length;
-  reflex.evaluate(homeostasisState);
+  reflex.evaluate(homeostasisState, emotionSnapshot.current);
   const actionsAfter = reflex.getState().lastActions.length;
 
   if (actionsAfter > actionsBefore) {
@@ -171,6 +183,7 @@ heartbeat.onBeat((beat) => {
     replay: replayState,
     intent: intentState,
     transmutation: transmutationMetrics,
+    emotion: emotionSnapshot,
   });
 
   void runtime.applyIntentDecision(intentState.decision);
@@ -232,4 +245,5 @@ export {
   intent,
   meta,
   interoception,
+  emotion,
 };

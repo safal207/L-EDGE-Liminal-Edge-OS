@@ -90,6 +90,7 @@ export class IntentEngine {
   }
 
   private resolveMode(context: IntentContext): IntentMode {
+    const emotionState = context.emotion?.current;
     const stress = context.homeostasis.stressScore;
     const lastReflex = context.reflex.lastActions.length
       ? context.reflex.lastActions[context.reflex.lastActions.length - 1]
@@ -98,6 +99,18 @@ export class IntentEngine {
     const memoryDebt = Math.max(0, context.memory.shortTerm.length - context.memory.longTerm.length * 2) /
       Math.max(1, context.memory.shortTermLimit);
     const interoception = context.interoception?.summary;
+
+    if (emotionState?.state === 'overloadProtect') {
+      return 'CRITICAL';
+    }
+
+    if (emotionState?.state === 'focusThreat' || emotionState?.state === 'alert') {
+      return stress >= 0.75 ? 'DEGRADED' : 'FOCUSED';
+    }
+
+    if (emotionState?.state === 'recovering') {
+      return 'HEALING';
+    }
 
     if (interoception?.status === 'critical' || (interoception?.overload ?? 0) > 0.85) {
       return 'CRITICAL';

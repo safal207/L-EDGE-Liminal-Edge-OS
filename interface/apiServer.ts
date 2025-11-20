@@ -15,6 +15,7 @@ import {
   intent,
   meta,
   interoception,
+  emotion,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -42,6 +43,7 @@ export const createInterfaceApp = () => {
     const intentState = intent.getState();
     const metaState = meta.getState();
     const interoceptionState = interoception.getState();
+    const emotionState = emotion.getState();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -108,6 +110,12 @@ export const createInterfaceApp = () => {
         status: interoceptionState.summary.status,
         annotations: interoceptionState.summary.annotations,
       },
+      emotion: {
+        state: emotionState.current.state,
+        confidence: emotionState.current.confidence,
+        volatility: emotionState.current.volatility,
+        annotations: emotionState.current.annotations,
+      },
     }));
     const circulationState =
       beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
@@ -131,6 +139,7 @@ export const createInterfaceApp = () => {
         intent: beat.intent,
         meta: beat.meta,
         interoception: beat.interoception,
+        emotion: beat.emotion,
       },
     });
   });
@@ -192,6 +201,7 @@ export const createInterfaceApp = () => {
       intent: intent.getState(),
       meta: meta.getState(),
       interoception: interoception.getState(),
+      emotion: emotion.getState(),
     });
   });
 
@@ -204,6 +214,7 @@ export const createInterfaceApp = () => {
       intent: intent.getState(),
       meta: meta.getState(),
       interoception: interoception.getState(),
+      emotion: emotion.getState(),
     });
   });
 
@@ -236,6 +247,15 @@ export const createInterfaceApp = () => {
 
   app.get('/api/system/perception/summary', (_req, res) => {
     res.json(perception.getSummary());
+  });
+
+  app.get('/api/system/emotion', (_req, res) => {
+    res.json(emotion.getState().current);
+  });
+
+  app.get('/api/system/emotion/history', (req, res) => {
+    const limit = parseLimit(req.query.limit, 20, 120);
+    res.json({ history: emotion.listHistory(limit) });
   });
 
   app.get('/api/system/replay', (_req, res) => {

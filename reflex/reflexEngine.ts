@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { HomeostasisState } from '../core/homeostasisManager';
+import { EmotionSnapshot } from '../emotion/contracts';
 import { ReflexAction, ReflexEvent, ReflexState } from './types';
 
 interface ReflexEngineOpts {
@@ -18,7 +19,22 @@ export class ReflexEngine {
     this.state.lastEvents = this.trim([...this.state.lastEvents, evt]);
   }
 
-  evaluate(homeostasis: HomeostasisState): void {
+  evaluate(homeostasis: HomeostasisState, emotion?: EmotionSnapshot): void {
+    if (emotion && (emotion.state === 'overloadProtect' || emotion.state === 'focusThreat')) {
+      this.pushAction({
+        id: uuidv4(),
+        ts: Date.now(),
+        severity: emotion.state === 'overloadProtect' ? 'critical' : 'warning',
+        reason: `emotion.${emotion.state}`,
+        commands: {
+          throttleEdge: emotion.state === 'overloadProtect',
+          forceSleep: homeostasis.stressScore > 0.7,
+          boostTransmutation: true,
+          openDegradedMode: emotion.state === 'overloadProtect',
+        },
+      });
+    }
+
     if (homeostasis.stressScore < 0.4) {
       return;
     }

@@ -4,6 +4,7 @@ import { ReplayState } from '../replay/types';
 import { ReflexState } from '../reflex/types';
 import { PerceptionSummary } from '../perception/types';
 import { InteroceptionState } from '../interoception/contracts';
+import { EmotionState } from '../emotion/contracts';
 
 export type IntentMode = 'CALM' | 'FOCUSED' | 'HEALING' | 'DEGRADED' | 'CRITICAL';
 
@@ -23,6 +24,7 @@ export interface IntentContext {
   memory: MemoryState;
   perception?: PerceptionSummary;
   interoception?: InteroceptionState;
+  emotion?: EmotionState;
 }
 
 export interface IntentState {
