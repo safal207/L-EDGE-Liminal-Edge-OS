@@ -1,13 +1,6 @@
 import { v4 as uuid } from 'uuid';
-import {
-  AwarenessSignal,
-  ProcessId,
-  ProcessSpec,
-  RuntimeHandle,
-  RuntimeProcessInfo,
-  RuntimeState,
-  RuntimeStateSummary,
-} from '../core';
+import { AwarenessSignal, ProcessId, ProcessSpec, RuntimeHandle, RuntimeProcessInfo, RuntimeState, RuntimeStateSummary } from '../core';
+import { IntentDecision } from '../intent/types';
 
 export interface RuntimeAdapter {
   startProcess(spec: ProcessSpec, reference?: string): Promise<RuntimeHandle>;
@@ -15,12 +8,14 @@ export interface RuntimeAdapter {
   getProcessState(id: ProcessId): Promise<RuntimeState>;
   getSystemState(): Promise<RuntimeStateSummary>;
   applyAwarenessSignal(signal: AwarenessSignal): Promise<void>;
+  applyIntentDecision(decision: IntentDecision): Promise<void>;
 }
 
 interface StoredProcess extends RuntimeProcessInfo {}
 
 export class InMemoryRuntimeAdapter implements RuntimeAdapter {
   private readonly processes = new Map<ProcessId, StoredProcess>();
+  private currentIntent?: IntentDecision;
 
   async startProcess(spec: ProcessSpec, reference?: string): Promise<RuntimeHandle> {
     const handle: StoredProcess = {
@@ -91,6 +86,16 @@ export class InMemoryRuntimeAdapter implements RuntimeAdapter {
 
     if (signal.type === 'stop-process' && existing) {
       await this.stopProcess(existing.id);
+    }
+  }
+
+  async applyIntentDecision(decision: IntentDecision): Promise<void> {
+    this.currentIntent = decision;
+    if (decision.degradedMode || decision.throttleNonCritical) {
+      console.info('[runtime] intent decision applied: energy-save/throttle enabled');
+    }
+    if (decision.forceSleepSoon) {
+      console.info('[runtime] intent decision suggests upcoming sleep');
     }
   }
 
