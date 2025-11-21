@@ -88,6 +88,74 @@ Iteration 1 добавляет каркас директории для кажд
 2. **Metrics & history.** `circulation/circulationEngine.ts` вычисляет скорость потока, «температуру» resonance, давление сигналов, насыщенность и деградацию («oretic loss») и синхронизирует их с `HeartbeatService`.
 3. **Observation.** Интерфейсный слой получил `GET /api/system/circulation`, а `HeartbeatState` теперь содержит `circulation` блок — операторы видят температуру резонанса, пульс (compression/expansion) и давление потока в реальном времени.
 
+### Transmutation & Sleep Layers (Iteration 7)
+1. **Transmutation Layer.** Орган в `transmutation/` слушает те же циркуляционные петли, прогоняет события через `entropyCleaner → signalSeparator → stateMutator` и возвращает очищенное состояние в `systemContext`. Метрики доступны на `GET /api/system/transmutation`.
+2. **Sleep Cycle Layer.** Каталог `sleep/` добавляет консолидацию памяти и dream-sandbox. Цикл запускается вручную (`POST /api/system/sleep`) или автоматически через `SleepScheduler`, а состояние можно прочитать по `GET /api/system/sleep/state`.
+3. **Расширенный heartbeat.** `/api/system/health` теперь содержит блоки `transmutation` (lastMutation/purified/entropy/signal) и `sleep` (lastSleep/noiseCleared). Цикл организма завершён: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Edge**.
+
+### Homeostasis Layer (Iteration 8)
+1. **Homeostasis Manager.** Новый модуль в `core/homeostasisManager.ts` собирает heartbeat/circulation/storage/transmutation/sleep метрики, вычисляет `stressScore` и выставляет рекомендации по очистке, сну и торможению Edge.
+2. **API.** Доступно `GET /api/system/homeostasis`, а `/api/system/health` теперь содержит секцию `homeostasis` с `stressScore` и `loadLevel`.
+3. **Регулятор в цикле.** Главная петля теперь наблюдается и корректируется: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Plasticity → Awareness**.
+
+### Perception / Sensorium Layer (Iteration 10)
+1. **Signal ingestion.** Новый орган в `perception/` принимает системные и внешние сигналы (telemetry/alert/anomaly/noise) и поддерживает историю в нормализованном формате.
+2. **Noise filtering.** `perceptionEngine.ts` фильтрует шум, выделяет аномалии, считает уровень сигнала/шума и публикует срез состояния со статусом `ok|noisy|degraded|critical`.
+3. **Integration.** Snapshot прокидывается в homeostasis и reflex, доступен через `/api/system/perception` и `POST /api/system/perception/signal`, а резюме выводится в `/api/system/health`.
+4. **Lifecycle position.** Полный виток теперь: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Plasticity → Awareness**.
+
+### Reflex / Nervous System Layer (Iteration 9)
+1. **ReflexEngine.** Модуль в `reflex/` агрегирует сигналы (homeostasis стресс, runtime/circulation события), держит историю событий/действий и выдаёт быстрые рекомендации.
+2. **API.** Доступно `GET /api/system/reflex`, а `/api/system/health` показывает краткую сводку по последнему рефлексу (severity/reason/count).
+3. **Цикл с нервной системой.** Обновлённый контур: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Awareness**.
+
+### Memory Layer (Iteration 11)
+1. **Short/long-term fabric.** Каталог `memory/` держит short-term события (bounded history с decay) и консолидирует их в long-term snapshots через `memoryEngine`.
+2. **Integration points.** Memory слушает циркуляцию, восприятие, homeostasis/reflex и циклы сна; консолидация триггерится `sleepCycle`, а новые события добавляются из heartbeat/perception/reflex.
+3. **API.** Наблюдаемость через `GET /api/system/memory`, `/short`, `/long`, а `POST /api/system/memory/recall` ищет по критериям (source/type/текст).
+4. **Lifecycle position.** Полный цикл включает память и сонное переосмысление: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Awareness**.
+
+### DreamReplay Layer (Iteration 12)
+1. **Experience replayer.** `replay/dreamReplayEngine.ts` подбирает стрессовые/новые снимки из long-term memory, прогоняет их через «what-if» вариации трансмутации и вычисляет интеграцию.
+2. **Sleep trigger.** После завершения `sleepCycle` вызывается `runReplayCycle`, который записывает результаты обратно в память и уведомляет reflex/homeostasis через системный контекст.
+3. **API.** `/api/system/replay`, `/state`, `/episodes` отдают сводку и историю, а `POST /api/system/replay/trigger` позволяет вручную инициировать цикл в dev-сценариях.
+4. **Lifecycle position.** Ночная петля дополняется звеном переосмысления: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Awareness**.
+
+### Intent / Volition Layer (Iteration 13)
+1. **IntentEngine.** Директория `intent/` содержит орган воли, который собирает срезы homeostasis/reflex/memory/replay, оценивает стресс и интеграцию и выбирает `IntentMode` (CALM/FOCUSED/HEALING/DEGRADED/CRITICAL).
+2. **Decisions.** `intentEngine` публикует `IntentDecision` флаги (`allowHeavyTasks`, `throttleNonCritical`, `preferCache`, `forceSleepSoon`, `degradedMode`, `boostTransmutation`) и поддерживает dev-override.
+3. **Integration.** Intent оценивается в heartbeat-петле, виден через `/api/system/intent` и выводится в `/api/system/health`, а runtime учитывает деградацию/энергосбережение через `applyIntentDecision`.
+4. **Lifecycle position.** Обновлённая петля воли: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Awareness**.
+
+### Meta / Observer Layer (Iteration 14)
+1. **MetaEngine + PatternDetector.** Каталог `meta/` собирает тренды homeostasis/reflex/sleep/replay/intent/transmutation, считает когерентность и определяет фазу адаптации (steady-state, escalation, recovery).
+2. **Anomaly lens.** Аномалии фиксируются при критическом стрессе, частых/критических рефлексах, слабом сигнале трансмутации и низкой восстановительной силе сна/реплея.
+3. **API & health.** `/api/system/meta` возвращает мета-состояние, а `/api/system/health` содержит блок `meta` (coherence, stress trend, adaptation phase, anomalies, dominant intent).
+4. **Lifecycle position.** Meta наблюдает за всей цепочкой и возвращает контекст в Awareness: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Awareness**.
+
+### Interoception / SenseEngine (Iteration 15)
+1. **Internal sensing.** `interoception/interoceptionEngine.ts` агрегирует низкоуровневые метрики сна/стресса/шумов/перегруза из homeostasis, reflex, sleep, replay, perception, transmutation, heartbeat и выдаёт `fatigue`, `tension`, `entropyPressure`, `overload`, `clarity`, `status`, `annotations`.
+2. **Heartbeat hook.** Каждое сердцебиение пересчитывает interoception state и публикует его в `systemContext` — Intent/Reflex/Homeostasis могут реагировать на усталость/перегруз, а не только на стрессScore.
+3. **API & health.** Новый эндпоинт `/api/system/interoception` отдаёт текущий снимок чувств, `/api/system/interoception/state` — полное состояние с историей сигналов; блок `interoception` добавлен в `/api/system/health`.
+4. **Lifecycle position.** Метка внутреннего чувства встраивается перед волей: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Awareness**.
+
+### Emotion / Proto-Emotion Layer (Iteration 16)
+1. **Proto-emotional synthesis.** `emotion/emotionEngine.ts` объединяет внутренние сигналы (interoception/homeostasis/reflex) и внешнее восприятие с Intent/Meta/Replay контекстом, формируя состояния `calmReady`, `focusThreat`, `exploreOpportunity`, `recovering`, `overloadProtect` и др., фиксируя confidence и волатильность.
+2. **Lifecycle wiring.** Emotion пересчитывается на каждом heartbeat и влияет на Reflex/Intent/Meta приоритеты; состояние доступно через `/api/system/emotion` и `/api/system/emotion/history`, а краткая сводка выводится в `/api/system/health`.
+3. **Purpose.** Добавляет эмоциональную модуляцию поведения: ускоряет защитные реакции при угрозах, поддерживает исследовательский режим при низком стрессе и сигнализирует о потребности восстановления при усталости.
+
+### Social Resonance Layer (Iteration 17)
+1. **Resonant field sensing.** `social/socialResonanceEngine.ts` объединяет emotion/intent/perception/interoception/meta сигналы и опциональные peer-снапшоты, вычисляя selfResonance, fieldResonance и peerResonance.
+2. **Recommendations.** На основе диссонанса/возможностей формирует рекомендации align/detach/amplify/shield/observe с приоритетом и целевым peer (если есть).
+3. **Interfaces.** Эндпоинты `/api/system/social/resonance` и `/api/system/social/peers` позволяют наблюдать состояние; блок `social` добавлен в `/api/system/health` и участвует в Intent/Meta расчетах.
+4. **Lifecycle position.** Социальный слой размещён между Emotion и Intent, подавая подсказки в волевую петлю: **... → Interoception → Emotion → Social → Intent → Meta → ...**.
+
+### Plasticity / Adaptation Layer (Iteration 18)
+1. **Adaptive memory of outcomes.** `plasticity/plasticityEngine.ts` собирает эпизоды контекст → действие → исход из homeostasis/reflex/emotion/intent/social и вычисляет мягкие корректировки чувствительности стресса и приоритетов рефлексов/Intent.
+2. **Safe clamping.** Все смещения ограничены (stressSensitivity, reflexPriorityBias, intentBias) и возвращаются в `systemContext.plasticity` для наблюдения и применения.
+3. **APIs & lifecycle.** `/api/system/plasticity` и `/api/system/plasticity/history` отражают адаптацию; блок `plasticity` добавлен в `/api/system/health`, а слепок всего организма доступен через `/api/system/organism`.
+4. **Lifecycle position.** Пластичность встраивается после social/meta, подавая адаптивные смещения в Intent/Meta и регистрируя свои эффекты для следующего цикла: **... → Emotion → Social → Intent → Meta → Plasticity → Awareness**.
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|
@@ -107,6 +175,7 @@ Iteration 1 добавляет каркас директории для кажд
 5. **Resonance Decisioning:** SOMA queries LiminalBD (e.g., `SELECT * FROM traffic_events WHERE anomaly_score > 0.7`) to detect resonances, runs council deliberations (Pythia, Architect, Morpheus) and emits new policies (e.g., "quarantine path /login").
 6. **Runtime Execution:** Policies published over LTP target Garden pods or direct L-EDGE cells. Garden updates pods, applies security pacts, logs runtime_events back to LiminalBD.
 7. **Operator Feedback:** LRI subscribes to telemetry (`/ws/resonance`) plus SOMA policy bus, renders flows/anomalies/decisions. Operator adjustments (e.g., "boost node_eu-west latency weight") go through LRI → SOMA → DAO_lim.
+8. **Perception → Transmutation → Sleep → Memory:** После восприятия и циркуляции очищенные состояния попадают в Transmutation Layer (entropy drop + signal tagging), затем Sleep Cycle консолидирует и очищает шум, а Memory переносит свежие события в long-term snapshots. Обновлённый контекст и память возвращаются в Awareness/Edge как топливо для следующего витка событий.
 
 ## 4. Storage Model — LiminalBD
 ### Core Entities
@@ -263,3 +332,6 @@ Iteration 1 добавляет каркас директории для кажд
 
 ---
 **Next Step:** Implement MVP iteration (Section 10) on branch `codex/mvp-somaseed-gateway-001` and keep this document as the authoritative reference for multi-repo integration.
+
+### Perception (External Sensing)
+PerceptionEngine ingests external network/runtime/storage signals, classifies them into pressure/threat/opportunity categories, and feeds summaries into homeostasis, reflex, intent, and meta cycles. Health surfaces now include perception summaries alongside interoception metrics.
