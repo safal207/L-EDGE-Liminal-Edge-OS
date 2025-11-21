@@ -153,6 +153,18 @@ export interface HeartbeatState {
   awarenessDecisions: number;
   runtimeActive: number;
   circulation?: HeartbeatCirculation;
+  transmutation?: HeartbeatTransmutation;
+  sleep?: HeartbeatSleep;
+  homeostasis?: HeartbeatHomeostasis;
+  reflex?: HeartbeatReflex;
+  perception?: HeartbeatPerception;
+  memory?: HeartbeatMemory;
+  replay?: HeartbeatReplay;
+  intent?: HeartbeatIntent;
+  meta?: HeartbeatMeta;
+  interoception?: HeartbeatInteroception;
+  emotion?: HeartbeatEmotion;
+  social?: HeartbeatSocial;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -171,4 +183,94 @@ export interface CirculationSnapshot extends HeartbeatCirculation {
   saturation: number;
   direction: string;
   lastDecisionId?: string;
+}
+
+export interface HeartbeatTransmutation {
+  lastMutation: number;
+  purified: number;
+  entropy: number;
+  signalStrength: number;
+}
+
+export interface HeartbeatSleep {
+  lastSleep: number;
+  noiseCleared: number;
+  dreamIterations?: number;
+}
+
+export interface HeartbeatHomeostasis {
+  stressScore: number;
+  loadLevel: string;
+}
+
+export interface HeartbeatReflex {
+  lastActionSeverity: string | null;
+  lastActionReason?: string;
+  actionsCount: number;
+}
+
+export interface HeartbeatPerception {
+  pressure: number;
+  threatScore: number;
+  opportunityScore: number;
+  noiseLevel: number;
+  status: string;
+}
+
+export interface HeartbeatMemory {
+  shortTerm: number;
+  longTerm: number;
+  lastConsolidatedAt: number;
+  status: string;
+}
+
+export interface HeartbeatReplay {
+  lastRunAt: number;
+  episodes: number;
+  avgIntegrationScore: number;
+  reliefScore: number;
+  status: string;
+}
+
+export interface HeartbeatIntent {
+  mode: string;
+  allowHeavyTasks: boolean;
+  throttleNonCritical: boolean;
+  forceSleepSoon: boolean;
+  degradedMode: boolean;
+}
+
+export interface HeartbeatMeta {
+  coherence: number;
+  stressTrend: string;
+  adaptationPhase: string;
+  dominantIntent: string;
+  anomalies: string[];
+}
+
+export interface HeartbeatInteroception {
+  fatigue: number;
+  tension: number;
+  entropyPressure: number;
+  readiness: number;
+  clarity: number;
+  overload: number;
+  status: string;
+  annotations: string[];
+}
+
+export interface HeartbeatEmotion {
+  state: string;
+  confidence: number;
+  volatility: number;
+  annotations: string[];
+}
+
+export interface HeartbeatSocial {
+  selfResonance: number;
+  coherence: number;
+  tension: number;
+  fieldStatus: string;
+  recommendation: string;
+  peers: number;
 }
