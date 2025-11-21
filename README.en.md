@@ -40,6 +40,11 @@
 - **Integration:** runs each heartbeat after intent/social/meta, adapts intent decisions before runtime application, surfaces via `/api/system/plasticity` and `/api/system/plasticity/history`, and adds a `plasticity` block to `/api/system/health`.
 - **Purpose:** lets the organism learn from its own history, easing noisy stress responses while reinforcing helpful reflexes.
 
+### SelfModel / Narrative Layer
+- **Organ:** `self/selfModelEngine.ts` aggregates heartbeat/homeostasis/interoception/emotion/perception/social/plasticity plus intent/reflex context into Episodes, distilling identity traits (risk-taking, calm-recovery, pattern-seeking, social orientation) and narrative arcs.
+- **Integration:** refreshed every heartbeat, exposed via `/api/system/self` and `/api/system/self/narrative`, and included inside `/api/system/health` and `/api/system/organism` snapshots.
+- **Purpose:** gives the organism a sense of self and repeated storylines (“under pressure → chooses protective intent → stabilizes”) so Intent/Meta/Reflex can account for character, not just momentary metrics.
+
 ---
 
 ## 🛠️ 2-week MVP

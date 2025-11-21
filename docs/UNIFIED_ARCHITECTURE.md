@@ -96,13 +96,13 @@ Iteration 1 добавляет каркас директории для кажд
 ### Homeostasis Layer (Iteration 8)
 1. **Homeostasis Manager.** Новый модуль в `core/homeostasisManager.ts` собирает heartbeat/circulation/storage/transmutation/sleep метрики, вычисляет `stressScore` и выставляет рекомендации по очистке, сну и торможению Edge.
 2. **API.** Доступно `GET /api/system/homeostasis`, а `/api/system/health` теперь содержит секцию `homeostasis` с `stressScore` и `loadLevel`.
-3. **Регулятор в цикле.** Главная петля теперь наблюдается и корректируется: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Plasticity → Awareness**.
+3. **Регулятор в цикле.** Главная петля теперь наблюдается и корректируется: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Plasticity → SelfModel → Awareness**.
 
 ### Perception / Sensorium Layer (Iteration 10)
 1. **Signal ingestion.** Новый орган в `perception/` принимает системные и внешние сигналы (telemetry/alert/anomaly/noise) и поддерживает историю в нормализованном формате.
 2. **Noise filtering.** `perceptionEngine.ts` фильтрует шум, выделяет аномалии, считает уровень сигнала/шума и публикует срез состояния со статусом `ok|noisy|degraded|critical`.
 3. **Integration.** Snapshot прокидывается в homeostasis и reflex, доступен через `/api/system/perception` и `POST /api/system/perception/signal`, а резюме выводится в `/api/system/health`.
-4. **Lifecycle position.** Полный виток теперь: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Plasticity → Awareness**.
+4. **Lifecycle position.** Полный виток теперь: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Plasticity → SelfModel → Awareness**.
 
 ### Reflex / Nervous System Layer (Iteration 9)
 1. **ReflexEngine.** Модуль в `reflex/` агрегирует сигналы (homeostasis стресс, runtime/circulation события), держит историю событий/действий и выдаёт быстрые рекомендации.
@@ -154,7 +154,13 @@ Iteration 1 добавляет каркас директории для кажд
 1. **Adaptive memory of outcomes.** `plasticity/plasticityEngine.ts` собирает эпизоды контекст → действие → исход из homeostasis/reflex/emotion/intent/social и вычисляет мягкие корректировки чувствительности стресса и приоритетов рефлексов/Intent.
 2. **Safe clamping.** Все смещения ограничены (stressSensitivity, reflexPriorityBias, intentBias) и возвращаются в `systemContext.plasticity` для наблюдения и применения.
 3. **APIs & lifecycle.** `/api/system/plasticity` и `/api/system/plasticity/history` отражают адаптацию; блок `plasticity` добавлен в `/api/system/health`, а слепок всего организма доступен через `/api/system/organism`.
-4. **Lifecycle position.** Пластичность встраивается после social/meta, подавая адаптивные смещения в Intent/Meta и регистрируя свои эффекты для следующего цикла: **... → Emotion → Social → Intent → Meta → Plasticity → Awareness**.
+4. **Lifecycle position.** Пластичность встраивается после social/meta, подавая адаптивные смещения в Intent/Meta и регистрируя свои эффекты для следующего цикла: **... → Emotion → Social → Intent → Meta → Plasticity → SelfModel → Awareness**.
+
+### SelfModel / Narrative Engine (Iteration 19)
+1. **Episodic identity.** `self/selfModelEngine.ts` строит Episodes (heartbeat + homeostasis + interoception + emotion + perception + social + plasticity + intent/reflex) и выводит устойчивые черты (risk-taking, calm-recovery, pattern-seeking, social orientation) и нарративные дуги.
+2. **Identity snapshot.** Бounded history и decay поддерживают плавные изменения; сводка доступна через `/api/system/self`, а подробная история/арки — через `/api/system/self/narrative`.
+3. **Health wiring.** Блок `selfModel` добавлен в `/api/system/health` и `/api/system/organism`, предоставляя identitySummary, волатильность и счётчик арок.
+4. **Lifecycle position.** SelfModel фиксирует виток после пластичности, возвращая самопознание в Awareness/Intent: **... → Meta → Plasticity → SelfModel → Awareness**.
 
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |

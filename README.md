@@ -39,6 +39,7 @@
 17. **Emotion / Proto-Emotion Layer** — интегрирует внутренние (interoception/homeostasis/reflex) и внешние (perception) сигналы с Intent/Meta, вычисляя функциональные состояния (calmReady, focusThreat, exploreOpportunity и др.) и их волатильность.
 18. **Social Resonance Layer** — чувствует резонанс с окружением (peers/field), соединяя emotion/intent/perception/interoception/meta и выдавая рекомендации: align/detach/observe/amplify/shield.
 19. **Plasticity / Adaptation Layer** — учится на истории стрессов/рефлексов/эмоций/намерений/социальных сдвигов, корректируя чувствительность, приоритет рефлексов и смещения Intent.
+20. **SelfModel / Narrative Layer** — собирает эпизоды (контекст → намерение → рефлекс → исход), формирует устойчивые черты/идентичность и нарративные дуги, чтобы система видела себя как субъект.
 
 ---
 
@@ -66,6 +67,11 @@
 - **Орган:** `plasticity/plasticityEngine.ts` фиксирует эпизоды (контекст → действие → исход) по homeostasis/reflex/emotion/intent/social и выдаёт предложения по адаптации чувствительности стресса, приоритетов рефлексов и смещений Intent.
 - **Интеграция:** запускается в heartbeat после intent/social/meta, адаптирует intent-решения для runtime, добавляет блок `plasticity` в `/api/system/health`, сводку по эндпоинтам `/api/system/plasticity` и `/api/system/plasticity/history`.
 - **Назначение:** учит организм мягко подстраивать реактивность и не зацикливаться на бесполезных тревогах, усиливая полезные рефлексы.
+
+### SelfModel / Narrative Layer
+- **Орган:** `self/selfModelEngine.ts` собирает Episodes (heartbeat + homeostasis + interoception + emotion + perception + social + plasticity + intent/reflex) и превращает их в устойчивые черты (risk-taking, calm-recovery, pattern-seeking, social orientation) и нарративные дуги.
+- **Интеграция:** обновляется на каждом heartbeat, доступен через `/api/system/self` и `/api/system/self/narrative`, добавляет `selfModel` в `/api/system/health` и `/api/system/organism`.
+- **Назначение:** даёт организму чувство собственной идентичности и повторяющихся сюжетов («под нагрузкой → выбирает защитный режим → стабилизируется»), чтобы Intent/Meta/Reflex могли учитывать характер системы.
 
 ---
 
@@ -194,6 +200,8 @@ npm run dev           # запускает edge + interface в одном про
    curl http://localhost:4100/api/system/intent
    curl http://localhost:4100/api/system/homeostasis
    curl http://localhost:4100/api/system/sleep/state
+   curl http://localhost:4100/api/system/self
+   curl http://localhost:4100/api/system/self/narrative
    curl http://localhost:4100/api/runtime/state
    ```
 

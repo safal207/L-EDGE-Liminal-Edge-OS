@@ -166,6 +166,7 @@ export interface HeartbeatState {
   emotion?: HeartbeatEmotion;
   social?: HeartbeatSocial;
   plasticity?: HeartbeatPlasticity;
+  selfModel?: HeartbeatSelfModel;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -282,4 +283,11 @@ export interface HeartbeatPlasticity {
   volatility: number;
   episodes: number;
   status: string;
+}
+
+export interface HeartbeatSelfModel {
+  identity: string;
+  traits: Record<string, number>;
+  arcs: number;
+  volatility: number;
 }

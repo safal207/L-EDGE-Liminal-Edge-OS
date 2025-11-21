@@ -18,6 +18,7 @@ import {
   emotion,
   social,
   plasticity,
+  selfModel,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -48,6 +49,7 @@ export const createInterfaceApp = () => {
     const emotionState = emotion.getState();
     const socialState = social.getState();
     const plasticityState = plasticity.getState();
+    const selfState = selfModel.getState();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -135,6 +137,12 @@ export const createInterfaceApp = () => {
         episodes: plasticityState.episodes.length,
         status: plasticityState.status,
       },
+      selfModel: {
+        identity: selfState.identitySummary,
+        traits: selfState.traits,
+        arcs: selfState.arcs.length,
+        volatility: selfState.volatility,
+      },
     }));
     const circulationState =
       beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
@@ -161,6 +169,7 @@ export const createInterfaceApp = () => {
         emotion: beat.emotion,
         social: beat.social,
         plasticity: beat.plasticity,
+        selfModel: beat.selfModel,
       },
     });
   });
@@ -225,6 +234,7 @@ export const createInterfaceApp = () => {
       emotion: emotion.getState(),
       social: social.getState(),
       plasticity: plasticity.getState(),
+      self: selfModel.getState(),
     });
   });
 
@@ -339,6 +349,21 @@ export const createInterfaceApp = () => {
     res.json({ episodes: plasticity.listEpisodes(limit) });
   });
 
+  app.get('/api/system/self', (_req, res) => {
+    const summary = selfModel.getSummary();
+    res.json({ ...summary, lastUpdate: summary.lastUpdated });
+  });
+
+  app.get('/api/system/self/narrative', (req, res) => {
+    const limit = parseLimit(req.query.limit, 20, 200);
+    const state = selfModel.getState();
+    res.json({
+      episodes: selfModel.listEpisodes(limit),
+      arcs: state.arcs.slice(-limit).reverse(),
+      volatility: state.volatility,
+    });
+  });
+
   app.get('/api/system/interoception', (_req, res) => {
     res.json(interoception.getState().summary);
   });
@@ -389,6 +414,7 @@ export const createInterfaceApp = () => {
       social: social.getState().summary,
       intent: intent.getState(),
       plasticity: plasticity.getState(),
+      self: selfModel.getSummary(),
     });
   });
 

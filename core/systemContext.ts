@@ -19,6 +19,7 @@ import { InteroceptionEngine } from '../interoception/interoceptionEngine';
 import { EmotionEngine } from '../emotion/emotionEngine';
 import { SocialResonanceEngine } from '../social/socialResonanceEngine';
 import { PlasticityEngine } from '../plasticity/plasticityEngine';
+import { SelfModelEngine } from '../self/selfModelEngine';
 import { clamp } from '../meta/patternDetector';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -47,6 +48,7 @@ const interoception = new InteroceptionEngine();
 const emotion = new EmotionEngine();
 const social = new SocialResonanceEngine();
 const plasticity = new PlasticityEngine();
+const selfModel = new SelfModelEngine();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 
@@ -208,10 +210,11 @@ heartbeat.onBeat((beat) => {
 
   const actionsBefore = reflex.getState().lastActions.length;
   reflex.evaluate(adaptedHomeostasis, emotionSnapshot.current);
-  const actionsAfter = reflex.getState().lastActions.length;
+  const reflexState = reflex.getState();
+  const actionsAfter = reflexState.lastActions.length;
 
   if (actionsAfter > actionsBefore) {
-    const action = reflex.getState().lastActions.at(-1);
+    const action = reflexState.lastActions.at(-1);
     if (action) {
       memory.remember({
         source: 'reflex',
@@ -222,6 +225,19 @@ heartbeat.onBeat((beat) => {
       });
     }
   }
+
+  selfModel.evaluate({
+    heartbeat: beat,
+    homeostasis: homeostasisState,
+    interoception: interoceptionState.summary,
+    emotion: emotionSnapshot.current,
+    perception: perceptionState.summary,
+    plasticity: plasticityState,
+    social: socialState.summary,
+    intent: intentStateWithAdaptation,
+    reflex: reflexState,
+    meta: meta.getState(),
+  });
 
   void runtime.applyIntentDecision(intentStateWithAdaptation.decision);
 });
@@ -285,4 +301,5 @@ export {
   emotion,
   social,
   plasticity,
+  selfModel,
 };
