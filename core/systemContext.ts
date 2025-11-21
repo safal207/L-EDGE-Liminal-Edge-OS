@@ -18,6 +18,8 @@ import { MetaEngine } from '../meta/metaEngine';
 import { InteroceptionEngine } from '../interoception/interoceptionEngine';
 import { EmotionEngine } from '../emotion/emotionEngine';
 import { SocialResonanceEngine } from '../social/socialResonanceEngine';
+import { PlasticityEngine } from '../plasticity/plasticityEngine';
+import { clamp } from '../meta/patternDetector';
 import { v4 as uuidv4 } from 'uuid';
 
 const storage = createInMemoryLiminalStorage();
@@ -44,6 +46,7 @@ const meta = new MetaEngine();
 const interoception = new InteroceptionEngine();
 const emotion = new EmotionEngine();
 const social = new SocialResonanceEngine();
+const plasticity = new PlasticityEngine();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 
@@ -111,6 +114,20 @@ heartbeat.onBeat((beat) => {
     peers: social.getState().peers,
   });
 
+  const plasticityState = plasticity.evaluate({
+    homeostasis: homeostasisState,
+    reflex: reflex.getState(),
+    intent: intentSnapshot,
+    emotion: emotionSnapshot,
+    social: socialState,
+    perception: perceptionState.summary,
+    interoception: interoceptionState,
+    meta: meta.getState(),
+  });
+
+  const intentDecisionWithAdaptation = plasticity.adaptIntentDecision(intentState.decision);
+  const intentStateWithAdaptation = { ...intentState, decision: intentDecisionWithAdaptation.decision };
+
   if (circulationSnapshot) {
     memory.remember({
       source: 'circulation',
@@ -157,23 +174,6 @@ heartbeat.onBeat((beat) => {
     });
   }
 
-  const actionsBefore = reflex.getState().lastActions.length;
-  reflex.evaluate(homeostasisState, emotionSnapshot.current);
-  const actionsAfter = reflex.getState().lastActions.length;
-
-  if (actionsAfter > actionsBefore) {
-    const action = reflex.getState().lastActions.at(-1);
-    if (action) {
-      memory.remember({
-        source: 'reflex',
-        type: `reflex.${action.severity}`,
-        ts: action.ts,
-        intensity: action.severity === 'critical' ? 1 : 0.75,
-        payload: action,
-      });
-    }
-  }
-
   if (replayState.lastResults.length) {
     const lastResult = replayState.lastResults.at(-1);
     if (lastResult) {
@@ -194,13 +194,36 @@ heartbeat.onBeat((beat) => {
     reflex: reflex.getState(),
     sleep: sleep.getState(),
     replay: replayState,
-    intent: intentState,
+    intent: intentStateWithAdaptation,
     transmutation: transmutationMetrics,
     emotion: emotionSnapshot,
     social: socialState,
+    plasticity: plasticityState,
   });
 
-  void runtime.applyIntentDecision(intentState.decision);
+  const adaptedHomeostasis = {
+    ...homeostasisState,
+    stressScore: clamp(homeostasisState.stressScore * plasticityState.suggestions.stressSensitivity),
+  };
+
+  const actionsBefore = reflex.getState().lastActions.length;
+  reflex.evaluate(adaptedHomeostasis, emotionSnapshot.current);
+  const actionsAfter = reflex.getState().lastActions.length;
+
+  if (actionsAfter > actionsBefore) {
+    const action = reflex.getState().lastActions.at(-1);
+    if (action) {
+      memory.remember({
+        source: 'reflex',
+        type: `reflex.${action.severity}`,
+        ts: action.ts,
+        intensity: action.severity === 'critical' ? 1 : 0.75,
+        payload: action,
+      });
+    }
+  }
+
+  void runtime.applyIntentDecision(intentStateWithAdaptation.decision);
 });
 
 heartbeat.onBeat((beat) => {
@@ -261,4 +284,5 @@ export {
   interoception,
   emotion,
   social,
+  plasticity,
 };

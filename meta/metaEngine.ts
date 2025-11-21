@@ -41,6 +41,7 @@ export class MetaEngine {
       anomalies.length,
       emotionVolatility,
       context.social?.summary.fieldResonance.dissonance,
+      context.plasticity?.volatility ?? 0,
     );
     const adaptationPhase = this.resolveAdaptationPhase(stressTrend, observation.replayRelief, context.homeostasis.stressScore);
 
@@ -147,6 +148,10 @@ export class MetaEngine {
       anomalies.push('social.charged');
     }
 
+    if ((context.plasticity?.volatility ?? 0) > 0.35) {
+      anomalies.push('plasticity.volatility');
+    }
+
     return anomalies;
   }
 
@@ -157,6 +162,7 @@ export class MetaEngine {
     anomalies: number,
     emotionVolatility: number,
     fieldDissonance = 0,
+    plasticityVolatility = 0,
   ): number {
     const stressPenalty = homeostasis.stressScore * 0.5;
     const reflexPenalty = clamp(reflexFrequency * 0.1, 0, 0.3);
@@ -164,7 +170,9 @@ export class MetaEngine {
     const anomalyPenalty = clamp(anomalies * 0.05, 0, 0.4);
     const emotionPenalty = clamp(emotionVolatility * 0.15, 0, 0.25);
     const socialPenalty = clamp(fieldDissonance * 0.2, 0, 0.25);
-    const raw = 1 - stressPenalty - reflexPenalty - anomalyPenalty - emotionPenalty - socialPenalty + reliefBonus;
+    const plasticityPenalty = clamp((homeostasis.stressScore * plasticityVolatility) * 0.15, 0, 0.2);
+    const raw =
+      1 - stressPenalty - reflexPenalty - anomalyPenalty - emotionPenalty - socialPenalty - plasticityPenalty + reliefBonus;
     return clamp(raw);
   }
 

@@ -35,6 +35,11 @@
 - **Integration:** updated each heartbeat, visible via `/api/system/social/resonance` and `/api/system/social/peers`, and surfaced in the `social` block of `/api/system/health`.
 - **Purpose:** gives the organism a sense of the surrounding field so Intent/Meta/Reflex can decide when to synchronize, when to guard, and when to amplify alignment.
 
+### Plasticity / Adaptation Layer
+- **Organ:** `plasticity/plasticityEngine.ts` records context → action → outcome episodes across homeostasis/reflex/emotion/intent/social trends and suggests small, clamped adjustments (stress sensitivity, reflex priority, intent bias).
+- **Integration:** runs each heartbeat after intent/social/meta, adapts intent decisions before runtime application, surfaces via `/api/system/plasticity` and `/api/system/plasticity/history`, and adds a `plasticity` block to `/api/system/health`.
+- **Purpose:** lets the organism learn from its own history, easing noisy stress responses while reinforcing helpful reflexes.
+
 ---
 
 ## 🛠️ 2-week MVP

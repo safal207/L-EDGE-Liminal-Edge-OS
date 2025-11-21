@@ -96,13 +96,13 @@ Iteration 1 добавляет каркас директории для кажд
 ### Homeostasis Layer (Iteration 8)
 1. **Homeostasis Manager.** Новый модуль в `core/homeostasisManager.ts` собирает heartbeat/circulation/storage/transmutation/sleep метрики, вычисляет `stressScore` и выставляет рекомендации по очистке, сну и торможению Edge.
 2. **API.** Доступно `GET /api/system/homeostasis`, а `/api/system/health` теперь содержит секцию `homeostasis` с `stressScore` и `loadLevel`.
-3. **Регулятор в цикле.** Главная петля теперь наблюдается и корректируется: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Awareness**.
+3. **Регулятор в цикле.** Главная петля теперь наблюдается и корректируется: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Plasticity → Awareness**.
 
 ### Perception / Sensorium Layer (Iteration 10)
 1. **Signal ingestion.** Новый орган в `perception/` принимает системные и внешние сигналы (telemetry/alert/anomaly/noise) и поддерживает историю в нормализованном формате.
 2. **Noise filtering.** `perceptionEngine.ts` фильтрует шум, выделяет аномалии, считает уровень сигнала/шума и публикует срез состояния со статусом `ok|noisy|degraded|critical`.
 3. **Integration.** Snapshot прокидывается в homeostasis и reflex, доступен через `/api/system/perception` и `POST /api/system/perception/signal`, а резюме выводится в `/api/system/health`.
-4. **Lifecycle position.** Полный виток теперь: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Awareness**.
+4. **Lifecycle position.** Полный виток теперь: **Edge → Storage → Resonance → Awareness → Runtime → Perception → Heartbeat → Circulation → Transmutation → Sleep → Replay → Memory → Homeostasis → Reflex → Interoception → Emotion → Social → Intent → Meta → Plasticity → Awareness**.
 
 ### Reflex / Nervous System Layer (Iteration 9)
 1. **ReflexEngine.** Модуль в `reflex/` агрегирует сигналы (homeostasis стресс, runtime/circulation события), держит историю событий/действий и выдаёт быстрые рекомендации.
@@ -149,6 +149,12 @@ Iteration 1 добавляет каркас директории для кажд
 2. **Recommendations.** На основе диссонанса/возможностей формирует рекомендации align/detach/amplify/shield/observe с приоритетом и целевым peer (если есть).
 3. **Interfaces.** Эндпоинты `/api/system/social/resonance` и `/api/system/social/peers` позволяют наблюдать состояние; блок `social` добавлен в `/api/system/health` и участвует в Intent/Meta расчетах.
 4. **Lifecycle position.** Социальный слой размещён между Emotion и Intent, подавая подсказки в волевую петлю: **... → Interoception → Emotion → Social → Intent → Meta → ...**.
+
+### Plasticity / Adaptation Layer (Iteration 18)
+1. **Adaptive memory of outcomes.** `plasticity/plasticityEngine.ts` собирает эпизоды контекст → действие → исход из homeostasis/reflex/emotion/intent/social и вычисляет мягкие корректировки чувствительности стресса и приоритетов рефлексов/Intent.
+2. **Safe clamping.** Все смещения ограничены (stressSensitivity, reflexPriorityBias, intentBias) и возвращаются в `systemContext.plasticity` для наблюдения и применения.
+3. **APIs & lifecycle.** `/api/system/plasticity` и `/api/system/plasticity/history` отражают адаптацию; блок `plasticity` добавлен в `/api/system/health`, а слепок всего организма доступен через `/api/system/organism`.
+4. **Lifecycle position.** Пластичность встраивается после social/meta, подавая адаптивные смещения в Intent/Meta и регистрируя свои эффекты для следующего цикла: **... → Emotion → Social → Intent → Meta → Plasticity → Awareness**.
 
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |

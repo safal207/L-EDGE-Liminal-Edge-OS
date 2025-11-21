@@ -17,6 +17,7 @@ import {
   interoception,
   emotion,
   social,
+  plasticity,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -46,6 +47,7 @@ export const createInterfaceApp = () => {
     const interoceptionState = interoception.getState();
     const emotionState = emotion.getState();
     const socialState = social.getState();
+    const plasticityState = plasticity.getState();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -126,6 +128,13 @@ export const createInterfaceApp = () => {
         recommendation: socialState.summary.recommendation.action,
         peers: socialState.peers.length,
       },
+      plasticity: {
+        stressSensitivity: plasticityState.suggestions.stressSensitivity,
+        reflexBias: plasticityState.suggestions.reflexPriorityBias,
+        volatility: plasticityState.volatility,
+        episodes: plasticityState.episodes.length,
+        status: plasticityState.status,
+      },
     }));
     const circulationState =
       beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
@@ -151,6 +160,7 @@ export const createInterfaceApp = () => {
         interoception: beat.interoception,
         emotion: beat.emotion,
         social: beat.social,
+        plasticity: beat.plasticity,
       },
     });
   });
@@ -214,6 +224,7 @@ export const createInterfaceApp = () => {
       interoception: interoception.getState(),
       emotion: emotion.getState(),
       social: social.getState(),
+      plasticity: plasticity.getState(),
     });
   });
 
@@ -228,6 +239,7 @@ export const createInterfaceApp = () => {
       interoception: interoception.getState(),
       emotion: emotion.getState(),
       social: social.getState(),
+      plasticity: plasticity.getState(),
     });
   });
 
@@ -318,6 +330,15 @@ export const createInterfaceApp = () => {
     res.json(meta.getState());
   });
 
+  app.get('/api/system/plasticity', (_req, res) => {
+    res.json(plasticity.getState());
+  });
+
+  app.get('/api/system/plasticity/history', (req, res) => {
+    const limit = parseLimit(req.query.limit, 20, 200);
+    res.json({ episodes: plasticity.listEpisodes(limit) });
+  });
+
   app.get('/api/system/interoception', (_req, res) => {
     res.json(interoception.getState().summary);
   });
@@ -357,6 +378,18 @@ export const createInterfaceApp = () => {
 
   app.get('/api/system/sleep/state', (_req, res) => {
     res.json(sleep.getState());
+  });
+
+  app.get('/api/system/organism', async (_req, res) => {
+    const beat = await heartbeat.capture();
+    res.json({
+      heartbeat: beat,
+      homeostasis: homeostasis.getState(),
+      emotion: emotion.getState().current,
+      social: social.getState().summary,
+      intent: intent.getState(),
+      plasticity: plasticity.getState(),
+    });
   });
 
   return app;

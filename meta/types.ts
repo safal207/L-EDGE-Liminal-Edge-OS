@@ -5,6 +5,7 @@ import { ReflexState } from '../reflex/types';
 import { IntentState } from '../intent/types';
 import { TransmutationMetrics } from '../transmutation/contracts';
 import { EmotionState } from '../emotion/contracts';
+import { PlasticityState } from '../plasticity/contracts';
 
 export interface MetaSocialHint {
   summary: {
@@ -50,4 +51,5 @@ export interface MetaContext {
   transmutation?: TransmutationMetrics;
   emotion?: EmotionState;
   social?: MetaSocialHint;
+  plasticity?: PlasticityState;
 }

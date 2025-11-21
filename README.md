@@ -38,6 +38,7 @@
 16. **Interoception / SenseEngine** — внутреннее чувство организма: превращает метрики стресса/шума/сна/нагрузки в «ощущение тела» (усталость, напряжение, перегруз) и отдаёт это Intent/Reflex/Homeostasis.
 17. **Emotion / Proto-Emotion Layer** — интегрирует внутренние (interoception/homeostasis/reflex) и внешние (perception) сигналы с Intent/Meta, вычисляя функциональные состояния (calmReady, focusThreat, exploreOpportunity и др.) и их волатильность.
 18. **Social Resonance Layer** — чувствует резонанс с окружением (peers/field), соединяя emotion/intent/perception/interoception/meta и выдавая рекомендации: align/detach/observe/amplify/shield.
+19. **Plasticity / Adaptation Layer** — учится на истории стрессов/рефлексов/эмоций/намерений/социальных сдвигов, корректируя чувствительность, приоритет рефлексов и смещения Intent.
 
 ---
 
@@ -60,6 +61,11 @@
 - **Орган:** `social/socialResonanceEngine.ts` агрегирует emotion/intent/perception/interoception/meta + опциональные peer-снапшоты и вычисляет self/peer/field resonance с рекомендациями (align, detach, amplify, shield, observe).
 - **Интеграция:** вызывается в каждом heartbeat, публикует сводку через `/api/system/social/resonance` и список пиров через `/api/system/social/peers`, добавляет блок `social` в `/api/system/health`.
 - **Назначение:** даёт организму чувство социального поля и подсказки для Intent/Meta/Reflex о том, когда усиливать синхронизацию или уходить в защиту.
+
+### Plasticity / Adaptation Layer
+- **Орган:** `plasticity/plasticityEngine.ts` фиксирует эпизоды (контекст → действие → исход) по homeostasis/reflex/emotion/intent/social и выдаёт предложения по адаптации чувствительности стресса, приоритетов рефлексов и смещений Intent.
+- **Интеграция:** запускается в heartbeat после intent/social/meta, адаптирует intent-решения для runtime, добавляет блок `plasticity` в `/api/system/health`, сводку по эндпоинтам `/api/system/plasticity` и `/api/system/plasticity/history`.
+- **Назначение:** учит организм мягко подстраивать реактивность и не зацикливаться на бесполезных тревогах, усиливая полезные рефлексы.
 
 ---
 
