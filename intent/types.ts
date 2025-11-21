@@ -6,6 +6,14 @@ import { PerceptionSummary } from '../perception/types';
 import { InteroceptionState } from '../interoception/contracts';
 import { EmotionState } from '../emotion/contracts';
 
+export interface IntentSocialHint {
+  summary: {
+    recommendation: { action: string };
+    fieldResonance: { status: string; dissonance: number };
+    selfResonance: { tension: number };
+  };
+}
+
 export type IntentMode = 'CALM' | 'FOCUSED' | 'HEALING' | 'DEGRADED' | 'CRITICAL';
 
 export interface IntentDecision {
@@ -25,6 +33,7 @@ export interface IntentContext {
   perception?: PerceptionSummary;
   interoception?: InteroceptionState;
   emotion?: EmotionState;
+  social?: IntentSocialHint;
 }
 
 export interface IntentState {

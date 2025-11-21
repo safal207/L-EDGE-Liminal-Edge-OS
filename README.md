@@ -37,6 +37,7 @@
 15. **Meta / Observer Layer** — надсмотрщик, который отслеживает тренды по всем органам, вычисляет когерентность, отмечает аномалии и отдаёт сводку состояния организма.
 16. **Interoception / SenseEngine** — внутреннее чувство организма: превращает метрики стресса/шума/сна/нагрузки в «ощущение тела» (усталость, напряжение, перегруз) и отдаёт это Intent/Reflex/Homeostasis.
 17. **Emotion / Proto-Emotion Layer** — интегрирует внутренние (interoception/homeostasis/reflex) и внешние (perception) сигналы с Intent/Meta, вычисляя функциональные состояния (calmReady, focusThreat, exploreOpportunity и др.) и их волатильность.
+18. **Social Resonance Layer** — чувствует резонанс с окружением (peers/field), соединяя emotion/intent/perception/interoception/meta и выдавая рекомендации: align/detach/observe/amplify/shield.
 
 ---
 
@@ -54,6 +55,11 @@
 - **Орган:** `emotion/emotionEngine.ts` строит прототипические эмоциональные состояния из interoception/homeostasis/reflex/perception + intent/meta/replay контекста и хранит ограниченную историю с волатильностью.
 - **Интеграция:** обновляется каждый heartbeat, снабжает Reflex/Intent/Meta состоянием и доступен через `/api/system/emotion` и `/api/system/emotion/history`, включён в `/api/system/health`.
 - **Назначение:** добавляет эмоциональную модуляцию поведения (focusThreat, exploreOpportunity, recovering, overloadProtect), чтобы решения были гибкими, а защитные реакции — приоритетными.
+
+### Social Resonance Layer
+- **Орган:** `social/socialResonanceEngine.ts` агрегирует emotion/intent/perception/interoception/meta + опциональные peer-снапшоты и вычисляет self/peer/field resonance с рекомендациями (align, detach, amplify, shield, observe).
+- **Интеграция:** вызывается в каждом heartbeat, публикует сводку через `/api/system/social/resonance` и список пиров через `/api/system/social/peers`, добавляет блок `social` в `/api/system/health`.
+- **Назначение:** даёт организму чувство социального поля и подсказки для Intent/Meta/Reflex о том, когда усиливать синхронизацию или уходить в защиту.
 
 ---
 

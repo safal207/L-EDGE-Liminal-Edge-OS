@@ -17,6 +17,7 @@ import { IntentEngine } from '../intent/intentEngine';
 import { MetaEngine } from '../meta/metaEngine';
 import { InteroceptionEngine } from '../interoception/interoceptionEngine';
 import { EmotionEngine } from '../emotion/emotionEngine';
+import { SocialResonanceEngine } from '../social/socialResonanceEngine';
 import { v4 as uuidv4 } from 'uuid';
 
 const storage = createInMemoryLiminalStorage();
@@ -42,6 +43,7 @@ const intent = new IntentEngine();
 const meta = new MetaEngine();
 const interoception = new InteroceptionEngine();
 const emotion = new EmotionEngine();
+const social = new SocialResonanceEngine();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 
@@ -96,6 +98,17 @@ heartbeat.onBeat((beat) => {
     perception: perceptionState.summary,
     interoception: interoceptionState,
     emotion: emotionSnapshot,
+    social: social.getState(),
+  });
+
+  const socialState = social.evaluate({
+    homeostasis: homeostasisState,
+    emotion: emotionSnapshot.current,
+    intent: intentState,
+    perception: perceptionState.summary,
+    interoception: interoceptionState.summary,
+    meta: meta.getState(),
+    peers: social.getState().peers,
   });
 
   if (circulationSnapshot) {
@@ -184,6 +197,7 @@ heartbeat.onBeat((beat) => {
     intent: intentState,
     transmutation: transmutationMetrics,
     emotion: emotionSnapshot,
+    social: socialState,
   });
 
   void runtime.applyIntentDecision(intentState.decision);
@@ -246,4 +260,5 @@ export {
   meta,
   interoception,
   emotion,
+  social,
 };

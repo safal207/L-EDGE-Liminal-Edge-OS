@@ -99,9 +99,18 @@ export class IntentEngine {
     const memoryDebt = Math.max(0, context.memory.shortTerm.length - context.memory.longTerm.length * 2) /
       Math.max(1, context.memory.shortTermLimit);
     const interoception = context.interoception?.summary;
+    const socialHint = context.social?.summary;
 
     if (emotionState?.state === 'overloadProtect') {
       return 'CRITICAL';
+    }
+
+    if (socialHint?.fieldResonance.status === 'overloaded' || socialHint?.recommendation.action === 'shield') {
+      return 'CRITICAL';
+    }
+
+    if (socialHint?.recommendation.action === 'detach' && (stress > 0.55 || (interoception?.overload ?? 0) > 0.6)) {
+      return 'DEGRADED';
     }
 
     if (emotionState?.state === 'focusThreat' || emotionState?.state === 'alert') {
@@ -141,6 +150,7 @@ export class IntentEngine {
 
   private resolveDecision(mode: IntentMode, context: IntentContext): IntentDecision {
     const base: IntentDecision = { ...defaultDecision };
+    const socialRecommendation = context.social?.summary.recommendation.action;
 
     switch (mode) {
       case 'CRITICAL':
@@ -161,7 +171,7 @@ export class IntentEngine {
           preferCache: true,
           forceSleepSoon: true,
           degradedMode: true,
-          boostTransmutation: context.homeostasis.stressScore > 0.8,
+          boostTransmutation: context.homeostasis.stressScore > 0.8 || socialRecommendation === 'shield',
         };
       case 'HEALING':
         return {
@@ -181,11 +191,14 @@ export class IntentEngine {
           preferCache: true,
           forceSleepSoon: false,
           degradedMode: false,
-          boostTransmutation: context.homeostasis.stressScore > 0.6,
+          boostTransmutation: context.homeostasis.stressScore > 0.6 || socialRecommendation === 'amplify',
         };
       case 'CALM':
       default:
-        return { ...base };
+        return {
+          ...base,
+          throttleNonCritical: socialRecommendation === 'observe' ? base.throttleNonCritical : base.throttleNonCritical,
+        };
     }
   }
 }

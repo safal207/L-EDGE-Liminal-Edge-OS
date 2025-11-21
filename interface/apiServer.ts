@@ -16,6 +16,7 @@ import {
   meta,
   interoception,
   emotion,
+  social,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -44,6 +45,7 @@ export const createInterfaceApp = () => {
     const metaState = meta.getState();
     const interoceptionState = interoception.getState();
     const emotionState = emotion.getState();
+    const socialState = social.getState();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -116,6 +118,14 @@ export const createInterfaceApp = () => {
         volatility: emotionState.current.volatility,
         annotations: emotionState.current.annotations,
       },
+      social: {
+        selfResonance: socialState.summary.selfResonance.score,
+        coherence: socialState.summary.selfResonance.coherence,
+        tension: socialState.summary.selfResonance.tension,
+        fieldStatus: socialState.summary.fieldResonance.status,
+        recommendation: socialState.summary.recommendation.action,
+        peers: socialState.peers.length,
+      },
     }));
     const circulationState =
       beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
@@ -140,6 +150,7 @@ export const createInterfaceApp = () => {
         meta: beat.meta,
         interoception: beat.interoception,
         emotion: beat.emotion,
+        social: beat.social,
       },
     });
   });
@@ -202,6 +213,7 @@ export const createInterfaceApp = () => {
       meta: meta.getState(),
       interoception: interoception.getState(),
       emotion: emotion.getState(),
+      social: social.getState(),
     });
   });
 
@@ -215,6 +227,7 @@ export const createInterfaceApp = () => {
       meta: meta.getState(),
       interoception: interoception.getState(),
       emotion: emotion.getState(),
+      social: social.getState(),
     });
   });
 
@@ -247,6 +260,32 @@ export const createInterfaceApp = () => {
 
   app.get('/api/system/perception/summary', (_req, res) => {
     res.json(perception.getSummary());
+  });
+
+  app.get('/api/system/social/resonance', (_req, res) => {
+    res.json(social.getState().summary);
+  });
+
+  app.get('/api/system/social/peers', (req, res) => {
+    const limit = parseLimit(req.query.limit, 20, 120);
+    res.json({ peers: social.listPeers(limit) });
+  });
+
+  app.post('/api/system/social/peers', (req, res) => {
+    const peer = req.body ?? {};
+    if (typeof peer.id !== 'string') {
+      res.status(400).json({ error: 'peer id is required' });
+      return;
+    }
+    social.upsertPeer({
+      id: peer.id,
+      alignment: typeof peer.alignment === 'number' ? peer.alignment : undefined,
+      syncPotential: typeof peer.syncPotential === 'number' ? peer.syncPotential : undefined,
+      tension: typeof peer.tension === 'number' ? peer.tension : undefined,
+      lastSeen: typeof peer.lastSeen === 'number' ? peer.lastSeen : undefined,
+      tags: Array.isArray(peer.tags) ? peer.tags : undefined,
+    });
+    res.json({ status: 'accepted' });
   });
 
   app.get('/api/system/emotion', (_req, res) => {

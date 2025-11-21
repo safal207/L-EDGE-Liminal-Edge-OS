@@ -12,7 +12,7 @@
     "dev:interface": "ts-node interface/apiServer.ts",
     "build": "tsc -p tsconfig.json",
     "check": "tsc --noEmit",
-    "test": "npm-run-all --serial test:storage test:circulation test:transmutation test:sleep test:homeostasis test:reflex test:perception test:memory test:replay test:intent test:interoception test:meta test:emotion",
+    "test": "npm-run-all --serial test:storage test:circulation test:transmutation test:sleep test:homeostasis test:reflex test:perception test:memory test:replay test:intent test:interoception test:meta test:emotion test:social",
     "test:storage": "ts-node tests/mockStorage.test.ts",
     "test:circulation": "ts-node tests/circulation.test.ts",
     "test:transmutation": "ts-node transmutation/tests/transmutationEngine.test.ts",
@@ -25,7 +25,8 @@
     "test:intent": "ts-node intent/tests/intentEngine.test.ts",
     "test:interoception": "ts-node interoception/tests/interoceptionEngine.test.ts",
     "test:meta": "ts-node meta/tests/metaEngine.test.ts",
-    "test:emotion": "ts-node emotion/tests/emotionEngine.test.ts"
+    "test:emotion": "ts-node emotion/tests/emotionEngine.test.ts",
+    "test:social": "ts-node social/tests/socialResonance.test.ts"
   },
   "keywords": [],
   "author": "",

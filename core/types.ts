@@ -164,6 +164,7 @@ export interface HeartbeatState {
   meta?: HeartbeatMeta;
   interoception?: HeartbeatInteroception;
   emotion?: HeartbeatEmotion;
+  social?: HeartbeatSocial;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -263,4 +264,13 @@ export interface HeartbeatEmotion {
   confidence: number;
   volatility: number;
   annotations: string[];
+}
+
+export interface HeartbeatSocial {
+  selfResonance: number;
+  coherence: number;
+  tension: number;
+  fieldStatus: string;
+  recommendation: string;
+  peers: number;
 }

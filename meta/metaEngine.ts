@@ -40,6 +40,7 @@ export class MetaEngine {
       observation.replayRelief,
       anomalies.length,
       emotionVolatility,
+      context.social?.summary.fieldResonance.dissonance,
     );
     const adaptationPhase = this.resolveAdaptationPhase(stressTrend, observation.replayRelief, context.homeostasis.stressScore);
 
@@ -140,6 +141,12 @@ export class MetaEngine {
       anomalies.push('emotion.protective');
     }
 
+    if (context.social?.summary.fieldResonance.status === 'overloaded') {
+      anomalies.push('social.overloaded');
+    } else if (context.social?.summary.fieldResonance.status === 'charged') {
+      anomalies.push('social.charged');
+    }
+
     return anomalies;
   }
 
@@ -149,13 +156,15 @@ export class MetaEngine {
     replayRelief: number,
     anomalies: number,
     emotionVolatility: number,
+    fieldDissonance = 0,
   ): number {
     const stressPenalty = homeostasis.stressScore * 0.5;
     const reflexPenalty = clamp(reflexFrequency * 0.1, 0, 0.3);
     const reliefBonus = replayRelief * 0.2;
     const anomalyPenalty = clamp(anomalies * 0.05, 0, 0.4);
     const emotionPenalty = clamp(emotionVolatility * 0.15, 0, 0.25);
-    const raw = 1 - stressPenalty - reflexPenalty - anomalyPenalty - emotionPenalty + reliefBonus;
+    const socialPenalty = clamp(fieldDissonance * 0.2, 0, 0.25);
+    const raw = 1 - stressPenalty - reflexPenalty - anomalyPenalty - emotionPenalty - socialPenalty + reliefBonus;
     return clamp(raw);
   }
 

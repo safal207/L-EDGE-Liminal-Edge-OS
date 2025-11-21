@@ -6,6 +6,13 @@ import { IntentState } from '../intent/types';
 import { TransmutationMetrics } from '../transmutation/contracts';
 import { EmotionState } from '../emotion/contracts';
 
+export interface MetaSocialHint {
+  summary: {
+    fieldResonance: { dissonance: number; status: string };
+    selfResonance: { score: number };
+  };
+}
+
 export type StressTrend = 'rising' | 'falling' | 'stable';
 export type AdaptationPhase = 'steady-state' | 'escalation' | 'recovery';
 
@@ -42,4 +49,5 @@ export interface MetaContext {
   intent: IntentState;
   transmutation?: TransmutationMetrics;
   emotion?: EmotionState;
+  social?: MetaSocialHint;
 }

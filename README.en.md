@@ -30,6 +30,11 @@
 - **Integration:** refreshed every heartbeat, feeds Reflex/Intent/Meta decisions, exposed via `/api/system/emotion` and `/api/system/emotion/history`, and included inside `/api/system/health`.
 - **Purpose:** adds emotional modulation so the organism can prioritize protective reflexes under threat, lean into opportunities when calm, and signal recovery when fatigued.
 
+### Social Resonance Layer
+- **Organ:** `social/socialResonanceEngine.ts` fuses emotion/intent/perception/interoception/meta signals (plus optional peer snapshots) to score self/peer/field resonance and emit recommendations (align, detach, amplify, shield, observe).
+- **Integration:** updated each heartbeat, visible via `/api/system/social/resonance` and `/api/system/social/peers`, and surfaced in the `social` block of `/api/system/health`.
+- **Purpose:** gives the organism a sense of the surrounding field so Intent/Meta/Reflex can decide when to synchronize, when to guard, and when to amplify alignment.
+
 ---
 
 ## 🛠️ 2-week MVP
