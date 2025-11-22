@@ -36,7 +36,7 @@ import { OriginNode } from './origin/origin';
 import { PathwayNode } from './pathway/pathway';
 import { FuzzyEvolutionNode } from './fuzzyEvolution/fuzzyEvolutionNode';
 import { ResonanceTuner } from './resonanceTuner/resonanceTuner';
-import { GenesisSeeds } from './genesis';
+import { GenesisSeeds } from './genesis/genesisSeeds';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -391,6 +391,12 @@ heartbeat.onBeat((beat) => {
     origin: originState,
     pathway: lastPathwayState,
   });
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
 
   lastGenesisPlan = genesisSeeds.update({
     origin: originState,
@@ -419,6 +425,13 @@ heartbeat.onBeat((beat) => {
     summary: lastFuzzyEvolutionState.summary,
   }, tuning: lastTuningPlan
     ? { mode: lastTuningPlan.mode, actions: lastTuningPlan.actions.length, summary: lastTuningPlan.summary }
+    : undefined, genesis: lastGenesisPlan
+    ? {
+        mode: lastGenesisPlan.mode,
+        ready: lastGenesisPlan.ready.length,
+        deferred: lastGenesisPlan.deferred.length,
+        summary: lastGenesisPlan.summary,
+      }
     : undefined };
 
   void runtime.applyIntentDecision(intentStateWithField.decision);

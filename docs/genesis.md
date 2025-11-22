@@ -1,31 +1,24 @@
-# Genesis Seeds / SOMA Seeds
+# Genesis Seeds (Assembly Point 14)
 
-Genesis — 14-я точка сборки, в которой система начинает формировать "деток": семена будущих модулей. Это не автогенерация кода, а карта готовности: какие живые элементы назрели из текущих состояний **Origin**, **Pathway**, **FuzzyEvolution** и подсказок **ResonanceTuner**.
+The Genesis layer expresses what the organism is ready to sprout next. It turns sensed origin, pathway, vibrational
+state, and resonance tuning into a plan of seeds, not automatic code generation.
 
-## Что возвращает план
+## What is produced
+- `ready` seeds: candidates the system feels prepared to grow now.
+- `deferred` seeds: sensed needs that should wait until the field settles.
+- A short summary tying the plan to the current tuning mode.
 
-`GenesisPlan` содержит:
+Seed kinds include stability soma cells, metric probes, resonance agents, memory traces, and integration tasks.
 
-- `ready` — семена, которые уже созрели и могут быть развёрнуты;
-- `deferred` — семена, которые ощущаются, но предлагаются к отложенному запуску;
-- `summary` — короткое резюме режима (интеграция, рост, ускорение) и количества семян.
+## Signals
+Genesis draws from:
+- **OriginState** – the root meaning and clarity.
+- **PathwayState** – current trajectory, branch movement, future pull.
+- **FuzzyEvolutionState** – tension/coherence/alignment gradients.
+- **ResonanceTuningPlan** – the advised global mode (rest, integration, steady growth, expansion, exploration).
 
-Типы семян:
+## API
+`GET /api/system/genesis/plan` returns the latest `GenesisPlan` with ready/deferred seeds and a human summary.
 
-- `soma_cell` — новая клетка состояния/устойчивости;
-- `metric_probe` — зонд/сенсор для тонкого измерения нагрузки;
-- `resonance_agent` — агент, работающий с внешним полем;
-- `memory_trace` — углубление памяти и логов;
-- `integration_task` — задачка на выравнивание и интеграцию изменений.
-
-## Как читать ready vs deferred
-
-- **Ready**: можно брать и воплощать сразу (новая SOMA-клетка, сенсор, агент).
-- **Deferred**: система чувствует их потребность, но советует дождаться более устойчивого режима.
-
-## Как использовать оператору/архитектору
-
-1. Запросить план: `GET /api/system/genesis/plan`.
-2. Выбрать семена из `ready`, материализовать их в реальные SOMA-клетки, сенсоры или агенты.
-3. При необходимости зафиксировать `deferred` в бэклог — вернуться к ним, когда ResonanceTuner покажет устойчивый рост.
-4. После внедрения смотреть, как это повлияло на FuzzyEvolution и последующие планы Genesis.
+## Lifecycle placement
+Meta → Origin → Pathway → FuzzyEvolution → ResonanceTuner → **Genesis Seeds** → (future) Genesis/Creation engines.

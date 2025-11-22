@@ -1,16 +1,13 @@
 # Genesis Seeds
 
-"Genesis" — слой, в котором система чувствует готовность породить новые живые модули. Здесь нет автогенерации кода: мы фиксируем семена (Seeds), которые назрели из текущего состояния Origin, Pathway, FuzzyEvolution и рекомендаций ResonanceTuner.
+The Genesis layer sketches which "seeds" the organism is ready to sprout next. It does **not** auto-create code;
+it produces a plan describing small cells, probes, or integration tasks that fit the current state.
 
-## Что такое семена
+## How it works
+- Observes **Origin**, **Pathway**, **FuzzyEvolution**, and **ResonanceTuner**.
+- Uses soft heuristics to propose `ready` seeds and `deferred` seeds.
+- Seeds include stability soma cells, metric probes, resonance agents, memory traces, and integration tasks.
 
-- **ready** — семена, которые уже созрели и могут быть развёрнуты оператором/архитектором.
-- **deferred** — семена, которые система чувствует, но предлагает отложить до более устойчивого режима.
-
-## Полезные сценарии
-
-- понять, какие SOMA-клетки или сенсоры стоит собрать в первую очередь;
-- увидеть, какие агенты для связи с внешним полем готовы к запуску;
-- сформировать список интеграционных задач для выравнивания Pathway.
-
-Genesis Seeds возвращает план через класс `GenesisSeeds` и, в интерфейсе, через эндпоинт `/api/system/genesis/plan`.
+## Why
+Genesis Seeds articulate readiness: instead of impulsively spawning modules, the system states why a seed matters,
+whether it should wait, and what shape it should take. This anchors future growth in sensed intent and current vibrational mode.
