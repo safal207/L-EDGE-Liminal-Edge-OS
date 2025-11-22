@@ -106,6 +106,7 @@ const getLatestNoosphereReport = (): NoosphereReport => {
 const getLatestScenarioResults = (): ScenarioResult[] => lastScenarioResults;
 const getLastHeartbeatSnapshot = (): HeartbeatState | undefined => lastHeartbeat;
 const getLastMetaSnapshot = (): MetaSystemSnapshot | undefined => lastMetaSnapshot;
+const getLastGenesisPlan = () => lastGenesisPlan;
 
 const homeostasis = new HomeostasisManager({
   getHeartbeatMetrics: () => lastHeartbeat,
@@ -397,6 +398,13 @@ heartbeat.onBeat((beat) => {
     tuning: lastTuningPlan,
   });
 
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
   lastHeartbeat = { ...heartbeatSnapshot, metaOrchestrator: lastMetaSnapshot, origin: {
     meaning: originState.rootVector.meaning,
     direction: originState.rootVector.direction,
@@ -503,4 +511,5 @@ export {
   getLatestScenarioResults,
   getLastHeartbeatSnapshot,
   getLastMetaSnapshot,
+  getLastGenesisPlan,
 };

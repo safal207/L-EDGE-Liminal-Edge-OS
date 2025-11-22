@@ -33,6 +33,7 @@ import {
   getLatestScenarioResults,
   getLastHeartbeatSnapshot,
   getLastMetaSnapshot,
+  getLastGenesisPlan,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
