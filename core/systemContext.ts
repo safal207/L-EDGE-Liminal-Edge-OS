@@ -36,6 +36,7 @@ import { OriginNode } from './origin/origin';
 import { PathwayNode } from './pathway/pathway';
 import { FuzzyEvolutionNode } from './fuzzyEvolution/fuzzyEvolutionNode';
 import { ResonanceTuner } from './resonanceTuner/resonanceTuner';
+import { GenesisSeeds } from './genesis';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -78,6 +79,7 @@ const origin = new OriginNode();
 const pathway = new PathwayNode();
 const fuzzyEvolution = new FuzzyEvolutionNode();
 const resonanceTuner = new ResonanceTuner();
+const genesisSeeds = new GenesisSeeds();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 let lastNoosphereReport: NoosphereReport | undefined;
@@ -86,6 +88,7 @@ let lastMetaSnapshot: MetaSystemSnapshot | undefined;
 let lastPathwayState = pathway.getState();
 let lastFuzzyEvolutionState = fuzzyEvolution.getState();
 let lastTuningPlan = resonanceTuner.getLastPlan();
+let lastGenesisPlan = genesisSeeds.getLastPlan();
 const getLatestNoosphereReport = (): NoosphereReport => {
   if (!lastNoosphereReport) {
     const snapshot = noosphere.getSnapshot();
@@ -103,6 +106,7 @@ const getLatestNoosphereReport = (): NoosphereReport => {
 const getLatestScenarioResults = (): ScenarioResult[] => lastScenarioResults;
 const getLastHeartbeatSnapshot = (): HeartbeatState | undefined => lastHeartbeat;
 const getLastMetaSnapshot = (): MetaSystemSnapshot | undefined => lastMetaSnapshot;
+const getLastGenesisPlan = () => lastGenesisPlan;
 
 const homeostasis = new HomeostasisManager({
   getHeartbeatMetrics: () => lastHeartbeat,
@@ -388,6 +392,13 @@ heartbeat.onBeat((beat) => {
     pathway: lastPathwayState,
   });
 
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
   lastHeartbeat = { ...heartbeatSnapshot, metaOrchestrator: lastMetaSnapshot, origin: {
     meaning: originState.rootVector.meaning,
     direction: originState.rootVector.direction,
@@ -481,9 +492,11 @@ export {
   pathway,
   fuzzyEvolution,
   resonanceTuner,
+  genesisSeeds,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
   getLastHeartbeatSnapshot,
   getLastMetaSnapshot,
+  getLastGenesisPlan,
 };

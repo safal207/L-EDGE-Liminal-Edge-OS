@@ -27,11 +27,13 @@ import {
   pathway,
   fuzzyEvolution,
   resonanceTuner,
+  genesisSeeds,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
   getLastHeartbeatSnapshot,
   getLastMetaSnapshot,
+  getLastGenesisPlan,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -468,6 +470,11 @@ export const createInterfaceApp = () => {
 
   app.get('/api/system/tuning/plan', (_req, res) => {
     const plan = resonanceTuner.getLastPlan();
+    res.json(plan ?? { status: 'no-plan-yet' });
+  });
+
+  app.get('/api/system/genesis/plan', (_req, res) => {
+    const plan = getLastGenesisPlan() ?? genesisSeeds.getLastPlan();
     res.json(plan ?? { status: 'no-plan-yet' });
   });
 
