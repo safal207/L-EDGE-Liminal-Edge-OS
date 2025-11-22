@@ -25,6 +25,31 @@
 5. **Liminal GraphDNS** — graph-based DNS; returns a weighted map of answers for resilience.
 6. **Liminal Worker Cells** — migratable workers; local thinking on the cells.
 
+### Emotion / Proto-Emotion Layer
+- **Organ:** `emotion/emotionEngine.ts` combines interoception/homeostasis/reflex and external perception signals (plus intent/meta/replay context) to emit proto-emotional states like `calmReady`, `focusThreat`, `exploreOpportunity`, `recovering`, and `overloadProtect` while tracking volatility.
+- **Integration:** refreshed every heartbeat, feeds Reflex/Intent/Meta decisions, exposed via `/api/system/emotion` and `/api/system/emotion/history`, and included inside `/api/system/health`.
+- **Purpose:** adds emotional modulation so the organism can prioritize protective reflexes under threat, lean into opportunities when calm, and signal recovery when fatigued.
+
+### Social Resonance Layer
+- **Organ:** `social/socialResonanceEngine.ts` fuses emotion/intent/perception/interoception/meta signals (plus optional peer snapshots) to score self/peer/field resonance and emit recommendations (align, detach, amplify, shield, observe).
+- **Integration:** updated each heartbeat, visible via `/api/system/social/resonance` and `/api/system/social/peers`, and surfaced in the `social` block of `/api/system/health`.
+- **Purpose:** gives the organism a sense of the surrounding field so Intent/Meta/Reflex can decide when to synchronize, when to guard, and when to amplify alignment.
+
+### Plasticity / Adaptation Layer
+- **Organ:** `plasticity/plasticityEngine.ts` records context → action → outcome episodes across homeostasis/reflex/emotion/intent/social trends and suggests small, clamped adjustments (stress sensitivity, reflex priority, intent bias).
+- **Integration:** runs each heartbeat after intent/social/meta, adapts intent decisions before runtime application, surfaces via `/api/system/plasticity` and `/api/system/plasticity/history`, and adds a `plasticity` block to `/api/system/health`.
+- **Purpose:** lets the organism learn from its own history, easing noisy stress responses while reinforcing helpful reflexes.
+
+### SelfModel / Narrative Layer
+- **Organ:** `self/selfModelEngine.ts` aggregates heartbeat/homeostasis/interoception/emotion/perception/social/plasticity plus intent/reflex context into Episodes, distilling identity traits (risk-taking, calm-recovery, pattern-seeking, social orientation) and narrative arcs.
+- **Integration:** refreshed every heartbeat, exposed via `/api/system/self` and `/api/system/self/narrative`, and included inside `/api/system/health` and `/api/system/organism` snapshots.
+- **Purpose:** gives the organism a sense of self and repeated storylines (“under pressure → chooses protective intent → stabilizes”) so Intent/Meta/Reflex can account for character, not just momentary metrics.
+
+### Collective Self / Shared Resonance Layer
+- **Organ:** `resonance/collectiveResonanceEngine.ts` with `resonance/templates.ts` compares current traits/emotion/perception against archetypal templates, surfacing mirrors (present alignment), echoes (past resonance), and seeds (future pull) plus volatility/primaryMode.
+- **Integration:** refreshed every heartbeat, exposed via `/api/system/resonance/collective` and `/api/system/resonance/collective/history`, and surfaced in the `collectiveResonance` block of `/api/system/health` and `/api/system/organism`.
+- **Purpose:** gives the organism a sense of collective alignment or fragmentation so Intent/Meta can respond when resonance drifts or stabilizes.
+
 ---
 
 ## 🛠️ 2-week MVP
