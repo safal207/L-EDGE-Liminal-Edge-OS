@@ -173,6 +173,11 @@ Iteration 1 добавляет каркас директории для кажд
 2. **Snapshots & metrics.** Поддерживает ограниченную историю, вычисляет энтропию прошлого поля и confidence будущих коридоров, публикуя сводку в heartbeat (`field`) и API `/api/system/field` + `/api/system/field/patterns`.
 3. **Lifecycle position.** Слой среды сидит рядом с collective/self: **... → Emotion → Social → Intent → Meta → Plasticity → SelfModel → Collective Resonance → Field → Awareness**, подпитывая Intent/Meta/Plasticity подсказками о коридорах возможностей и ловушках.
 
+### Noosphere Bridge / World Field (Iteration 24)
+1. **World imprints.** `noosphere/noosphereBridge.ts` загружает `WorldImprint` шаблоны из `noosphere/imprints.json` и сопоставляет их с полевыми паттернами (loops/traps/corridors), стрессом, эмоциями и восприятием, вычисляя веса активных отпечатков.
+2. **Support vs tension.** Публикует `supportLevel`, `tensionLevel` и `dominantTag` в `NoosphereSnapshot`, отражая, поддерживает ли большое поле рост/восстановление или сжимает систему кризисом/турбулентностью.
+3. **Lifecycle position.** Вызывается после field/collective/self на каждом heartbeat: **... → Collective Resonance → Field → Noosphere → Awareness**, добавляя блок `noosphere` в heartbeat, `/api/system/health`, `/api/system/organism` и эндпоинты `/api/system/noosphere` + `/api/system/noosphere/imprints`.
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|

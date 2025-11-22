@@ -42,6 +42,7 @@
 20. **SelfModel / Narrative Layer** — собирает эпизоды (контекст → намерение → рефлекс → исход), формирует устойчивые черты/идентичность и нарративные дуги, чтобы система видела себя как субъект.
 21. **Collective Self / Shared Resonance Layer** — сопоставляет SelfModel+Emotion+Perception с архетипическими шаблонами (mirrors/echoes/seeds), оценивает резонанс с настоящим, прошлым и возможным будущим, выдаёт primaryMode и рекомендации для intent/meta.
 22. **Field Resonance Layer** — наблюдает короткие цепочки состояний (намерение/эмоция/стресс) и выделяет петли поля: loops (циклы), traps (ловушки с высоким стрессом) и corridors (здоровые траектории), публикуя past/future поле в heartbeat и API.
+23. **Noosphere Bridge Layer** — сопоставляет локальные паттерны поля с библиотекой мировых отпечатков (imprints), вычисляет уровень поддержки/натяжения большого поля и публикует срез в heartbeat/API.
 
 ---
 
@@ -79,6 +80,11 @@
 - **Орган:** `field/fieldResonanceEngine.ts` вычисляет паттерны среды на основе цепочек heartbeat (intent/emotion/stress/perception) и выделяет `loop`, `trap`, `corridor` с ограниченной историей и энтропией/уверенностью.
 - **Интеграция:** обновляется на каждом heartbeat, публикует снимок через `/api/system/field` и список паттернов через `/api/system/field/patterns`, добавляет блок `field` в `/api/system/health` и `/api/system/organism`.
 - **Назначение:** фиксирует фоновые сценарии среды (циклы застревания, коридоры возможностей) для Intent/Meta/Plasticity, чтобы менять приоритеты и выходить из ловушек.
+
+### Noosphere Bridge / World Field Layer
+- **Орган:** `noosphere/noosphereBridge.ts` загружает `WorldImprint` шаблоны из `noosphere/imprints.json`, сравнивает их с полем (loops/traps/corridors), стрессом, эмоциями и восприятием, вычисляя `supportLevel`/`tensionLevel` и `dominantTag` большого поля.
+- **Интеграция:** обновляется в heartbeat после field/collective/self, публикует срез через `/api/system/noosphere` и конфиги через `/api/system/noosphere/imprints`, добавляет блок `noosphere` в `/api/system/health` и `/api/system/organism`.
+- **Назначение:** связывает локальные паттерны с мировыми нарративами (рост, кризис, турбулентность), помогая Intent/Meta понимать, поддерживает ли среда или сжимает систему.
 
 ### SelfModel / Narrative Layer
 - **Орган:** `self/selfModelEngine.ts` собирает Episodes (heartbeat + homeostasis + interoception + emotion + perception + social + plasticity + intent/reflex) и превращает их в устойчивые черты (risk-taking, calm-recovery, pattern-seeking, social orientation) и нарративные дуги.

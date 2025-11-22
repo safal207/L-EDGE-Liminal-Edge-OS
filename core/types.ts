@@ -169,6 +169,7 @@ export interface HeartbeatState {
   selfModel?: HeartbeatSelfModel;
   collectiveResonance?: HeartbeatCollectiveResonance;
   field?: HeartbeatField;
+  noosphere?: HeartbeatNoosphere;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -356,4 +357,20 @@ export interface HeartbeatField {
   pastEntropy: number;
   futureConfidence: number;
   dominantCorridor?: string;
+}
+
+export interface WorldImprint {
+  id: string;
+  source: 'config' | 'model' | 'remote';
+  scope: 'local' | 'global';
+  tags: string[];
+  direction: 'past' | 'future';
+  baseWeight?: number;
+  match?: Record<string, unknown>;
+}
+
+export interface HeartbeatNoosphere {
+  supportLevel: number;
+  tensionLevel: number;
+  dominantTag?: string;
 }

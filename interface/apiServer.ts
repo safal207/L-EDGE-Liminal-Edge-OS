@@ -21,6 +21,7 @@ import {
   selfModel,
   collective,
   field,
+  noosphere,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -54,6 +55,7 @@ export const createInterfaceApp = () => {
     const selfState = selfModel.getState();
     const collectiveSnapshot = collective.getSnapshot();
     const fieldSnapshot = field.getSnapshot();
+    const noosphereSnapshot = noosphere.getSnapshot();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -159,6 +161,11 @@ export const createInterfaceApp = () => {
         futureConfidence: fieldSnapshot.futureField.confidence,
         dominantCorridor: fieldSnapshot.futureField.candidatePatterns[0]?.id,
       },
+      noosphere: {
+        supportLevel: noosphereSnapshot.supportLevel,
+        tensionLevel: noosphereSnapshot.tensionLevel,
+        dominantTag: noosphereSnapshot.dominantTag,
+      },
     }));
     const circulationState =
       beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
@@ -188,6 +195,7 @@ export const createInterfaceApp = () => {
         selfModel: beat.selfModel,
         collectiveResonance: beat.collectiveResonance,
         field: beat.field,
+        noosphere: beat.noosphere,
       },
     });
   });
@@ -324,6 +332,14 @@ export const createInterfaceApp = () => {
     res.json({ patterns: field.listPatterns(limit), history: field.listHistory(limit) });
   });
 
+  app.get('/api/system/noosphere', (_req, res) => {
+    res.json(noosphere.getSnapshot());
+  });
+
+  app.get('/api/system/noosphere/imprints', (_req, res) => {
+    res.json({ imprints: noosphere.listImprints() });
+  });
+
   app.get('/api/system/social/peers', (req, res) => {
     const limit = parseLimit(req.query.limit, 20, 120);
     res.json({ peers: social.listPeers(limit) });
@@ -453,6 +469,7 @@ export const createInterfaceApp = () => {
       self: selfModel.getSummary(),
       collective: collective.getSnapshot(),
       field: field.getSnapshot(),
+      noosphere: noosphere.getSnapshot(),
     });
   });
 

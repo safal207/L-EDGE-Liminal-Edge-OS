@@ -55,6 +55,11 @@
 - **Integration:** runs every heartbeat, available through `/api/system/field` and `/api/system/field/patterns`, and included as a `field` block in `/api/system/health` and `/api/system/organism`.
 - **Purpose:** captures environmental grooves (stuck loops, stress traps, healthy corridors) so Intent/Meta/Plasticity can adjust priorities and escape repeating pitfalls.
 
+### Noosphere Bridge / World Field Layer
+- **Organ:** `noosphere/noosphereBridge.ts` loads `WorldImprint` templates from `noosphere/imprints.json`, compares them against field patterns (loops/traps/corridors), stress, emotion, and perception, and produces `supportLevel`/`tensionLevel` plus a `dominantTag` for the larger field.
+- **Integration:** refreshed each heartbeat after field/collective/self updates, exposed through `/api/system/noosphere` and `/api/system/noosphere/imprints`, and surfaced as a `noosphere` block in `/api/system/health` and `/api/system/organism`.
+- **Purpose:** links local patterns to broader world narratives (growth, crisis, turbulence) so Intent/Meta can sense whether the environment is supportive or compressive.
+
 ---
 
 ## 🛠️ 2-week MVP

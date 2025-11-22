@@ -22,6 +22,7 @@ import { PlasticityEngine } from '../plasticity/plasticityEngine';
 import { SelfModelEngine } from '../self/selfModelEngine';
 import { CollectiveResonanceEngine } from '../resonance/collectiveResonanceEngine';
 import { FieldResonanceEngine } from '../field/fieldResonanceEngine';
+import { NoosphereBridge } from '../noosphere/noosphereBridge';
 import { clamp } from '../meta/patternDetector';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -53,6 +54,7 @@ const plasticity = new PlasticityEngine();
 const selfModel = new SelfModelEngine();
 const collective = new CollectiveResonanceEngine();
 const field = new FieldResonanceEngine();
+const noosphere = new NoosphereBridge();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 
@@ -258,6 +260,14 @@ heartbeat.onBeat((beat) => {
     annotations: [perceptionState.summary.status, intentStateWithAdaptation.mode],
   });
 
+  const noosphereSnapshot = noosphere.compute({
+    field: fieldSnapshot,
+    self: selfModel.getSummary(),
+    emotion: emotionSnapshot.current,
+    homeostasis: homeostasisState,
+    perception: perceptionState.summary,
+  });
+
   lastHeartbeat = {
     ...beat,
     collectiveResonance: {
@@ -271,6 +281,11 @@ heartbeat.onBeat((beat) => {
       pastEntropy: fieldSnapshot.pastField.entropy,
       futureConfidence: fieldSnapshot.futureField.confidence,
       dominantCorridor: fieldSnapshot.futureField.candidatePatterns[0]?.id,
+    },
+    noosphere: {
+      supportLevel: noosphereSnapshot.supportLevel,
+      tensionLevel: noosphereSnapshot.tensionLevel,
+      dominantTag: noosphereSnapshot.dominantTag,
     },
   };
 
@@ -339,4 +354,5 @@ export {
   selfModel,
   collective,
   field,
+  noosphere,
 };
