@@ -41,6 +41,7 @@
 19. **Plasticity / Adaptation Layer** — учится на истории стрессов/рефлексов/эмоций/намерений/социальных сдвигов, корректируя чувствительность, приоритет рефлексов и смещения Intent.
 20. **SelfModel / Narrative Layer** — собирает эпизоды (контекст → намерение → рефлекс → исход), формирует устойчивые черты/идентичность и нарративные дуги, чтобы система видела себя как субъект.
 21. **Collective Self / Shared Resonance Layer** — сопоставляет SelfModel+Emotion+Perception с архетипическими шаблонами (mirrors/echoes/seeds), оценивает резонанс с настоящим, прошлым и возможным будущим, выдаёт primaryMode и рекомендации для intent/meta.
+22. **Field Resonance Layer** — наблюдает короткие цепочки состояний (намерение/эмоция/стресс) и выделяет петли поля: loops (циклы), traps (ловушки с высоким стрессом) и corridors (здоровые траектории), публикуя past/future поле в heartbeat и API.
 
 ---
 
@@ -73,6 +74,11 @@
 - **Орган:** `resonance/collectiveResonanceEngine.ts` + `resonance/templates.ts` сопоставляют текущие черты/эмоции/восприятие с шаблонами и выделяют mirrors (созвучие с настоящими ролями), echoes (отголоски прошлого) и seeds (намёки на будущее), собирая volatility и primaryMode.
 - **Интеграция:** обновляется каждое сердцебиение, публикует срез через `/api/system/resonance/collective` и историю через `/api/system/resonance/collective/history`, добавляет `collectiveResonance` в `/api/system/health` и `/api/system/organism`.
 - **Назначение:** даёт организму чувство коллективного поля и сонастройки с архетипами, помогает Intent/Meta видеть, когда система изолирована/резонирует/фрагментируется.
+
+### Field Resonance Layer
+- **Орган:** `field/fieldResonanceEngine.ts` вычисляет паттерны среды на основе цепочек heartbeat (intent/emotion/stress/perception) и выделяет `loop`, `trap`, `corridor` с ограниченной историей и энтропией/уверенностью.
+- **Интеграция:** обновляется на каждом heartbeat, публикует снимок через `/api/system/field` и список паттернов через `/api/system/field/patterns`, добавляет блок `field` в `/api/system/health` и `/api/system/organism`.
+- **Назначение:** фиксирует фоновые сценарии среды (циклы застревания, коридоры возможностей) для Intent/Meta/Plasticity, чтобы менять приоритеты и выходить из ловушек.
 
 ### SelfModel / Narrative Layer
 - **Орган:** `self/selfModelEngine.ts` собирает Episodes (heartbeat + homeostasis + interoception + emotion + perception + social + plasticity + intent/reflex) и превращает их в устойчивые черты (risk-taking, calm-recovery, pattern-seeking, social orientation) и нарративные дуги.

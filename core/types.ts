@@ -168,6 +168,7 @@ export interface HeartbeatState {
   plasticity?: HeartbeatPlasticity;
   selfModel?: HeartbeatSelfModel;
   collectiveResonance?: HeartbeatCollectiveResonance;
+  field?: HeartbeatField;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -327,4 +328,32 @@ export interface HeartbeatCollectiveResonance {
   topEcho?: string;
   topSeed?: string;
   volatility: number;
+}
+
+export type FieldPatternKind = 'loop' | 'trap' | 'corridor';
+
+export interface FieldPattern {
+  id: string;
+  kind: FieldPatternKind;
+  tags: string[];
+  strength: number;
+  evidenceCount: number;
+}
+
+export interface FieldSnapshot {
+  pastField: {
+    dominantPatterns: FieldPattern[];
+    entropy: number;
+  };
+  futureField: {
+    candidatePatterns: FieldPattern[];
+    confidence: number;
+  };
+  lastUpdated: number;
+}
+
+export interface HeartbeatField {
+  pastEntropy: number;
+  futureConfidence: number;
+  dominantCorridor?: string;
 }

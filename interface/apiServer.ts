@@ -20,6 +20,7 @@ import {
   plasticity,
   selfModel,
   collective,
+  field,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -52,6 +53,7 @@ export const createInterfaceApp = () => {
     const plasticityState = plasticity.getState();
     const selfState = selfModel.getState();
     const collectiveSnapshot = collective.getSnapshot();
+    const fieldSnapshot = field.getSnapshot();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -152,6 +154,11 @@ export const createInterfaceApp = () => {
         topSeed: collectiveSnapshot.topSeeds[0]?.templateId,
         volatility: collectiveSnapshot.volatility,
       },
+      field: {
+        pastEntropy: fieldSnapshot.pastField.entropy,
+        futureConfidence: fieldSnapshot.futureField.confidence,
+        dominantCorridor: fieldSnapshot.futureField.candidatePatterns[0]?.id,
+      },
     }));
     const circulationState =
       beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
@@ -180,6 +187,7 @@ export const createInterfaceApp = () => {
         plasticity: beat.plasticity,
         selfModel: beat.selfModel,
         collectiveResonance: beat.collectiveResonance,
+        field: beat.field,
       },
     });
   });
@@ -305,6 +313,15 @@ export const createInterfaceApp = () => {
   app.get('/api/system/resonance/collective/history', (req, res) => {
     const limit = parseLimit(req.query.limit, 20, 200);
     res.json({ history: collective.listHistory(limit) });
+  });
+
+  app.get('/api/system/field', (_req, res) => {
+    res.json(field.getSnapshot());
+  });
+
+  app.get('/api/system/field/patterns', (req, res) => {
+    const limit = parseLimit(req.query.limit, 10, 120);
+    res.json({ patterns: field.listPatterns(limit), history: field.listHistory(limit) });
   });
 
   app.get('/api/system/social/peers', (req, res) => {
@@ -435,6 +452,7 @@ export const createInterfaceApp = () => {
       plasticity: plasticity.getState(),
       self: selfModel.getSummary(),
       collective: collective.getSnapshot(),
+      field: field.getSnapshot(),
     });
   });
 

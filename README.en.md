@@ -50,6 +50,11 @@
 - **Integration:** refreshed every heartbeat, exposed via `/api/system/resonance/collective` and `/api/system/resonance/collective/history`, and surfaced in the `collectiveResonance` block of `/api/system/health` and `/api/system/organism`.
 - **Purpose:** gives the organism a sense of collective alignment or fragmentation so Intent/Meta can respond when resonance drifts or stabilizes.
 
+### Field Resonance Layer
+- **Organ:** `field/fieldResonanceEngine.ts` scores loops, traps, and corridors from heartbeat chains (intent/emotion/stress/perception), maintaining bounded history plus entropy/confidence for past/future snapshots.
+- **Integration:** runs every heartbeat, available through `/api/system/field` and `/api/system/field/patterns`, and included as a `field` block in `/api/system/health` and `/api/system/organism`.
+- **Purpose:** captures environmental grooves (stuck loops, stress traps, healthy corridors) so Intent/Meta/Plasticity can adjust priorities and escape repeating pitfalls.
+
 ---
 
 ## 🛠️ 2-week MVP

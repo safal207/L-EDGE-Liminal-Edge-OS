@@ -21,6 +21,7 @@ import { SocialResonanceEngine } from '../social/socialResonanceEngine';
 import { PlasticityEngine } from '../plasticity/plasticityEngine';
 import { SelfModelEngine } from '../self/selfModelEngine';
 import { CollectiveResonanceEngine } from '../resonance/collectiveResonanceEngine';
+import { FieldResonanceEngine } from '../field/fieldResonanceEngine';
 import { clamp } from '../meta/patternDetector';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -51,6 +52,7 @@ const social = new SocialResonanceEngine();
 const plasticity = new PlasticityEngine();
 const selfModel = new SelfModelEngine();
 const collective = new CollectiveResonanceEngine();
+const field = new FieldResonanceEngine();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 
@@ -247,6 +249,15 @@ heartbeat.onBeat((beat) => {
     perception: perceptionState.summary,
   });
 
+  const fieldSnapshot = field.evaluate({
+    intentMode: intentStateWithAdaptation.mode,
+    emotionState: emotionSnapshot.current.state,
+    stress: homeostasisState.stressScore,
+    threat: perceptionState.summary.threatScore,
+    opportunity: perceptionState.summary.opportunityScore,
+    annotations: [perceptionState.summary.status, intentStateWithAdaptation.mode],
+  });
+
   lastHeartbeat = {
     ...beat,
     collectiveResonance: {
@@ -255,6 +266,11 @@ heartbeat.onBeat((beat) => {
       topEcho: collectiveSnapshot.topEchoes[0]?.templateId,
       topSeed: collectiveSnapshot.topSeeds[0]?.templateId,
       volatility: collectiveSnapshot.volatility,
+    },
+    field: {
+      pastEntropy: fieldSnapshot.pastField.entropy,
+      futureConfidence: fieldSnapshot.futureField.confidence,
+      dominantCorridor: fieldSnapshot.futureField.candidatePatterns[0]?.id,
     },
   };
 
@@ -322,4 +338,5 @@ export {
   plasticity,
   selfModel,
   collective,
+  field,
 };

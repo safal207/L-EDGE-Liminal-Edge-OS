@@ -168,6 +168,11 @@ Iteration 1 добавляет каркас директории для кажд
 3. **APIs & heartbeat.** Эндпоинты `/api/system/resonance/collective` и `/api/system/resonance/collective/history` отдают свежий срез и историю; краткая сводка добавлена в `/api/system/health` и heartbeat payload (`collectiveResonance`).
 4. **Lifecycle position.** Слой размещён рядом с SelfModel/Emotion/Perception, возвращая подсказки в Intent/Meta о том, насколько организм созвучен текущему/прошлому/возможному будущему: **... → Emotion → Social → Intent → Meta → Plasticity → SelfModel → Collective Resonance → Awareness**.
 
+### Field Resonance Layer (Iteration 23)
+1. **Environmental patterns.** `field/fieldResonanceEngine.ts` анализирует короткие цепочки heartbeat (intent/emotion/stress/perception) и выделяет паттерны поля: `loop` (частые циклы), `trap` (пути, ведущие к высокому стрессу), `corridor` (траектории к здоровым состояниям).
+2. **Snapshots & metrics.** Поддерживает ограниченную историю, вычисляет энтропию прошлого поля и confidence будущих коридоров, публикуя сводку в heartbeat (`field`) и API `/api/system/field` + `/api/system/field/patterns`.
+3. **Lifecycle position.** Слой среды сидит рядом с collective/self: **... → Emotion → Social → Intent → Meta → Plasticity → SelfModel → Collective Resonance → Field → Awareness**, подпитывая Intent/Meta/Plasticity подсказками о коридорах возможностей и ловушках.
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|
