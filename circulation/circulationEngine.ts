@@ -13,7 +13,8 @@ interface CirculationEngineDeps {
 export class CirculationEngine {
   private readonly snapshots: CirculationSnapshot[] = [];
   private loopsCompleted = 0;
-  private readonly direction = 'Edge→Storage→Resonance→Awareness→Runtime→Heartbeat→Edge';
+  private readonly direction =
+    'Edge→Storage→Resonance→Awareness→Runtime→Heartbeat→Circulation→Transmutation→Sleep→Edge';
   private readonly historyLimit: number;
 
   constructor(private readonly deps: CirculationEngineDeps) {
