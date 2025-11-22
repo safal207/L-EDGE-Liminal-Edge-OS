@@ -36,7 +36,8 @@ import { OriginNode } from './origin/origin';
 import { PathwayNode } from './pathway/pathway';
 import { FuzzyEvolutionNode } from './fuzzyEvolution/fuzzyEvolutionNode';
 import { ResonanceTuner } from './resonanceTuner/resonanceTuner';
-import { GenesisSeeds } from './genesis/genesisSeeds';
+import { GenesisSeeds } from './genesis';
+import { CivilizationNode } from './civilization';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -80,6 +81,7 @@ const pathway = new PathwayNode();
 const fuzzyEvolution = new FuzzyEvolutionNode();
 const resonanceTuner = new ResonanceTuner();
 const genesisSeeds = new GenesisSeeds();
+const civilizationNode = new CivilizationNode();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 let lastNoosphereReport: NoosphereReport | undefined;
@@ -89,6 +91,7 @@ let lastPathwayState = pathway.getState();
 let lastFuzzyEvolutionState = fuzzyEvolution.getState();
 let lastTuningPlan = resonanceTuner.getLastPlan();
 let lastGenesisPlan = genesisSeeds.getLastPlan();
+let lastCivilizationState = civilizationNode.getState();
 const getLatestNoosphereReport = (): NoosphereReport => {
   if (!lastNoosphereReport) {
     const snapshot = noosphere.getSnapshot();
@@ -107,6 +110,7 @@ const getLatestScenarioResults = (): ScenarioResult[] => lastScenarioResults;
 const getLastHeartbeatSnapshot = (): HeartbeatState | undefined => lastHeartbeat;
 const getLastMetaSnapshot = (): MetaSystemSnapshot | undefined => lastMetaSnapshot;
 const getLastGenesisPlan = () => lastGenesisPlan;
+const getLastCivilizationState = () => lastCivilizationState;
 
 const homeostasis = new HomeostasisManager({
   getHeartbeatMetrics: () => lastHeartbeat,
@@ -405,6 +409,19 @@ heartbeat.onBeat((beat) => {
     tuning: lastTuningPlan,
   });
 
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
   lastHeartbeat = { ...heartbeatSnapshot, metaOrchestrator: lastMetaSnapshot, origin: {
     meaning: originState.rootVector.meaning,
     direction: originState.rootVector.direction,
@@ -506,10 +523,12 @@ export {
   fuzzyEvolution,
   resonanceTuner,
   genesisSeeds,
+  civilizationNode,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
   getLastHeartbeatSnapshot,
   getLastMetaSnapshot,
   getLastGenesisPlan,
+  getLastCivilizationState,
 };

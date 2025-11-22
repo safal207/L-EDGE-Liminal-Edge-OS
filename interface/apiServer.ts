@@ -28,12 +28,14 @@ import {
   fuzzyEvolution,
   resonanceTuner,
   genesisSeeds,
+  civilizationNode,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
   getLastHeartbeatSnapshot,
   getLastMetaSnapshot,
   getLastGenesisPlan,
+  getLastCivilizationState,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -484,8 +486,13 @@ export const createInterfaceApp = () => {
   });
 
   app.get('/api/system/genesis/plan', (_req, res) => {
-    const plan = genesisSeeds.getLastPlan();
+    const plan = getLastGenesisPlan() ?? genesisSeeds.getLastPlan();
     res.json(plan ?? { status: 'no-plan-yet' });
+  });
+
+  app.get('/api/system/civilization/state', (_req, res) => {
+    const state = getLastCivilizationState() ?? civilizationNode.getState();
+    res.json(state ?? { status: 'no-state-yet' });
   });
 
   app.get('/api/system/origin/state', (_req, res) => {

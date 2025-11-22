@@ -15,15 +15,7 @@ export interface GenesisSeed {
 
 export interface GenesisPlan {
   timestamp: number;
-  mode: string;
   ready: GenesisSeed[];
   deferred: GenesisSeed[];
   summary: string;
-}
-
-export interface GenesisUpdateInput {
-  origin: import('../origin/types').OriginState;
-  pathway: import('../pathway/types').PathwayState;
-  fuzzy: import('../fuzzyEvolution/types').FuzzyEvolutionState;
-  tuning?: import('../resonanceTuner/types').ResonanceTuningPlan | null;
 }
