@@ -179,6 +179,11 @@ Iteration 1 добавляет каркас директории для кажд
 3. **Lifecycle position.** Вызывается после field/collective/self на каждом heartbeat: **... → Collective Resonance → Field → Noosphere → Awareness**, добавляя блок `noosphere` в heartbeat, `/api/system/health`, `/api/system/organism` и эндпоинты `/api/system/noosphere` + `/api/system/noosphere/imprints`.
 4. **Report & intent alignment.** Связка с `buildNoosphereReport` выдаёт `/api/system/noosphere/report`, Intent помечает решения `aligned/neutral/against_field`, а ScenarioEngine поверх этого генерирует подсказки `/api/system/scenario/suggestions` для «правильного момента».
 
+### Meta-Orchestrator / Assembly Point 10 (Iteration 26)
+1. **Observer of observers.** `core/metaOrchestrator` агрегирует heartbeat + field/noosphere + intent + collective resonance, считая метрики согласованности (coherence) и напряжённости (tension), а также статус поля (supportive/neutral/high_tension).
+2. **Outputs.** Снимок `MetaSystemSnapshot` доступен через `/api/system/meta/state` и вкладывается в heartbeat блок `metaOrchestrator`, позволяя health/report слоям видеть целостную картину организма и поля.
+3. **Lifecycle position.** Обновляется после расчёта поля/резонанса/интента в heartbeat: **... → Collective Resonance → Field → Noosphere → Meta-Orchestrator → Awareness**, готовя почву для будущих слоёв Origin/Evolution/Genesis.
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|

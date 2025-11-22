@@ -1,3 +1,5 @@
+import type { MetaSystemSnapshot } from './metaOrchestrator/types';
+
 export type NodeId = string;
 export type ServiceId = string;
 export type CorrelationId = string;
@@ -170,6 +172,7 @@ export interface HeartbeatState {
   collectiveResonance?: HeartbeatCollectiveResonance;
   field?: HeartbeatField;
   noosphere?: HeartbeatNoosphere;
+  metaOrchestrator?: MetaSystemSnapshot;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';

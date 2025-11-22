@@ -50,6 +50,8 @@
 - **Орган:** `meta/metaEngine.ts` + `patternDetector.ts` собирают стресс/рефлексы/сон/реплей/интент и дают мета-сводку (coherence, stress trend, adaptation phase, anomalies).
 - **Интеграция:** каждое сердцебиение обновляет `systemContext.meta`; эндпоинты `/api/system/meta` и блок `meta` в `/api/system/health` показывают текущее осознавание.
 - **Назначение:** помогает видеть всю систему целиком, подсвечивать нестабильность, слабые сигналы трансмутации и частые рефлексы.
+- **Точка сборки №10 — Meta-Orchestrator:** `core/metaOrchestrator` собирает целостный снимок организма/поля/резонанса/интента, рассчитывает согласованность и напряжённость и отдаёт его через `/api/system/meta/state` и блок `metaOrchestrator` в `/api/system/health`.
+- **Сравнение миров:** документ `docs/liminal_vs_gpt5.md` описывает разницу между Liminal как организмом и GPT-5.1 как универсальной моделью.
 
 ### Interoception / SenseEngine
 - **Орган:** `interoception/interoceptionEngine.ts` агрегирует сигналы из homeostasis/reflex/sleep/replay/perception/transmutation + heartbeat и вычисляет `fatigue`, `tension`, `entropyPressure`, `overload`, `clarity`, `status`, `annotations`.

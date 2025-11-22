@@ -30,6 +30,8 @@ import { ScenarioEngine } from '../scenarios/scenarioEngine';
 import { defaultScenarioRules } from '../scenarios/defaultRules';
 import { NoosphereReport } from '../noosphere/contracts';
 import { ScenarioResult } from '../scenarios/types';
+import { MetaOrchestrator } from './metaOrchestrator';
+import type { MetaSystemSnapshot } from './metaOrchestrator/types';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -61,10 +63,18 @@ const collective = new CollectiveResonanceEngine();
 const field = new FieldResonanceEngine();
 const noosphere = new NoosphereBridge();
 const scenarioEngine = new ScenarioEngine(defaultScenarioRules);
+const metaOrchestrator = new MetaOrchestrator({
+  getLastHeartbeat: () => lastHeartbeat,
+  getLastFieldSnapshot: () => field.getSnapshot(),
+  getLastCollectiveResonance: () => collective.getSnapshot(),
+  getLastIntent: () => intent.getState(),
+  getLastNoosphere: () => noosphere.getSnapshot(),
+});
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 let lastNoosphereReport: NoosphereReport | undefined;
 let lastScenarioResults: ScenarioResult[] = [];
+let lastMetaSnapshot: MetaSystemSnapshot | undefined;
 const getLatestNoosphereReport = (): NoosphereReport => {
   if (!lastNoosphereReport) {
     const snapshot = noosphere.getSnapshot();
@@ -81,6 +91,7 @@ const getLatestNoosphereReport = (): NoosphereReport => {
 
 const getLatestScenarioResults = (): ScenarioResult[] => lastScenarioResults;
 const getLastHeartbeatSnapshot = (): HeartbeatState | undefined => lastHeartbeat;
+const getLastMetaSnapshot = (): MetaSystemSnapshot | undefined => lastMetaSnapshot;
 
 const homeostasis = new HomeostasisManager({
   getHeartbeatMetrics: () => lastHeartbeat,
@@ -310,7 +321,7 @@ heartbeat.onBeat((beat) => {
     collectiveResonance: collectiveSnapshot,
   });
 
-  lastHeartbeat = {
+  const heartbeatSnapshot: HeartbeatState = {
     ...beat,
     intent: {
       mode: intentStateWithField.mode,
@@ -340,6 +351,16 @@ heartbeat.onBeat((beat) => {
       dominantTag: noosphereSnapshot.dominantTag,
     },
   };
+
+  lastMetaSnapshot = metaOrchestrator.update({
+    heartbeat: heartbeatSnapshot,
+    field: fieldSnapshot,
+    collective: collectiveSnapshot,
+    intent: intentStateWithField,
+    noosphere: noosphereSnapshot,
+  });
+
+  lastHeartbeat = { ...heartbeatSnapshot, metaOrchestrator: lastMetaSnapshot };
 
   void runtime.applyIntentDecision(intentStateWithField.decision);
 });
@@ -407,8 +428,10 @@ export {
   collective,
   field,
   noosphere,
+  metaOrchestrator,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
   getLastHeartbeatSnapshot,
+  getLastMetaSnapshot,
 };

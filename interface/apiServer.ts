@@ -22,10 +22,12 @@ import {
   collective,
   field,
   noosphere,
+  metaOrchestrator,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
   getLastHeartbeatSnapshot,
+  getLastMetaSnapshot,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -60,6 +62,7 @@ export const createInterfaceApp = () => {
     const collectiveSnapshot = collective.getSnapshot();
     const fieldSnapshot = field.getSnapshot();
     const noosphereSnapshot = noosphere.getSnapshot();
+    const metaOrchestratorSnapshot = metaOrchestrator.getLastSnapshot();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -173,6 +176,7 @@ export const createInterfaceApp = () => {
         tensionLevel: noosphereSnapshot.tensionLevel,
         dominantTag: noosphereSnapshot.dominantTag,
       },
+      metaOrchestrator: metaOrchestratorSnapshot ?? undefined,
     }));
     const circulationState =
       beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
@@ -195,6 +199,7 @@ export const createInterfaceApp = () => {
         reflex: beat.reflex,
         intent: beat.intent,
         meta: beat.meta,
+        metaOrchestrator: beat.metaOrchestrator,
         interoception: beat.interoception,
         emotion: beat.emotion,
         social: beat.social,
@@ -411,6 +416,15 @@ export const createInterfaceApp = () => {
 
   app.get('/api/system/meta', (_req, res) => {
     res.json(meta.getState());
+  });
+
+  app.get('/api/system/meta/state', (_req, res) => {
+    const snapshot = getLastMetaSnapshot() ?? metaOrchestrator.getLastSnapshot();
+    if (!snapshot) {
+      res.json({ meta: null, message: 'meta orchestrator has not produced a snapshot yet' });
+      return;
+    }
+    res.json({ meta: snapshot });
   });
 
   app.get('/api/system/plasticity', (_req, res) => {
