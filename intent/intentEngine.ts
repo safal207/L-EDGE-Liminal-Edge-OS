@@ -1,4 +1,6 @@
-import { IntentContext, IntentDecision, IntentMode, IntentOverride, IntentState } from './types';
+import { FieldSnapshot } from '../field/contracts';
+import { NoosphereSnapshot } from '../noosphere/contracts';
+import { IntentContext, IntentDecision, IntentFieldAlignment, IntentMode, IntentOverride, IntentState } from './types';
 
 const defaultDecision: IntentDecision = {
   allowHeavyTasks: true,
@@ -7,6 +9,12 @@ const defaultDecision: IntentDecision = {
   forceSleepSoon: false,
   degradedMode: false,
   boostTransmutation: false,
+};
+
+const ALIGNMENT_THRESHOLDS = {
+  supportive: 0.6,
+  relaxedTension: 0.4,
+  highTension: 0.7,
 };
 
 export class IntentEngine {
@@ -86,6 +94,18 @@ export class IntentEngine {
   }
 
   getState(): IntentState {
+    return this.state;
+  }
+
+  syncState(state: IntentState): IntentState {
+    this.state = state;
+    return this.state;
+  }
+
+  annotateWithField(signals: { field?: FieldSnapshot; noosphere?: NoosphereSnapshot }, base?: IntentState): IntentState {
+    const source = base ?? this.state;
+    const decision = this.applyFieldAlignment(source.decision, signals.field, signals.noosphere);
+    this.state = { ...source, decision };
     return this.state;
   }
 
@@ -200,5 +220,35 @@ export class IntentEngine {
           throttleNonCritical: socialRecommendation === 'observe' ? base.throttleNonCritical : base.throttleNonCritical,
         };
     }
+  }
+
+  private applyFieldAlignment(
+    decision: IntentDecision,
+    field?: FieldSnapshot,
+    noosphere?: NoosphereSnapshot,
+  ): IntentDecision {
+    const support = noosphere?.supportLevel ?? 0;
+    const tension = noosphere?.tensionLevel ?? 0;
+    const alignment = this.classifyAlignment(support, tension, field?.futureField.confidence ?? 0);
+
+    return {
+      ...decision,
+      fieldAlignment: alignment,
+      noosphereSupport: support,
+      noosphereTension: tension,
+    } satisfies IntentDecision;
+  }
+
+  private classifyAlignment(support: number, tension: number, futureConfidence: number): IntentFieldAlignment {
+    if (tension >= ALIGNMENT_THRESHOLDS.highTension && support < ALIGNMENT_THRESHOLDS.supportive) {
+      return 'against_field';
+    }
+    if (support >= ALIGNMENT_THRESHOLDS.supportive && tension <= ALIGNMENT_THRESHOLDS.relaxedTension) {
+      return 'aligned';
+    }
+    if (futureConfidence > ALIGNMENT_THRESHOLDS.supportive && tension < ALIGNMENT_THRESHOLDS.highTension) {
+      return 'aligned';
+    }
+    return 'neutral';
   }
 }

@@ -243,6 +243,9 @@ export interface HeartbeatIntent {
   throttleNonCritical: boolean;
   forceSleepSoon: boolean;
   degradedMode: boolean;
+  fieldAlignment?: string;
+  noosphereSupport?: number;
+  noosphereTension?: number;
 }
 
 export interface HeartbeatMeta {

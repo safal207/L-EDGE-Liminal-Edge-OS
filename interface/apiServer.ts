@@ -22,6 +22,10 @@ import {
   collective,
   field,
   noosphere,
+  scenarioEngine,
+  getLatestNoosphereReport,
+  getLatestScenarioResults,
+  getLastHeartbeatSnapshot,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -104,6 +108,9 @@ export const createInterfaceApp = () => {
         throttleNonCritical: intentState.decision.throttleNonCritical,
         forceSleepSoon: intentState.decision.forceSleepSoon,
         degradedMode: intentState.decision.degradedMode,
+        fieldAlignment: intentState.decision.fieldAlignment,
+        noosphereSupport: intentState.decision.noosphereSupport,
+        noosphereTension: intentState.decision.noosphereTension,
       },
       meta: {
         coherence: metaState.summary.coherence,
@@ -340,6 +347,10 @@ export const createInterfaceApp = () => {
     res.json({ imprints: noosphere.listImprints() });
   });
 
+  app.get('/api/system/noosphere/report', (_req, res) => {
+    res.json(getLatestNoosphereReport());
+  });
+
   app.get('/api/system/social/peers', (req, res) => {
     const limit = parseLimit(req.query.limit, 20, 120);
     res.json({ peers: social.listPeers(limit) });
@@ -364,6 +375,16 @@ export const createInterfaceApp = () => {
 
   app.get('/api/system/emotion', (_req, res) => {
     res.json(emotion.getState().current);
+  });
+
+  app.get('/api/system/scenario/suggestions', (_req, res) => {
+    const report = getLatestNoosphereReport();
+    const suggestions = scenarioEngine.evaluate({
+      noosphereReport: report,
+      heartbeat: getLastHeartbeatSnapshot(),
+      collectiveResonance: collective.getSnapshot(),
+    });
+    res.json({ suggestions: suggestions.slice(0, 5) });
   });
 
   app.get('/api/system/emotion/history', (req, res) => {

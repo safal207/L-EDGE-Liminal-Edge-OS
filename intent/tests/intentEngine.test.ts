@@ -98,6 +98,19 @@ async function run() {
   assert.strictEqual(overridden.overrideActive, true);
   engine.clearOverride();
 
+  const alignedState = engine.annotateWithField(
+    {
+      field: {
+        pastField: { dominantPatterns: [], entropy: 0.2 },
+        futureField: { candidatePatterns: [], confidence: 0.7 },
+        lastUpdated: Date.now(),
+      },
+      noosphere: { activeImprints: [], supportLevel: 0.7, tensionLevel: 0.2, lastUpdated: Date.now() },
+    },
+    overridden,
+  );
+  assert.strictEqual(alignedState.decision.fieldAlignment, 'aligned');
+
   console.log('intent engine tests passed');
 }
 

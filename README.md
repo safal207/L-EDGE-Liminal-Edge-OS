@@ -83,8 +83,8 @@
 
 ### Noosphere Bridge / World Field Layer
 - **Орган:** `noosphere/noosphereBridge.ts` загружает `WorldImprint` шаблоны из `noosphere/imprints.json`, сравнивает их с полем (loops/traps/corridors), стрессом, эмоциями и восприятием, вычисляя `supportLevel`/`tensionLevel` и `dominantTag` большого поля.
-- **Интеграция:** обновляется в heartbeat после field/collective/self, публикует срез через `/api/system/noosphere` и конфиги через `/api/system/noosphere/imprints`, добавляет блок `noosphere` в `/api/system/health` и `/api/system/organism`.
-- **Назначение:** связывает локальные паттерны с мировыми нарративами (рост, кризис, турбулентность), помогая Intent/Meta понимать, поддерживает ли среда или сжимает систему.
+- **Интеграция:** обновляется в heartbeat после field/collective/self, публикует срез через `/api/system/noosphere`, конфиги через `/api/system/noosphere/imprints`, обзорный отчёт `/api/system/noosphere/report`, добавляет блок `noosphere` в `/api/system/health` и `/api/system/organism`.
+- **Назначение:** связывает локальные паттерны с мировыми нарративами (рост, кризис, турбулентность), помогая Intent/Meta понимать, поддерживает ли среда или сжимает систему. Intent помечает решения как `aligned/neutral/against_field` по поддержке/натяжению поля, а `/api/system/scenario/suggestions` возвращает подсказки «правильного момента».
 
 ### SelfModel / Narrative Layer
 - **Орган:** `self/selfModelEngine.ts` собирает Episodes (heartbeat + homeostasis + interoception + emotion + perception + social + plasticity + intent/reflex) и превращает их в устойчивые черты (risk-taking, calm-recovery, pattern-seeking, social orientation) и нарративные дуги.

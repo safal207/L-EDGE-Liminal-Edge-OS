@@ -2,6 +2,7 @@ import assert from 'assert';
 import { NoosphereBridge } from '../noosphereBridge';
 import { FieldSnapshot } from '../../field/contracts';
 import { NoosphereContext } from '../contracts';
+import { buildNoosphereReport } from '../reportBuilder';
 
 const baseField: FieldSnapshot = {
   pastField: { dominantPatterns: [], entropy: 0.4 },
@@ -57,7 +58,7 @@ async function run() {
       pastField: { dominantPatterns: [], entropy: 0.2 },
       futureField: {
         candidatePatterns: [{ id: 'corridor', kind: 'corridor', tags: ['growth'], strength: 0.7, evidenceCount: 2 }],
-        confidence: 0.5,
+        confidence: 0.7,
       },
     },
     homeostasis: {
@@ -103,6 +104,14 @@ async function run() {
   const crisis = trapSnapshot.activeImprints.find((imprint) => imprint.id === 'crisis_trap');
   assert.ok(crisis && crisis.weight > 0.4, 'crisis trap imprint should activate under stress');
   assert.ok(trapSnapshot.tensionLevel >= crisis.weight, 'tension level aggregates stressed imprints');
+
+  const report = buildNoosphereReport({
+    snapshot: growthSnapshot,
+    field: context.field!,
+    lastIntent: { mode: 'CALM' },
+  });
+  assert.strictEqual(report.noosphere.mode, 'supportive');
+  assert.strictEqual(report.intentHint.recommendedMode, 'deep_focus');
 
   // History / weight floor trims empty results
   const emptySnapshot = bridge.compute({

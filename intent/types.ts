@@ -5,6 +5,8 @@ import { ReflexState } from '../reflex/types';
 import { PerceptionSummary } from '../perception/types';
 import { InteroceptionState } from '../interoception/contracts';
 import { EmotionState } from '../emotion/contracts';
+import { FieldSnapshot } from '../field/contracts';
+import { NoosphereSnapshot } from '../noosphere/contracts';
 
 export interface IntentSocialHint {
   summary: {
@@ -16,6 +18,8 @@ export interface IntentSocialHint {
 
 export type IntentMode = 'CALM' | 'FOCUSED' | 'HEALING' | 'DEGRADED' | 'CRITICAL';
 
+export type IntentFieldAlignment = 'aligned' | 'neutral' | 'against_field';
+
 export interface IntentDecision {
   allowHeavyTasks: boolean;
   throttleNonCritical: boolean;
@@ -23,6 +27,9 @@ export interface IntentDecision {
   forceSleepSoon: boolean;
   degradedMode: boolean;
   boostTransmutation?: boolean;
+  fieldAlignment?: IntentFieldAlignment;
+  noosphereSupport?: number;
+  noosphereTension?: number;
 }
 
 export interface IntentContext {
@@ -34,6 +41,8 @@ export interface IntentContext {
   interoception?: InteroceptionState;
   emotion?: EmotionState;
   social?: IntentSocialHint;
+  field?: FieldSnapshot;
+  noosphere?: NoosphereSnapshot;
 }
 
 export interface IntentState {

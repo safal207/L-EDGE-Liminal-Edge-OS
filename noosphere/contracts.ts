@@ -40,6 +40,27 @@ export interface NoosphereSnapshot {
   lastUpdated: number;
 }
 
+export type NoosphereMode = 'supportive' | 'neutral' | 'high_tension';
+
+export interface NoosphereReport {
+  noosphere: {
+    support: number;
+    tension: number;
+    mode: NoosphereMode;
+    dominantTag?: string;
+  };
+  field: {
+    pastEntropy: number;
+    futureConfidence: number;
+    topPatterns: FieldSnapshot['futureField']['candidatePatterns'];
+  };
+  intentHint: {
+    recommendedMode: string;
+    comment: string;
+  };
+  timestamp: number;
+}
+
 export interface NoosphereContext {
   field?: FieldSnapshot;
   self?: SelfModelSummary;

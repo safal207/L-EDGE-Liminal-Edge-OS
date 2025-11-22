@@ -25,6 +25,11 @@ import { FieldResonanceEngine } from '../field/fieldResonanceEngine';
 import { NoosphereBridge } from '../noosphere/noosphereBridge';
 import { clamp } from '../meta/patternDetector';
 import { v4 as uuidv4 } from 'uuid';
+import { buildNoosphereReport } from '../noosphere/reportBuilder';
+import { ScenarioEngine } from '../scenarios/scenarioEngine';
+import { defaultScenarioRules } from '../scenarios/defaultRules';
+import { NoosphereReport } from '../noosphere/contracts';
+import { ScenarioResult } from '../scenarios/types';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -55,8 +60,27 @@ const selfModel = new SelfModelEngine();
 const collective = new CollectiveResonanceEngine();
 const field = new FieldResonanceEngine();
 const noosphere = new NoosphereBridge();
+const scenarioEngine = new ScenarioEngine(defaultScenarioRules);
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
+let lastNoosphereReport: NoosphereReport | undefined;
+let lastScenarioResults: ScenarioResult[] = [];
+const getLatestNoosphereReport = (): NoosphereReport => {
+  if (!lastNoosphereReport) {
+    const snapshot = noosphere.getSnapshot();
+    const fieldSnapshot = field.getSnapshot();
+    const intentState = intent.getState();
+    lastNoosphereReport = buildNoosphereReport({
+      snapshot,
+      field: fieldSnapshot,
+      lastIntent: { ...intentState.decision, mode: intentState.mode },
+    });
+  }
+  return lastNoosphereReport;
+};
+
+const getLatestScenarioResults = (): ScenarioResult[] => lastScenarioResults;
+const getLastHeartbeatSnapshot = (): HeartbeatState | undefined => lastHeartbeat;
 
 const homeostasis = new HomeostasisManager({
   getHeartbeatMetrics: () => lastHeartbeat,
@@ -135,6 +159,7 @@ heartbeat.onBeat((beat) => {
 
   const intentDecisionWithAdaptation = plasticity.adaptIntentDecision(intentState.decision);
   const intentStateWithAdaptation = { ...intentState, decision: intentDecisionWithAdaptation.decision };
+  intent.syncState(intentStateWithAdaptation);
 
   if (circulationSnapshot) {
     memory.remember({
@@ -268,8 +293,35 @@ heartbeat.onBeat((beat) => {
     perception: perceptionState.summary,
   });
 
+  const intentStateWithField = intent.annotateWithField(
+    { field: fieldSnapshot, noosphere: noosphereSnapshot },
+    intentStateWithAdaptation,
+  );
+
+  const noosphereReport = buildNoosphereReport({
+    snapshot: noosphereSnapshot,
+    field: fieldSnapshot,
+    lastIntent: { ...intentStateWithField.decision, mode: intentStateWithField.mode },
+  });
+  lastNoosphereReport = noosphereReport;
+  lastScenarioResults = scenarioEngine.evaluate({
+    noosphereReport,
+    heartbeat: beat,
+    collectiveResonance: collectiveSnapshot,
+  });
+
   lastHeartbeat = {
     ...beat,
+    intent: {
+      mode: intentStateWithField.mode,
+      allowHeavyTasks: intentStateWithField.decision.allowHeavyTasks,
+      throttleNonCritical: intentStateWithField.decision.throttleNonCritical,
+      forceSleepSoon: intentStateWithField.decision.forceSleepSoon,
+      degradedMode: intentStateWithField.decision.degradedMode,
+      fieldAlignment: intentStateWithField.decision.fieldAlignment,
+      noosphereSupport: intentStateWithField.decision.noosphereSupport,
+      noosphereTension: intentStateWithField.decision.noosphereTension,
+    },
     collectiveResonance: {
       primaryMode: collectiveSnapshot.primaryMode,
       topMirror: collectiveSnapshot.topMirrors[0]?.templateId,
@@ -289,7 +341,7 @@ heartbeat.onBeat((beat) => {
     },
   };
 
-  void runtime.applyIntentDecision(intentStateWithAdaptation.decision);
+  void runtime.applyIntentDecision(intentStateWithField.decision);
 });
 
 heartbeat.onBeat((beat) => {
@@ -355,4 +407,8 @@ export {
   collective,
   field,
   noosphere,
+  scenarioEngine,
+  getLatestNoosphereReport,
+  getLatestScenarioResults,
+  getLastHeartbeatSnapshot,
 };

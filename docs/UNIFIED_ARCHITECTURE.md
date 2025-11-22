@@ -177,6 +177,7 @@ Iteration 1 добавляет каркас директории для кажд
 1. **World imprints.** `noosphere/noosphereBridge.ts` загружает `WorldImprint` шаблоны из `noosphere/imprints.json` и сопоставляет их с полевыми паттернами (loops/traps/corridors), стрессом, эмоциями и восприятием, вычисляя веса активных отпечатков.
 2. **Support vs tension.** Публикует `supportLevel`, `tensionLevel` и `dominantTag` в `NoosphereSnapshot`, отражая, поддерживает ли большое поле рост/восстановление или сжимает систему кризисом/турбулентностью.
 3. **Lifecycle position.** Вызывается после field/collective/self на каждом heartbeat: **... → Collective Resonance → Field → Noosphere → Awareness**, добавляя блок `noosphere` в heartbeat, `/api/system/health`, `/api/system/organism` и эндпоинты `/api/system/noosphere` + `/api/system/noosphere/imprints`.
+4. **Report & intent alignment.** Связка с `buildNoosphereReport` выдаёт `/api/system/noosphere/report`, Intent помечает решения `aligned/neutral/against_field`, а ScenarioEngine поверх этого генерирует подсказки `/api/system/scenario/suggestions` для «правильного момента».
 
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |

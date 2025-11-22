@@ -22,6 +22,7 @@ The NoosphereBridge is the 8–9th assembly layer that links the organism’s lo
 ## API
 - `GET /api/system/noosphere` – latest `NoosphereSnapshot`.
 - `GET /api/system/noosphere/imprints` – configured imprint templates.
+- `GET /api/system/noosphere/report` – human-friendly summary with support/tension mode, top field patterns, and an intent hint.
 
 ## Usage
 The bridge is refreshed each heartbeat inside `systemContext`, and its snapshot is attached to the heartbeat record plus health/organism endpoints. Imprints can be extended by editing `noosphere/imprints.json` or passing custom templates when instantiating the bridge.

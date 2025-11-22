@@ -57,8 +57,8 @@
 
 ### Noosphere Bridge / World Field Layer
 - **Organ:** `noosphere/noosphereBridge.ts` loads `WorldImprint` templates from `noosphere/imprints.json`, compares them against field patterns (loops/traps/corridors), stress, emotion, and perception, and produces `supportLevel`/`tensionLevel` plus a `dominantTag` for the larger field.
-- **Integration:** refreshed each heartbeat after field/collective/self updates, exposed through `/api/system/noosphere` and `/api/system/noosphere/imprints`, and surfaced as a `noosphere` block in `/api/system/health` and `/api/system/organism`.
-- **Purpose:** links local patterns to broader world narratives (growth, crisis, turbulence) so Intent/Meta can sense whether the environment is supportive or compressive.
+- **Integration:** refreshed each heartbeat after field/collective/self updates, exposed through `/api/system/noosphere`, `/api/system/noosphere/imprints`, and the new summary report `/api/system/noosphere/report`, and surfaced as a `noosphere` block in `/api/system/health` and `/api/system/organism`.
+- **Purpose:** links local patterns to broader world narratives (growth, crisis, turbulence) so Intent/Meta can sense whether the environment is supportive or compressive. Intent decisions are tagged as `aligned/neutral/against_field` from noosphere+field signals and scenario hints are available via `/api/system/scenario/suggestions`.
 
 ---
 
