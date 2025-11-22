@@ -174,6 +174,7 @@ export interface HeartbeatState {
   noosphere?: HeartbeatNoosphere;
   origin?: HeartbeatOrigin;
   pathway?: HeartbeatPathway;
+  fuzzyEvolution?: HeartbeatFuzzyEvolution;
   metaOrchestrator?: MetaSystemSnapshot;
 }
 
@@ -396,5 +397,13 @@ export interface HeartbeatPathway {
   pace: string;
   alignment: number;
   futurePull: number;
+  summary: string;
+}
+
+export interface HeartbeatFuzzyEvolution {
+  mode: string;
+  tension: { low: number; medium: number; high: number };
+  coherence: { low: number; medium: number; high: number };
+  alignment: { low: number; medium: number; high: number };
   summary: string;
 }

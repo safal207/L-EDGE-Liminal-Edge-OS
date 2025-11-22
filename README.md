@@ -45,6 +45,7 @@
 23. **Noosphere Bridge Layer** — сопоставляет локальные паттерны поля с библиотекой мировых отпечатков (imprints), вычисляет уровень поддержки/натяжения большого поля и публикует срез в heartbeat/API.
 24. **Origin / Point of Assembly №11** — фиксирует смысловой корень системы (meaning/direction/tone), хранит принципы и паттерны родословной, обновляет ясность намерения на основе Meta-Orchestrator и публикует состояние через `/api/system/origin/state`.
 25. **Pathway / Point of Assembly №12** — описывает траекторию разворачивания организма: темп, совпадение пути с Origin и полем, активные/формирующиеся ветки роста и силу «тяги будущего», отдаёт снимок через `/api/system/pathway/state`.
+26. **Fuzzy Evolution / Point of Assembly №13** — мягко оценивает напряжение/когерентность/совпадение пути с Origin в нечётких диапазонах, определяет струны системы (ground/resonant/chaotic/damped) и публикует подсказки через `/api/system/evolution/fuzzy`.
 
 ---
 
@@ -64,6 +65,11 @@
 - **Орган:** `core/pathway/pathway.ts` трансформирует Origin и свежий `MetaSystemSnapshot` в траекторию роста, темп, оценку совпадения с полем/ноосферой и списки активных/зарождающихся/угасающих веток.
 - **Интеграция:** обновляется каждый heartbeat сразу после Origin, добавляет краткий блок `pathway` в heartbeat/health и доступен по `/api/system/pathway/state` и в `/api/system/organism`.
 - **Назначение:** показывает, как организм фактически раскрывается сейчас, совпадает ли путь с корнем и поддерживающим полем, и какую силу имеет «тяготение будущего».
+
+### Fuzzy Evolution / Point of Assembly №13
+- **Орган:** `core/fuzzyEvolution/fuzzyEvolutionNode.ts` читает Meta-Orchestrator, Origin и Pathway, строит нечёткие уровни напряжения/когерентности/совпадения и определяет струны системы: ground, resonant, chaotic, damped.
+- **Интеграция:** вызывается на каждом heartbeat после Origin/Pathway, добавляет блок `fuzzyEvolution` в heartbeat/health/organism и отдаёт состояние через `/api/system/evolution/fuzzy`.
+- **Назначение:** даёт мягкое, не бинарное ощущение эволюционного давления и колебаний, чтобы подсказки калибровали темп роста, а не ломали его порогами.
 
 ### Interoception / SenseEngine
 - **Орган:** `interoception/interoceptionEngine.ts` агрегирует сигналы из homeostasis/reflex/sleep/replay/perception/transmutation + heartbeat и вычисляет `fatigue`, `tension`, `entropyPressure`, `overload`, `clarity`, `status`, `annotations`.

@@ -34,6 +34,7 @@ import { MetaOrchestrator } from './metaOrchestrator';
 import type { MetaSystemSnapshot } from './metaOrchestrator/types';
 import { OriginNode } from './origin/origin';
 import { PathwayNode } from './pathway/pathway';
+import { FuzzyEvolutionNode } from './fuzzyEvolution/fuzzyEvolutionNode';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -74,12 +75,14 @@ const metaOrchestrator = new MetaOrchestrator({
 });
 const origin = new OriginNode();
 const pathway = new PathwayNode();
+const fuzzyEvolution = new FuzzyEvolutionNode();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 let lastNoosphereReport: NoosphereReport | undefined;
 let lastScenarioResults: ScenarioResult[] = [];
 let lastMetaSnapshot: MetaSystemSnapshot | undefined;
 let lastPathwayState = pathway.getState();
+let lastFuzzyEvolutionState = fuzzyEvolution.getState();
 const getLatestNoosphereReport = (): NoosphereReport => {
   if (!lastNoosphereReport) {
     const snapshot = noosphere.getSnapshot();
@@ -374,6 +377,7 @@ heartbeat.onBeat((beat) => {
 
   const originState = origin.update({ metaSnapshot: lastMetaSnapshot });
   lastPathwayState = pathway.update({ originState, metaSnapshot: lastMetaSnapshot });
+  lastFuzzyEvolutionState = fuzzyEvolution.update({ meta: lastMetaSnapshot, origin: originState, pathway: lastPathwayState });
 
   lastHeartbeat = { ...heartbeatSnapshot, metaOrchestrator: lastMetaSnapshot, origin: {
     meaning: originState.rootVector.meaning,
@@ -387,6 +391,12 @@ heartbeat.onBeat((beat) => {
     alignment: lastPathwayState.growthVector.alignmentScore,
     futurePull: lastPathwayState.futurePull.intensity,
     summary: lastPathwayState.summary,
+  }, fuzzyEvolution: {
+    mode: lastFuzzyEvolutionState.strings.globalMode,
+    tension: lastFuzzyEvolutionState.pressure.tension,
+    coherence: lastFuzzyEvolutionState.pressure.coherence,
+    alignment: lastFuzzyEvolutionState.pressure.alignment,
+    summary: lastFuzzyEvolutionState.summary,
   } };
 
   void runtime.applyIntentDecision(intentStateWithField.decision);
@@ -458,6 +468,7 @@ export {
   metaOrchestrator,
   origin,
   pathway,
+  fuzzyEvolution,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,

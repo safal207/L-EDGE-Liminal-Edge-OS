@@ -70,6 +70,11 @@
 - **Integration:** refreshed every heartbeat right after Origin, surfaces a `pathway` block in heartbeat/health payloads, and is observable via `/api/system/pathway/state` and `/api/system/organism`.
 - **Purpose:** shows how the organism is unfolding right now, whether its route matches its root and supporting field, and how strongly future-facing ideas are pulling it forward.
 
+### Fuzzy Evolution / Assembly Point #13
+- **Organ:** `core/fuzzyEvolution/fuzzyEvolutionNode.ts` reads Meta-Orchestrator + Origin + Pathway, builds fuzzy tension/coherence/alignment levels, and names the system’s string mode: ground, resonant, chaotic, or damped.
+- **Integration:** called every heartbeat after Origin/Pathway, adds a `fuzzyEvolution` block to heartbeat/health/organism payloads, and exposes its state via `/api/system/evolution/fuzzy`.
+- **Purpose:** gives a soft, non-binary feel for evolutionary pressure so recommendations tune growth speed instead of flipping hard thresholds.
+
 ---
 
 ## 🛠️ 2-week MVP

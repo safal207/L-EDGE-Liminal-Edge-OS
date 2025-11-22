@@ -25,6 +25,7 @@ import {
   metaOrchestrator,
   origin,
   pathway,
+  fuzzyEvolution,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
@@ -67,6 +68,7 @@ export const createInterfaceApp = () => {
     const metaOrchestratorSnapshot = metaOrchestrator.getLastSnapshot();
     const originState = origin.getState();
     const pathwayState = pathway.getState();
+    const fuzzyState = fuzzyEvolution.getState();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -194,6 +196,13 @@ export const createInterfaceApp = () => {
         futurePull: pathwayState.futurePull.intensity,
         summary: pathwayState.summary,
       },
+      fuzzyEvolution: {
+        mode: fuzzyState.strings.globalMode,
+        tension: fuzzyState.pressure.tension,
+        coherence: fuzzyState.pressure.coherence,
+        alignment: fuzzyState.pressure.alignment,
+        summary: fuzzyState.summary,
+      },
       metaOrchestrator: metaOrchestratorSnapshot ?? undefined,
     }));
     const circulationState =
@@ -227,6 +236,7 @@ export const createInterfaceApp = () => {
         field: beat.field,
         noosphere: beat.noosphere,
         origin: beat.origin,
+        fuzzyEvolution: beat.fuzzyEvolution,
       },
     });
   });
@@ -446,6 +456,10 @@ export const createInterfaceApp = () => {
     res.json({ meta: snapshot });
   });
 
+  app.get('/api/system/evolution/fuzzy', (_req, res) => {
+    res.json(fuzzyEvolution.getState());
+  });
+
   app.get('/api/system/origin/state', (_req, res) => {
     res.json(origin.getState());
   });
@@ -534,6 +548,7 @@ export const createInterfaceApp = () => {
       noosphere: noosphere.getSnapshot(),
       origin: origin.getState(),
       pathway: pathway.getState(),
+      fuzzyEvolution: fuzzyEvolution.getState(),
     });
   });
 

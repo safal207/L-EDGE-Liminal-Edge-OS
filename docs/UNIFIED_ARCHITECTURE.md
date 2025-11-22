@@ -196,6 +196,12 @@ Iteration 1 добавляет каркас директории для кажд
 3. **APIs & visibility.** Состояние доступно через `/api/system/pathway/state`, встраивается в heartbeat/health/organism с блоком `pathway` (trajectory, pace, alignment, pull).
 4. **Lifecycle position.** Обновляется сразу после Origin: **... → Collective Resonance → Field → Noosphere → Meta-Orchestrator → Origin → Pathway → Awareness**, чтобы верхние слои видели не только корень, но и текущий маршрут разворачивания.
 
+### Fuzzy Evolution / Point of Assembly 13 (Iteration 29)
+1. **Purpose.** Нечёткий взгляд на эволюционное давление: tension/coherence/alignment в fuzzy-диапазонах + строковый режим (ground/resonant/chaotic/damped) и мягкие рекомендации.
+2. **State.** `FuzzyEvolutionState` (pressure с fuzzy-уровнями, strings.globalMode/comment, suggestions[], summary, cyclesObserved).
+3. **APIs & visibility.** `/api/system/evolution/fuzzy` + блок `fuzzyEvolution` в heartbeat/health/organism.
+4. **Lifecycle position.** Обновляется после Origin/Pathway на каждом heartbeat, используя свежие Meta/Origin/Pathway снимки для оценки «струн» системы.
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|
