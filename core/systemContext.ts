@@ -32,6 +32,7 @@ import { NoosphereReport } from '../noosphere/contracts';
 import { ScenarioResult } from '../scenarios/types';
 import { MetaOrchestrator } from './metaOrchestrator';
 import type { MetaSystemSnapshot } from './metaOrchestrator/types';
+import { OriginNode } from './origin/origin';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -70,6 +71,7 @@ const metaOrchestrator = new MetaOrchestrator({
   getLastIntent: () => intent.getState(),
   getLastNoosphere: () => noosphere.getSnapshot(),
 });
+const origin = new OriginNode();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 let lastNoosphereReport: NoosphereReport | undefined;
@@ -360,7 +362,15 @@ heartbeat.onBeat((beat) => {
     noosphere: noosphereSnapshot,
   });
 
-  lastHeartbeat = { ...heartbeatSnapshot, metaOrchestrator: lastMetaSnapshot };
+  const originState = origin.update({ metaSnapshot: lastMetaSnapshot });
+
+  lastHeartbeat = { ...heartbeatSnapshot, metaOrchestrator: lastMetaSnapshot, origin: {
+    meaning: originState.rootVector.meaning,
+    direction: originState.rootVector.direction,
+    tone: originState.rootVector.tone,
+    clarity: originState.intentionCore.clarity,
+    summary: originState.summary,
+  } };
 
   void runtime.applyIntentDecision(intentStateWithField.decision);
 });
@@ -429,6 +439,7 @@ export {
   field,
   noosphere,
   metaOrchestrator,
+  origin,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,

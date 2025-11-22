@@ -172,6 +172,7 @@ export interface HeartbeatState {
   collectiveResonance?: HeartbeatCollectiveResonance;
   field?: HeartbeatField;
   noosphere?: HeartbeatNoosphere;
+  origin?: HeartbeatOrigin;
   metaOrchestrator?: MetaSystemSnapshot;
 }
 
@@ -379,4 +380,12 @@ export interface HeartbeatNoosphere {
   supportLevel: number;
   tensionLevel: number;
   dominantTag?: string;
+}
+
+export interface HeartbeatOrigin {
+  meaning: string;
+  direction: string;
+  tone: string;
+  clarity: number;
+  summary: string;
 }

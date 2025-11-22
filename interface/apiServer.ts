@@ -23,6 +23,7 @@ import {
   field,
   noosphere,
   metaOrchestrator,
+  origin,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
@@ -63,6 +64,7 @@ export const createInterfaceApp = () => {
     const fieldSnapshot = field.getSnapshot();
     const noosphereSnapshot = noosphere.getSnapshot();
     const metaOrchestratorSnapshot = metaOrchestrator.getLastSnapshot();
+    const originState = origin.getState();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -176,6 +178,13 @@ export const createInterfaceApp = () => {
         tensionLevel: noosphereSnapshot.tensionLevel,
         dominantTag: noosphereSnapshot.dominantTag,
       },
+      origin: {
+        meaning: originState.rootVector.meaning,
+        direction: originState.rootVector.direction,
+        tone: originState.rootVector.tone,
+        clarity: originState.intentionCore.clarity,
+        summary: originState.summary,
+      },
       metaOrchestrator: metaOrchestratorSnapshot ?? undefined,
     }));
     const circulationState =
@@ -208,6 +217,7 @@ export const createInterfaceApp = () => {
         collectiveResonance: beat.collectiveResonance,
         field: beat.field,
         noosphere: beat.noosphere,
+        origin: beat.origin,
       },
     });
   });
@@ -425,6 +435,10 @@ export const createInterfaceApp = () => {
       return;
     }
     res.json({ meta: snapshot });
+  });
+
+  app.get('/api/system/origin/state', (_req, res) => {
+    res.json(origin.getState());
   });
 
   app.get('/api/system/plasticity', (_req, res) => {

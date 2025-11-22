@@ -184,6 +184,12 @@ Iteration 1 добавляет каркас директории для кажд
 2. **Outputs.** Снимок `MetaSystemSnapshot` доступен через `/api/system/meta/state` и вкладывается в heartbeat блок `metaOrchestrator`, позволяя health/report слоям видеть целостную картину организма и поля.
 3. **Lifecycle position.** Обновляется после расчёта поля/резонанса/интента в heartbeat: **... → Collective Resonance → Field → Noosphere → Meta-Orchestrator → Awareness**, готовя почву для будущих слоёв Origin/Evolution/Genesis.
 
+### Origin / Point of Assembly 11 (Iteration 27)
+1. **Root vector + lineage.** `core/origin/origin.ts` хранит смысловой корень (meaning/direction/tone) и родовую линию (corePrinciples, inheritedPatterns, resolvedPatterns) как неизменяемую опору организма.
+2. **Clarity from meta.** `OriginNode.update` принимает свежий `MetaSystemSnapshot`, извлекает направление (expansion/stabilization/integration/orientation), тон и ясность намерения из coherence/tension и фиксирует резюме.
+3. **APIs & integration.** Состояние доступно через `/api/system/origin/state`, вкладывается в heartbeat/health и хранится в `systemContext.origin`, чтобы Narrative/Genesis слои могли опираться на декларацию происхождения.
+4. **Lifecycle position.** Обновляется вслед за Meta-Orchestrator на каждом сердцебиении: **... → Collective Resonance → Field → Noosphere → Meta-Orchestrator → Origin → Awareness**, закрепляя источник перед последующими ступенями.
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|

@@ -60,6 +60,11 @@
 - **Integration:** refreshed each heartbeat after field/collective/self updates, exposed through `/api/system/noosphere`, `/api/system/noosphere/imprints`, and the new summary report `/api/system/noosphere/report`, and surfaced as a `noosphere` block in `/api/system/health` and `/api/system/organism`.
 - **Purpose:** links local patterns to broader world narratives (growth, crisis, turbulence) so Intent/Meta can sense whether the environment is supportive or compressive. Intent decisions are tagged as `aligned/neutral/against_field` from noosphere+field signals and scenario hints are available via `/api/system/scenario/suggestions`.
 
+### Origin / Assembly Point #11
+- **Organ:** `core/origin/origin.ts` keeps the root vector (meaning/direction/tone), lineage principles/patterns, and a clarity score derived from the latest `MetaSystemSnapshot`.
+- **Integration:** updated alongside the Meta-Orchestrator during each heartbeat, exposed via `/api/system/origin/state`, and included in health/heartbeat payloads for observers.
+- **Purpose:** anchors the organism in a declared provenance and direction so higher layers (narrative, future evolution steps) remain tethered to a stable root.
+
 ---
 
 ## 🛠️ 2-week MVP
