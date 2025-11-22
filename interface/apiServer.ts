@@ -24,6 +24,7 @@ import {
   noosphere,
   metaOrchestrator,
   origin,
+  pathway,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
@@ -65,6 +66,7 @@ export const createInterfaceApp = () => {
     const noosphereSnapshot = noosphere.getSnapshot();
     const metaOrchestratorSnapshot = metaOrchestrator.getLastSnapshot();
     const originState = origin.getState();
+    const pathwayState = pathway.getState();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -184,6 +186,13 @@ export const createInterfaceApp = () => {
         tone: originState.rootVector.tone,
         clarity: originState.intentionCore.clarity,
         summary: originState.summary,
+      },
+      pathway: {
+        trajectory: pathwayState.growthVector.trajectory,
+        pace: pathwayState.growthVector.pace,
+        alignment: pathwayState.growthVector.alignmentScore,
+        futurePull: pathwayState.futurePull.intensity,
+        summary: pathwayState.summary,
       },
       metaOrchestrator: metaOrchestratorSnapshot ?? undefined,
     }));
@@ -441,6 +450,10 @@ export const createInterfaceApp = () => {
     res.json(origin.getState());
   });
 
+  app.get('/api/system/pathway/state', (_req, res) => {
+    res.json(pathway.getState());
+  });
+
   app.get('/api/system/plasticity', (_req, res) => {
     res.json(plasticity.getState());
   });
@@ -519,6 +532,8 @@ export const createInterfaceApp = () => {
       collective: collective.getSnapshot(),
       field: field.getSnapshot(),
       noosphere: noosphere.getSnapshot(),
+      origin: origin.getState(),
+      pathway: pathway.getState(),
     });
   });
 

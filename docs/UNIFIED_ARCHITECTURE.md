@@ -190,6 +190,12 @@ Iteration 1 добавляет каркас директории для кажд
 3. **APIs & integration.** Состояние доступно через `/api/system/origin/state`, вкладывается в heartbeat/health и хранится в `systemContext.origin`, чтобы Narrative/Genesis слои могли опираться на декларацию происхождения.
 4. **Lifecycle position.** Обновляется вслед за Meta-Orchestrator на каждом сердцебиении: **... → Collective Resonance → Field → Noosphere → Meta-Orchestrator → Origin → Awareness**, закрепляя источник перед последующими ступенями.
 
+### Pathway / Point of Assembly 12 (Iteration 28)
+1. **Trajectory + pace.** `core/pathway/pathway.ts` превращает Origin и свежий `MetaSystemSnapshot` в траекторию роста (stabilize/expand/consolidate) и темп (slow/steady/fast), оценивая совпадение пути с полем/ноосферой.
+2. **Branches + pull.** Ведёт списки активных, зарождающихся и угасающих веток, вычисляет силу «тяги будущего» из намерения и coherence/tension и добавляет идеи для следующих шагов.
+3. **APIs & visibility.** Состояние доступно через `/api/system/pathway/state`, встраивается в heartbeat/health/organism с блоком `pathway` (trajectory, pace, alignment, pull).
+4. **Lifecycle position.** Обновляется сразу после Origin: **... → Collective Resonance → Field → Noosphere → Meta-Orchestrator → Origin → Pathway → Awareness**, чтобы верхние слои видели не только корень, но и текущий маршрут разворачивания.
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|

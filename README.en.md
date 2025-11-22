@@ -65,6 +65,11 @@
 - **Integration:** updated alongside the Meta-Orchestrator during each heartbeat, exposed via `/api/system/origin/state`, and included in health/heartbeat payloads for observers.
 - **Purpose:** anchors the organism in a declared provenance and direction so higher layers (narrative, future evolution steps) remain tethered to a stable root.
 
+### Pathway / Assembly Point #12
+- **Organ:** `core/pathway/pathway.ts` turns the Origin signal and latest `MetaSystemSnapshot` into a growth trajectory and pace, alignment score vs field/noosphere, and rolling lists of active/emerging/fading branches.
+- **Integration:** refreshed every heartbeat right after Origin, surfaces a `pathway` block in heartbeat/health payloads, and is observable via `/api/system/pathway/state` and `/api/system/organism`.
+- **Purpose:** shows how the organism is unfolding right now, whether its route matches its root and supporting field, and how strongly future-facing ideas are pulling it forward.
+
 ---
 
 ## 🛠️ 2-week MVP

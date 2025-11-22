@@ -173,6 +173,7 @@ export interface HeartbeatState {
   field?: HeartbeatField;
   noosphere?: HeartbeatNoosphere;
   origin?: HeartbeatOrigin;
+  pathway?: HeartbeatPathway;
   metaOrchestrator?: MetaSystemSnapshot;
 }
 
@@ -387,5 +388,13 @@ export interface HeartbeatOrigin {
   direction: string;
   tone: string;
   clarity: number;
+  summary: string;
+}
+
+export interface HeartbeatPathway {
+  trajectory: string;
+  pace: string;
+  alignment: number;
+  futurePull: number;
   summary: string;
 }

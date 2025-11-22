@@ -33,6 +33,7 @@ import { ScenarioResult } from '../scenarios/types';
 import { MetaOrchestrator } from './metaOrchestrator';
 import type { MetaSystemSnapshot } from './metaOrchestrator/types';
 import { OriginNode } from './origin/origin';
+import { PathwayNode } from './pathway/pathway';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -72,11 +73,13 @@ const metaOrchestrator = new MetaOrchestrator({
   getLastNoosphere: () => noosphere.getSnapshot(),
 });
 const origin = new OriginNode();
+const pathway = new PathwayNode();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 let lastNoosphereReport: NoosphereReport | undefined;
 let lastScenarioResults: ScenarioResult[] = [];
 let lastMetaSnapshot: MetaSystemSnapshot | undefined;
+let lastPathwayState = pathway.getState();
 const getLatestNoosphereReport = (): NoosphereReport => {
   if (!lastNoosphereReport) {
     const snapshot = noosphere.getSnapshot();
@@ -352,6 +355,13 @@ heartbeat.onBeat((beat) => {
       tensionLevel: noosphereSnapshot.tensionLevel,
       dominantTag: noosphereSnapshot.dominantTag,
     },
+    pathway: {
+      trajectory: lastPathwayState.growthVector.trajectory,
+      pace: lastPathwayState.growthVector.pace,
+      alignment: lastPathwayState.growthVector.alignmentScore,
+      futurePull: lastPathwayState.futurePull.intensity,
+      summary: lastPathwayState.summary,
+    },
   };
 
   lastMetaSnapshot = metaOrchestrator.update({
@@ -363,6 +373,7 @@ heartbeat.onBeat((beat) => {
   });
 
   const originState = origin.update({ metaSnapshot: lastMetaSnapshot });
+  lastPathwayState = pathway.update({ originState, metaSnapshot: lastMetaSnapshot });
 
   lastHeartbeat = { ...heartbeatSnapshot, metaOrchestrator: lastMetaSnapshot, origin: {
     meaning: originState.rootVector.meaning,
@@ -370,6 +381,12 @@ heartbeat.onBeat((beat) => {
     tone: originState.rootVector.tone,
     clarity: originState.intentionCore.clarity,
     summary: originState.summary,
+  }, pathway: {
+    trajectory: lastPathwayState.growthVector.trajectory,
+    pace: lastPathwayState.growthVector.pace,
+    alignment: lastPathwayState.growthVector.alignmentScore,
+    futurePull: lastPathwayState.futurePull.intensity,
+    summary: lastPathwayState.summary,
   } };
 
   void runtime.applyIntentDecision(intentStateWithField.decision);
@@ -440,6 +457,7 @@ export {
   noosphere,
   metaOrchestrator,
   origin,
+  pathway,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,

@@ -44,6 +44,7 @@
 22. **Field Resonance Layer** — наблюдает короткие цепочки состояний (намерение/эмоция/стресс) и выделяет петли поля: loops (циклы), traps (ловушки с высоким стрессом) и corridors (здоровые траектории), публикуя past/future поле в heartbeat и API.
 23. **Noosphere Bridge Layer** — сопоставляет локальные паттерны поля с библиотекой мировых отпечатков (imprints), вычисляет уровень поддержки/натяжения большого поля и публикует срез в heartbeat/API.
 24. **Origin / Point of Assembly №11** — фиксирует смысловой корень системы (meaning/direction/tone), хранит принципы и паттерны родословной, обновляет ясность намерения на основе Meta-Orchestrator и публикует состояние через `/api/system/origin/state`.
+25. **Pathway / Point of Assembly №12** — описывает траекторию разворачивания организма: темп, совпадение пути с Origin и полем, активные/формирующиеся ветки роста и силу «тяги будущего», отдаёт снимок через `/api/system/pathway/state`.
 
 ---
 
@@ -58,6 +59,11 @@
 - **Орган:** `core/origin/origin.ts` хранит смысловой корень (meaning/direction/tone), принципы и родовые паттерны, а также ясность намерения, основанную на последнем `MetaSystemSnapshot`.
 - **Интеграция:** обновляется вместе с Meta-Orchestrator в heartbeat, состояние доступно через `/api/system/origin/state` и включено в здоровье/heartbeat.
 - **Назначение:** даёт организму декларацию происхождения и направления роста, чтобы верхние слои (Narrative, будущие Origin-модули) опирались на устойчивый корень.
+
+### Pathway / Point of Assembly №12
+- **Орган:** `core/pathway/pathway.ts` трансформирует Origin и свежий `MetaSystemSnapshot` в траекторию роста, темп, оценку совпадения с полем/ноосферой и списки активных/зарождающихся/угасающих веток.
+- **Интеграция:** обновляется каждый heartbeat сразу после Origin, добавляет краткий блок `pathway` в heartbeat/health и доступен по `/api/system/pathway/state` и в `/api/system/organism`.
+- **Назначение:** показывает, как организм фактически раскрывается сейчас, совпадает ли путь с корнем и поддерживающим полем, и какую силу имеет «тяготение будущего».
 
 ### Interoception / SenseEngine
 - **Орган:** `interoception/interoceptionEngine.ts` агрегирует сигналы из homeostasis/reflex/sleep/replay/perception/transmutation + heartbeat и вычисляет `fatigue`, `tension`, `entropyPressure`, `overload`, `clarity`, `status`, `annotations`.
