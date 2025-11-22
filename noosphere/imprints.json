@@ -1,0 +1,53 @@
+[
+  {
+    "id": "growth_corridor",
+    "source": "config",
+    "scope": "global",
+    "direction": "future",
+    "tags": ["growth", "corridor", "expansion"],
+    "baseWeight": 0.45,
+    "match": {
+      "requiresCorridor": true,
+      "maxStress": 0.6,
+      "minConfidence": 0.35
+    }
+  },
+  {
+    "id": "crisis_trap",
+    "source": "config",
+    "scope": "global",
+    "direction": "past",
+    "tags": ["crisis", "trap", "tension"],
+    "baseWeight": 0.4,
+    "match": {
+      "requiresTrap": true,
+      "minStress": 0.55,
+      "threatAbove": 0.4
+    }
+  },
+  {
+    "id": "steady_state",
+    "source": "config",
+    "scope": "local",
+    "direction": "past",
+    "tags": ["stability", "calm"],
+    "baseWeight": 0.35,
+    "match": {
+      "maxEntropy": 0.55,
+      "maxVolatility": 0.45,
+      "maxStress": 0.55
+    }
+  },
+  {
+    "id": "turbulence_shift",
+    "source": "config",
+    "scope": "global",
+    "direction": "future",
+    "tags": ["turbulence", "transition"],
+    "baseWeight": 0.3,
+    "match": {
+      "minVolatility": 0.45,
+      "requiresLoop": true
+    }
+  }
+]
