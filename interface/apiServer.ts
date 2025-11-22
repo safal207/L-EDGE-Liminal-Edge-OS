@@ -19,6 +19,7 @@ import {
   social,
   plasticity,
   selfModel,
+  collective,
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
@@ -50,6 +51,7 @@ export const createInterfaceApp = () => {
     const socialState = social.getState();
     const plasticityState = plasticity.getState();
     const selfState = selfModel.getState();
+    const collectiveSnapshot = collective.getSnapshot();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -143,6 +145,13 @@ export const createInterfaceApp = () => {
         arcs: selfState.arcs.length,
         volatility: selfState.volatility,
       },
+      collectiveResonance: {
+        primaryMode: collectiveSnapshot.primaryMode,
+        topMirror: collectiveSnapshot.topMirrors[0]?.templateId,
+        topEcho: collectiveSnapshot.topEchoes[0]?.templateId,
+        topSeed: collectiveSnapshot.topSeeds[0]?.templateId,
+        volatility: collectiveSnapshot.volatility,
+      },
     }));
     const circulationState =
       beat.circulation ?? toHeartbeatCirculation(circulation.getLatestSnapshot()) ?? undefined;
@@ -170,6 +179,7 @@ export const createInterfaceApp = () => {
         social: beat.social,
         plasticity: beat.plasticity,
         selfModel: beat.selfModel,
+        collectiveResonance: beat.collectiveResonance,
       },
     });
   });
@@ -286,6 +296,15 @@ export const createInterfaceApp = () => {
 
   app.get('/api/system/social/resonance', (_req, res) => {
     res.json(social.getState().summary);
+  });
+
+  app.get('/api/system/resonance/collective', (_req, res) => {
+    res.json(collective.getSnapshot());
+  });
+
+  app.get('/api/system/resonance/collective/history', (req, res) => {
+    const limit = parseLimit(req.query.limit, 20, 200);
+    res.json({ history: collective.listHistory(limit) });
   });
 
   app.get('/api/system/social/peers', (req, res) => {
@@ -415,6 +434,7 @@ export const createInterfaceApp = () => {
       intent: intent.getState(),
       plasticity: plasticity.getState(),
       self: selfModel.getSummary(),
+      collective: collective.getSnapshot(),
     });
   });
 

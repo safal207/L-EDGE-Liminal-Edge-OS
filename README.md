@@ -40,6 +40,7 @@
 18. **Social Resonance Layer** — чувствует резонанс с окружением (peers/field), соединяя emotion/intent/perception/interoception/meta и выдавая рекомендации: align/detach/observe/amplify/shield.
 19. **Plasticity / Adaptation Layer** — учится на истории стрессов/рефлексов/эмоций/намерений/социальных сдвигов, корректируя чувствительность, приоритет рефлексов и смещения Intent.
 20. **SelfModel / Narrative Layer** — собирает эпизоды (контекст → намерение → рефлекс → исход), формирует устойчивые черты/идентичность и нарративные дуги, чтобы система видела себя как субъект.
+21. **Collective Self / Shared Resonance Layer** — сопоставляет SelfModel+Emotion+Perception с архетипическими шаблонами (mirrors/echoes/seeds), оценивает резонанс с настоящим, прошлым и возможным будущим, выдаёт primaryMode и рекомендации для intent/meta.
 
 ---
 
@@ -67,6 +68,11 @@
 - **Орган:** `plasticity/plasticityEngine.ts` фиксирует эпизоды (контекст → действие → исход) по homeostasis/reflex/emotion/intent/social и выдаёт предложения по адаптации чувствительности стресса, приоритетов рефлексов и смещений Intent.
 - **Интеграция:** запускается в heartbeat после intent/social/meta, адаптирует intent-решения для runtime, добавляет блок `plasticity` в `/api/system/health`, сводку по эндпоинтам `/api/system/plasticity` и `/api/system/plasticity/history`.
 - **Назначение:** учит организм мягко подстраивать реактивность и не зацикливаться на бесполезных тревогах, усиливая полезные рефлексы.
+
+### Collective Self / Shared Resonance Layer
+- **Орган:** `resonance/collectiveResonanceEngine.ts` + `resonance/templates.ts` сопоставляют текущие черты/эмоции/восприятие с шаблонами и выделяют mirrors (созвучие с настоящими ролями), echoes (отголоски прошлого) и seeds (намёки на будущее), собирая volatility и primaryMode.
+- **Интеграция:** обновляется каждое сердцебиение, публикует срез через `/api/system/resonance/collective` и историю через `/api/system/resonance/collective/history`, добавляет `collectiveResonance` в `/api/system/health` и `/api/system/organism`.
+- **Назначение:** даёт организму чувство коллективного поля и сонастройки с архетипами, помогает Intent/Meta видеть, когда система изолирована/резонирует/фрагментируется.
 
 ### SelfModel / Narrative Layer
 - **Орган:** `self/selfModelEngine.ts` собирает Episodes (heartbeat + homeostasis + interoception + emotion + perception + social + plasticity + intent/reflex) и превращает их в устойчивые черты (risk-taking, calm-recovery, pattern-seeking, social orientation) и нарративные дуги.

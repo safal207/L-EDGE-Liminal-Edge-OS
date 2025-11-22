@@ -45,6 +45,11 @@
 - **Integration:** refreshed every heartbeat, exposed via `/api/system/self` and `/api/system/self/narrative`, and included inside `/api/system/health` and `/api/system/organism` snapshots.
 - **Purpose:** gives the organism a sense of self and repeated storylines (“under pressure → chooses protective intent → stabilizes”) so Intent/Meta/Reflex can account for character, not just momentary metrics.
 
+### Collective Self / Shared Resonance Layer
+- **Organ:** `resonance/collectiveResonanceEngine.ts` with `resonance/templates.ts` compares current traits/emotion/perception against archetypal templates, surfacing mirrors (present alignment), echoes (past resonance), and seeds (future pull) plus volatility/primaryMode.
+- **Integration:** refreshed every heartbeat, exposed via `/api/system/resonance/collective` and `/api/system/resonance/collective/history`, and surfaced in the `collectiveResonance` block of `/api/system/health` and `/api/system/organism`.
+- **Purpose:** gives the organism a sense of collective alignment or fragmentation so Intent/Meta can respond when resonance drifts or stabilizes.
+
 ---
 
 ## 🛠️ 2-week MVP

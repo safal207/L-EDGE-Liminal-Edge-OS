@@ -20,6 +20,7 @@ import { EmotionEngine } from '../emotion/emotionEngine';
 import { SocialResonanceEngine } from '../social/socialResonanceEngine';
 import { PlasticityEngine } from '../plasticity/plasticityEngine';
 import { SelfModelEngine } from '../self/selfModelEngine';
+import { CollectiveResonanceEngine } from '../resonance/collectiveResonanceEngine';
 import { clamp } from '../meta/patternDetector';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -49,6 +50,7 @@ const emotion = new EmotionEngine();
 const social = new SocialResonanceEngine();
 const plasticity = new PlasticityEngine();
 const selfModel = new SelfModelEngine();
+const collective = new CollectiveResonanceEngine();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 
@@ -239,6 +241,23 @@ heartbeat.onBeat((beat) => {
     meta: meta.getState(),
   });
 
+  const collectiveSnapshot = collective.evaluate({
+    self: selfModel.getSummary(),
+    emotion: emotionSnapshot.current,
+    perception: perceptionState.summary,
+  });
+
+  lastHeartbeat = {
+    ...beat,
+    collectiveResonance: {
+      primaryMode: collectiveSnapshot.primaryMode,
+      topMirror: collectiveSnapshot.topMirrors[0]?.templateId,
+      topEcho: collectiveSnapshot.topEchoes[0]?.templateId,
+      topSeed: collectiveSnapshot.topSeeds[0]?.templateId,
+      volatility: collectiveSnapshot.volatility,
+    },
+  };
+
   void runtime.applyIntentDecision(intentStateWithAdaptation.decision);
 });
 
@@ -302,4 +321,5 @@ export {
   social,
   plasticity,
   selfModel,
+  collective,
 };

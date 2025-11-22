@@ -162,6 +162,12 @@ Iteration 1 добавляет каркас директории для кажд
 3. **Health wiring.** Блок `selfModel` добавлен в `/api/system/health` и `/api/system/organism`, предоставляя identitySummary, волатильность и счётчик арок.
 4. **Lifecycle position.** SelfModel фиксирует виток после пластичности, возвращая самопознание в Awareness/Intent: **... → Meta → Plasticity → SelfModel → Awareness**.
 
+### Collective Self / Shared Resonance (Iteration 22)
+1. **Archetype matching.** `resonance/collectiveResonanceEngine.ts` + `resonance/templates.ts` сравнивают текущие черты/эмоции/восприятие с архетипическими шаблонами, вычисляя совпадения для mirrors (настоящее), echoes (прошлое) и seeds (потенциальное будущее).
+2. **Modes & volatility.** Определяется primaryMode (`isolated`/`resonant`/`fragmented`) и волатильность переходов на основе ограниченной истории совпадений.
+3. **APIs & heartbeat.** Эндпоинты `/api/system/resonance/collective` и `/api/system/resonance/collective/history` отдают свежий срез и историю; краткая сводка добавлена в `/api/system/health` и heartbeat payload (`collectiveResonance`).
+4. **Lifecycle position.** Слой размещён рядом с SelfModel/Emotion/Perception, возвращая подсказки в Intent/Meta о том, насколько организм созвучен текущему/прошлому/возможному будущему: **... → Emotion → Social → Intent → Meta → Plasticity → SelfModel → Collective Resonance → Awareness**.
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|

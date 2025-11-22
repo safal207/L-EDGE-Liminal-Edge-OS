@@ -167,6 +167,7 @@ export interface HeartbeatState {
   social?: HeartbeatSocial;
   plasticity?: HeartbeatPlasticity;
   selfModel?: HeartbeatSelfModel;
+  collectiveResonance?: HeartbeatCollectiveResonance;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -289,5 +290,41 @@ export interface HeartbeatSelfModel {
   identity: string;
   traits: Record<string, number>;
   arcs: number;
+  volatility: number;
+}
+
+export type CollectiveTemplateKind = 'mirror' | 'echo' | 'seed';
+
+export interface CollectiveTemplate {
+  id: string;
+  kind: CollectiveTemplateKind;
+  tags: string[];
+  traits?: Record<string, number>;
+  dominantEmotions?: string[];
+}
+
+export interface CollectiveResonanceMatch {
+  templateId: string;
+  kind: CollectiveTemplateKind;
+  score: number;
+  matchedTags: string[];
+  dominantEmotionOverlap: number;
+  timestamp: number;
+}
+
+export interface CollectiveResonanceSnapshot {
+  primaryMode: 'isolated' | 'resonant' | 'fragmented';
+  topMirrors: CollectiveResonanceMatch[];
+  topEchoes: CollectiveResonanceMatch[];
+  topSeeds: CollectiveResonanceMatch[];
+  volatility: number;
+  lastUpdated: number;
+}
+
+export interface HeartbeatCollectiveResonance {
+  primaryMode: CollectiveResonanceSnapshot['primaryMode'];
+  topMirror?: string;
+  topEcho?: string;
+  topSeed?: string;
   volatility: number;
 }
