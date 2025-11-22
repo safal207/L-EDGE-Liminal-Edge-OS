@@ -202,6 +202,12 @@ Iteration 1 добавляет каркас директории для кажд
 3. **APIs & visibility.** `/api/system/evolution/fuzzy` + блок `fuzzyEvolution` в heartbeat/health/organism.
 4. **Lifecycle position.** Обновляется после Origin/Pathway на каждом heartbeat, используя свежие Meta/Origin/Pathway снимки для оценки «струн» системы.
 
+### Resonant String Tuner / Assembly Bridge (Iteration 30)
+1. **Purpose.** План настройки струн: на базе fuzzy evolution + Meta/Origin/Pathway выдаёт мягкий режим (deep_rest/integration/steady_growth/rapid_expansion/careful_exploration) и список tuning-actions.
+2. **State.** `ResonanceTuningPlan` (mode, actions[target/direction/intensity/rationale], summary).
+3. **APIs & visibility.** `/api/system/tuning/plan` + блок `tuning` в heartbeat/health/organism.
+4. **Lifecycle position.** Обновляется в heartbeat сразу после fuzzy evolution, готовя почву для следующих ступеней (Genesis/child modules) без жёсткого автопилота.
+
 ## 2. Module-by-Module Roles
 | Repository | Purpose | Responsibilities | Integration Points | Data Consumed | Data Produced |
 |------------|---------|------------------|--------------------|---------------|---------------|

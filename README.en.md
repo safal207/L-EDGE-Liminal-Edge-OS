@@ -75,6 +75,11 @@
 - **Integration:** called every heartbeat after Origin/Pathway, adds a `fuzzyEvolution` block to heartbeat/health/organism payloads, and exposes its state via `/api/system/evolution/fuzzy`.
 - **Purpose:** gives a soft, non-binary feel for evolutionary pressure so recommendations tune growth speed instead of flipping hard thresholds.
 
+### Resonant String Tuner
+- **Organ:** `core/resonanceTuner/resonanceTuner.ts` consumes fuzzy evolution + Meta/Origin/Pathway to build a `ResonanceTuningPlan` with a global mode (deep_rest/integration/steady_growth/rapid_expansion/careful_exploration) and tuned action list.
+- **Integration:** refreshed in the heartbeat loop right after fuzzy evolution; the latest plan is available via `/api/system/tuning/plan` and included in heartbeat/health/organism payloads.
+- **Purpose:** a gentle string master that suggests where to ease load, increase rest, or accelerate growth without forcing automatic changes.
+
 ---
 
 ## 🛠️ 2-week MVP

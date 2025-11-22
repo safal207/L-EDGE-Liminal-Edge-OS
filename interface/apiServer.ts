@@ -26,6 +26,7 @@ import {
   origin,
   pathway,
   fuzzyEvolution,
+  resonanceTuner,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
@@ -69,6 +70,7 @@ export const createInterfaceApp = () => {
     const originState = origin.getState();
     const pathwayState = pathway.getState();
     const fuzzyState = fuzzyEvolution.getState();
+    const tuningPlan = resonanceTuner.getLastPlan();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -203,6 +205,9 @@ export const createInterfaceApp = () => {
         alignment: fuzzyState.pressure.alignment,
         summary: fuzzyState.summary,
       },
+      tuning: tuningPlan
+        ? { mode: tuningPlan.mode, actions: tuningPlan.actions.length, summary: tuningPlan.summary }
+        : undefined,
       metaOrchestrator: metaOrchestratorSnapshot ?? undefined,
     }));
     const circulationState =
@@ -237,6 +242,7 @@ export const createInterfaceApp = () => {
         noosphere: beat.noosphere,
         origin: beat.origin,
         fuzzyEvolution: beat.fuzzyEvolution,
+        tuning: beat.tuning,
       },
     });
   });
@@ -460,6 +466,11 @@ export const createInterfaceApp = () => {
     res.json(fuzzyEvolution.getState());
   });
 
+  app.get('/api/system/tuning/plan', (_req, res) => {
+    const plan = resonanceTuner.getLastPlan();
+    res.json(plan ?? { status: 'no-plan-yet' });
+  });
+
   app.get('/api/system/origin/state', (_req, res) => {
     res.json(origin.getState());
   });
@@ -549,6 +560,7 @@ export const createInterfaceApp = () => {
       origin: origin.getState(),
       pathway: pathway.getState(),
       fuzzyEvolution: fuzzyEvolution.getState(),
+      tuning: resonanceTuner.getLastPlan(),
     });
   });
 

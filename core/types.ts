@@ -175,6 +175,7 @@ export interface HeartbeatState {
   origin?: HeartbeatOrigin;
   pathway?: HeartbeatPathway;
   fuzzyEvolution?: HeartbeatFuzzyEvolution;
+  tuning?: HeartbeatTuning;
   metaOrchestrator?: MetaSystemSnapshot;
 }
 
@@ -405,5 +406,11 @@ export interface HeartbeatFuzzyEvolution {
   tension: { low: number; medium: number; high: number };
   coherence: { low: number; medium: number; high: number };
   alignment: { low: number; medium: number; high: number };
+  summary: string;
+}
+
+export interface HeartbeatTuning {
+  mode: string;
+  actions: number;
   summary: string;
 }

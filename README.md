@@ -46,6 +46,7 @@
 24. **Origin / Point of Assembly №11** — фиксирует смысловой корень системы (meaning/direction/tone), хранит принципы и паттерны родословной, обновляет ясность намерения на основе Meta-Orchestrator и публикует состояние через `/api/system/origin/state`.
 25. **Pathway / Point of Assembly №12** — описывает траекторию разворачивания организма: темп, совпадение пути с Origin и полем, активные/формирующиеся ветки роста и силу «тяги будущего», отдаёт снимок через `/api/system/pathway/state`.
 26. **Fuzzy Evolution / Point of Assembly №13** — мягко оценивает напряжение/когерентность/совпадение пути с Origin в нечётких диапазонах, определяет струны системы (ground/resonant/chaotic/damped) и публикует подсказки через `/api/system/evolution/fuzzy`.
+27. **Resonant String Tuner / Assembly Point bridge** — читает fuzzy evolution, meta, origin и pathway, формирует мягкий план настройки струн (режим дня + список tuning-actions) и отдаёт его через `/api/system/tuning/plan`.
 
 ---
 
@@ -70,6 +71,11 @@
 - **Орган:** `core/fuzzyEvolution/fuzzyEvolutionNode.ts` читает Meta-Orchestrator, Origin и Pathway, строит нечёткие уровни напряжения/когерентности/совпадения и определяет струны системы: ground, resonant, chaotic, damped.
 - **Интеграция:** вызывается на каждом heartbeat после Origin/Pathway, добавляет блок `fuzzyEvolution` в heartbeat/health/organism и отдаёт состояние через `/api/system/evolution/fuzzy`.
 - **Назначение:** даёт мягкое, не бинарное ощущение эволюционного давления и колебаний, чтобы подсказки калибровали темп роста, а не ломали его порогами.
+
+### Resonant String Tuner
+- **Орган:** `core/resonanceTuner/resonanceTuner.ts` принимает fuzzy evolution + Meta/Origin/Pathway и формирует `ResonanceTuningPlan` с режимом (deep_rest/integration/steady_growth/rapid_expansion/careful_exploration) и action-листом.
+- **Интеграция:** обновляется в heartbeat сразу после fuzzy evolution; блок `tuning` доступен через `/api/system/tuning/plan`, включён в heartbeat/health/organism срезы.
+- **Назначение:** мягкий мастер настройки струн, предлагающий уменьшить нагрузку, усилить отдых или ускорить рост без автопилота.
 
 ### Interoception / SenseEngine
 - **Орган:** `interoception/interoceptionEngine.ts` агрегирует сигналы из homeostasis/reflex/sleep/replay/perception/transmutation + heartbeat и вычисляет `fatigue`, `tension`, `entropyPressure`, `overload`, `clarity`, `status`, `annotations`.
