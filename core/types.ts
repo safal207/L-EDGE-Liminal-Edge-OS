@@ -1,3 +1,5 @@
+import type { MetaSystemSnapshot } from './metaOrchestrator/types';
+
 export type NodeId = string;
 export type ServiceId = string;
 export type CorrelationId = string;
@@ -153,6 +155,29 @@ export interface HeartbeatState {
   awarenessDecisions: number;
   runtimeActive: number;
   circulation?: HeartbeatCirculation;
+  transmutation?: HeartbeatTransmutation;
+  sleep?: HeartbeatSleep;
+  homeostasis?: HeartbeatHomeostasis;
+  reflex?: HeartbeatReflex;
+  perception?: HeartbeatPerception;
+  memory?: HeartbeatMemory;
+  replay?: HeartbeatReplay;
+  intent?: HeartbeatIntent;
+  meta?: HeartbeatMeta;
+  interoception?: HeartbeatInteroception;
+  emotion?: HeartbeatEmotion;
+  social?: HeartbeatSocial;
+  plasticity?: HeartbeatPlasticity;
+  selfModel?: HeartbeatSelfModel;
+  collectiveResonance?: HeartbeatCollectiveResonance;
+  field?: HeartbeatField;
+  noosphere?: HeartbeatNoosphere;
+  origin?: HeartbeatOrigin;
+  pathway?: HeartbeatPathway;
+  fuzzyEvolution?: HeartbeatFuzzyEvolution;
+  tuning?: HeartbeatTuning;
+  genesis?: HeartbeatGenesis;
+  metaOrchestrator?: MetaSystemSnapshot;
 }
 
 export type PulsationPhase = 'compression' | 'expansion';
@@ -171,4 +196,229 @@ export interface CirculationSnapshot extends HeartbeatCirculation {
   saturation: number;
   direction: string;
   lastDecisionId?: string;
+}
+
+export interface HeartbeatTransmutation {
+  lastMutation: number;
+  purified: number;
+  entropy: number;
+  signalStrength: number;
+}
+
+export interface HeartbeatSleep {
+  lastSleep: number;
+  noiseCleared: number;
+  dreamIterations?: number;
+}
+
+export interface HeartbeatHomeostasis {
+  stressScore: number;
+  loadLevel: string;
+}
+
+export interface HeartbeatReflex {
+  lastActionSeverity: string | null;
+  lastActionReason?: string;
+  actionsCount: number;
+}
+
+export interface HeartbeatPerception {
+  pressure: number;
+  threatScore: number;
+  opportunityScore: number;
+  noiseLevel: number;
+  status: string;
+}
+
+export interface HeartbeatMemory {
+  shortTerm: number;
+  longTerm: number;
+  lastConsolidatedAt: number;
+  status: string;
+}
+
+export interface HeartbeatReplay {
+  lastRunAt: number;
+  episodes: number;
+  avgIntegrationScore: number;
+  reliefScore: number;
+  status: string;
+}
+
+export interface HeartbeatIntent {
+  mode: string;
+  allowHeavyTasks: boolean;
+  throttleNonCritical: boolean;
+  forceSleepSoon: boolean;
+  degradedMode: boolean;
+  fieldAlignment?: string;
+  noosphereSupport?: number;
+  noosphereTension?: number;
+}
+
+export interface HeartbeatMeta {
+  coherence: number;
+  stressTrend: string;
+  adaptationPhase: string;
+  dominantIntent: string;
+  anomalies: string[];
+}
+
+export interface HeartbeatInteroception {
+  fatigue: number;
+  tension: number;
+  entropyPressure: number;
+  readiness: number;
+  clarity: number;
+  overload: number;
+  status: string;
+  annotations: string[];
+}
+
+export interface HeartbeatEmotion {
+  state: string;
+  confidence: number;
+  volatility: number;
+  annotations: string[];
+}
+
+export interface HeartbeatSocial {
+  selfResonance: number;
+  coherence: number;
+  tension: number;
+  fieldStatus: string;
+  recommendation: string;
+  peers: number;
+}
+
+export interface HeartbeatPlasticity {
+  stressSensitivity: number;
+  reflexBias: number;
+  volatility: number;
+  episodes: number;
+  status: string;
+}
+
+export interface HeartbeatSelfModel {
+  identity: string;
+  traits: Record<string, number>;
+  arcs: number;
+  volatility: number;
+}
+
+export type CollectiveTemplateKind = 'mirror' | 'echo' | 'seed';
+
+export interface CollectiveTemplate {
+  id: string;
+  kind: CollectiveTemplateKind;
+  tags: string[];
+  traits?: Record<string, number>;
+  dominantEmotions?: string[];
+}
+
+export interface CollectiveResonanceMatch {
+  templateId: string;
+  kind: CollectiveTemplateKind;
+  score: number;
+  matchedTags: string[];
+  dominantEmotionOverlap: number;
+  timestamp: number;
+}
+
+export interface CollectiveResonanceSnapshot {
+  primaryMode: 'isolated' | 'resonant' | 'fragmented';
+  topMirrors: CollectiveResonanceMatch[];
+  topEchoes: CollectiveResonanceMatch[];
+  topSeeds: CollectiveResonanceMatch[];
+  volatility: number;
+  lastUpdated: number;
+}
+
+export interface HeartbeatCollectiveResonance {
+  primaryMode: CollectiveResonanceSnapshot['primaryMode'];
+  topMirror?: string;
+  topEcho?: string;
+  topSeed?: string;
+  volatility: number;
+}
+
+export type FieldPatternKind = 'loop' | 'trap' | 'corridor';
+
+export interface FieldPattern {
+  id: string;
+  kind: FieldPatternKind;
+  tags: string[];
+  strength: number;
+  evidenceCount: number;
+}
+
+export interface FieldSnapshot {
+  pastField: {
+    dominantPatterns: FieldPattern[];
+    entropy: number;
+  };
+  futureField: {
+    candidatePatterns: FieldPattern[];
+    confidence: number;
+  };
+  lastUpdated: number;
+}
+
+export interface HeartbeatField {
+  pastEntropy: number;
+  futureConfidence: number;
+  dominantCorridor?: string;
+}
+
+export interface WorldImprint {
+  id: string;
+  source: 'config' | 'model' | 'remote';
+  scope: 'local' | 'global';
+  tags: string[];
+  direction: 'past' | 'future';
+  baseWeight?: number;
+  match?: Record<string, unknown>;
+}
+
+export interface HeartbeatNoosphere {
+  supportLevel: number;
+  tensionLevel: number;
+  dominantTag?: string;
+}
+
+export interface HeartbeatOrigin {
+  meaning: string;
+  direction: string;
+  tone: string;
+  clarity: number;
+  summary: string;
+}
+
+export interface HeartbeatPathway {
+  trajectory: string;
+  pace: string;
+  alignment: number;
+  futurePull: number;
+  summary: string;
+}
+
+export interface HeartbeatFuzzyEvolution {
+  mode: string;
+  tension: { low: number; medium: number; high: number };
+  coherence: { low: number; medium: number; high: number };
+  alignment: { low: number; medium: number; high: number };
+  summary: string;
+}
+
+export interface HeartbeatTuning {
+  mode: string;
+  actions: number;
+  summary: string;
+}
+
+export interface HeartbeatGenesis {
+  mode: string;
+  ready: number;
+  deferred: number;
+  summary: string;
 }
