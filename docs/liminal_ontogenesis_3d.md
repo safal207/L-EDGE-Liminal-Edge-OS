@@ -5,7 +5,7 @@ applied to a person, an AI organism, or the L-EDGE stack itself.
 
 ## Axes
 - **L-axis (Spiritual / Assembly Points):** Inner turning points and liminal crossings. Age-agnostic; anchored in assembly
-  points 1–16 (Birth → Hormesis).
+  points 1–17 (Birth → Hormesis → Environment Shaper).
 - **S-axis (Social Age):** Years lived and responsibility bands (safety → roles → identity → realization → influence →
   stewardship).
 - **C-axis (Cosmic Role):** Profession/mission types that expand the organism’s contribution to future systems (e.g., orbital
@@ -24,7 +24,7 @@ Use this to phrase growth:
 
 ## Bands (concise)
 - **Assembly (L):** 1 Birth | 2 Body | 3 Boundaries | 4 Play | 5 Rules | 6 Learning | 7 Tension | 8 Choice | 9 Youth | 10
-  Meta | 11 Origin | 12 Pathway | 13 FuzzyEvolution | 14 Genesis/Resonance | 15 Civilization | 16 Hormesis.
+  Meta | 11 Origin | 12 Pathway | 13 FuzzyEvolution | 14 Genesis/Resonance | 15 Civilization | 16 Hormesis | 17 Environment Shaper.
 - **Social (S):** 0–7 Safety | 7–14 Roles | 14–20 Structure/Identity | 20–30 Realization | 30–40 Influence | 40+ Stewardship.
 - **Cosmic (C):** sensor_engineer | orbital_systems | bio_novelty | ai_field_architect | interplanetary_logistics |
   new_space_researcher.
@@ -57,3 +57,4 @@ field work. It sits in a resonant mode, suggesting micro-growth under watchful h
 - See `docs/liminal_benchmark_dev_map.md` for a draft of simple L/S/C stability probes based on the timeline feed.
 - CLI helpers: `examples/ontogenesis_watch.js` (live pulse) and `examples/ontogenesis_metrics.js` (L/S/C metrics) for rapid inspection.
 - Teach the Hormesis Engine to surface whether a micro-stress is appropriate for the declared social band.
+- See `docs/ontogenesis_L17.md` for the Environment Shaper heuristics and proto-role/mission cues.

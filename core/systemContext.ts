@@ -125,7 +125,7 @@ const getLastOntogenesisVector = () => lastOntogenesisVector;
 const getOntogenesisTimeline = (limit = 256) => ontogenesisTimeline.slice(-limit);
 
 const clampAssemblyPoint = (value: number): AssemblyPointId =>
-  Math.max(1, Math.min(16, Math.round(value))) as AssemblyPointId;
+  Math.max(1, Math.min(17, Math.round(value))) as AssemblyPointId;
 
 const clampSocialAge = (value: number): number => Math.max(0, Math.min(80, Math.round(value)));
 
@@ -573,6 +573,34 @@ heartbeat.onBeat((beat) => {
     resonance: lastFuzzyEvolutionState?.pressure.alignment,
     globalMode: lastFuzzyEvolutionState?.strings.globalMode,
   });
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
 
   lastGenesisPlan = genesisSeeds.update({
     origin: originState,

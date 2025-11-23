@@ -1,6 +1,23 @@
 import { FuzzyLevel, StringMode } from '../../core/fuzzyEvolution/types';
 
-export type AssemblyPointId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16;
+export type AssemblyPointId =
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9
+  | 10
+  | 11
+  | 12
+  | 13
+  | 14
+  | 15
+  | 16
+  | 17;
 
 export interface AssemblyPointDescriptor {
   id: AssemblyPointId;
@@ -48,6 +65,7 @@ const assemblyPoints: AssemblyPointDescriptor[] = [
   { id: 14, title: 'Genesis & Resonance Tuning', focus: 'Seed readiness and growth/rest timing.' },
   { id: 15, title: 'Civilization Node', focus: 'Resonance with allies/hosts/opponents.' },
   { id: 16, title: 'Hormesis Engine', focus: 'Micro-stress adaptation and resilience growth.' },
+  { id: 17, title: 'Environment Shaper', focus: 'Proto-profession roles and cosmic trajectory shaping.' },
 ];
 
 const socialBands: SocialMaturityBand[] = [
