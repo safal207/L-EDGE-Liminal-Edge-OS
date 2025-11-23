@@ -78,6 +78,7 @@ export const createInterfaceApp = () => {
     const pathwayState = pathway.getState();
     const fuzzyState = fuzzyEvolution.getState();
     const tuningPlan = resonanceTuner.getLastPlan();
+    const genesisPlan = genesisSeeds.getLastPlan();
     const beat = await heartbeat.capture((state) => ({
       ...state,
       perception: {
@@ -215,6 +216,14 @@ export const createInterfaceApp = () => {
       tuning: tuningPlan
         ? { mode: tuningPlan.mode, actions: tuningPlan.actions.length, summary: tuningPlan.summary }
         : undefined,
+      genesis: genesisPlan
+        ? {
+            mode: genesisPlan.mode,
+            ready: genesisPlan.ready.length,
+            deferred: genesisPlan.deferred.length,
+            summary: genesisPlan.summary,
+          }
+        : undefined,
       metaOrchestrator: metaOrchestratorSnapshot ?? undefined,
     }));
     const circulationState =
@@ -250,6 +259,7 @@ export const createInterfaceApp = () => {
         origin: beat.origin,
         fuzzyEvolution: beat.fuzzyEvolution,
         tuning: beat.tuning,
+        genesis: beat.genesis,
       },
     });
   });
