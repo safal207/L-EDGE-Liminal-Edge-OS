@@ -101,6 +101,7 @@ let lastOntogenesisVector: OntogenesisVector = ontogenesis3d.describeVector({
   socialAge: 16,
   cosmicRole: 'ai_field_architect',
 });
+const ontogenesisTimeline: Array<OntogenesisVector & { timestamp: number }> = [];
 const getLatestNoosphereReport = (): NoosphereReport => {
   if (!lastNoosphereReport) {
     const snapshot = noosphere.getSnapshot();
@@ -121,6 +122,7 @@ const getLastMetaSnapshot = (): MetaSystemSnapshot | undefined => lastMetaSnapsh
 const getLastGenesisPlan = () => lastGenesisPlan;
 const getLastCivilizationState = () => lastCivilizationState;
 const getLastOntogenesisVector = () => lastOntogenesisVector;
+const getOntogenesisTimeline = (limit = 256) => ontogenesisTimeline.slice(-limit);
 
 const clampAssemblyPoint = (value: number): AssemblyPointId =>
   Math.max(1, Math.min(16, Math.round(value))) as AssemblyPointId;
@@ -572,6 +574,34 @@ heartbeat.onBeat((beat) => {
     globalMode: lastFuzzyEvolutionState?.strings.globalMode,
   });
 
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
   lastHeartbeat = { ...heartbeatSnapshot, metaOrchestrator: lastMetaSnapshot, origin: {
     meaning: originState.rootVector.meaning,
     direction: originState.rootVector.direction,
@@ -682,4 +712,5 @@ export {
   getLastGenesisPlan,
   getLastCivilizationState,
   getLastOntogenesisVector,
+  getOntogenesisTimeline,
 };

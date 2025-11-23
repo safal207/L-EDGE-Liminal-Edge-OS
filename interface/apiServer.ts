@@ -30,6 +30,7 @@ import {
   genesisSeeds,
   civilizationNode,
   getLastOntogenesisVector,
+  getOntogenesisTimeline,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
@@ -501,6 +502,12 @@ export const createInterfaceApp = () => {
   app.get('/api/system/ontogenesis', (_req, res) => {
     const vector = getLastOntogenesisVector();
     res.json(vector ?? { status: 'no-ontogenesis-vector-yet' });
+  });
+
+  app.get('/api/system/ontogenesis/timeline', (req, res) => {
+    const limit = parseLimit(req.query.limit, 64, 256);
+    const timeline = getOntogenesisTimeline(limit);
+    res.json({ timeline });
   });
 
   app.get('/api/system/origin/state', (_req, res) => {

@@ -53,5 +53,6 @@ field work. It sits in a resonant mode, suggesting micro-growth under watchful h
 
 ## Next Steps
 - Add optional `ontogenesis` hints to GenesisSeed and Civilization agents.
-- `/api/system/ontogenesis` now returns the current vector; expand it with historical breadcrumbs and annotations.
+- `/api/system/ontogenesis` now returns the current vector; `/api/system/ontogenesis/timeline` exposes the last slices for quick trend views.
+- See `docs/liminal_benchmark_dev_map.md` for a draft of simple L/S/C stability probes based on the timeline feed.
 - Teach the Hormesis Engine to surface whether a micro-stress is appropriate for the declared social band.
