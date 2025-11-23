@@ -238,7 +238,7 @@ heartbeat.onBeat((beat) => {
   }
 
   if (replayState.lastResults.length) {
-    const lastResult = replayState.lastResults.at(-1);
+    const lastResult = replayState.lastResults[replayState.lastResults.length - 1];
     if (lastResult) {
       reflex.ingestEvent({
         id: uuidv4(),
@@ -275,7 +275,7 @@ heartbeat.onBeat((beat) => {
   const actionsAfter = reflexState.lastActions.length;
 
   if (actionsAfter > actionsBefore) {
-    const action = reflexState.lastActions.at(-1);
+    const action = reflexState.lastActions[reflexState.lastActions.length - 1];
     if (action) {
       memory.remember({
         source: 'reflex',
@@ -407,6 +407,19 @@ heartbeat.onBeat((beat) => {
     pathway: lastPathwayState,
     fuzzy: lastFuzzyEvolutionState,
     tuning: lastTuningPlan,
+  });
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
   });
 
   lastGenesisPlan = genesisSeeds.update({

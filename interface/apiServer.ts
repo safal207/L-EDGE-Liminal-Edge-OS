@@ -39,6 +39,8 @@ import {
 } from '../core/systemContext';
 import { EdgeEventFilter } from '../core';
 import { toHeartbeatCirculation } from '../core/heartbeat';
+import { IntentMode } from '../intent/types';
+import { ExternalSignalKind } from '../perception/types';
 
 const parseLimit = (value: unknown, fallback: number, max: number): number => {
   const parsed = Number(value);
@@ -114,8 +116,8 @@ export const createInterfaceApp = () => {
         loadLevel: homeostasisState.loadLevel,
       },
       reflex: {
-        lastActionSeverity: reflexState.lastActions.at(-1)?.severity ?? null,
-        lastActionReason: reflexState.lastActions.at(-1)?.reason,
+        lastActionSeverity: reflexState.lastActions[reflexState.lastActions.length - 1]?.severity ?? null,
+        lastActionReason: reflexState.lastActions[reflexState.lastActions.length - 1]?.reason,
         actionsCount: reflexState.lastActions.length,
       },
       intent: {
@@ -545,17 +547,37 @@ export const createInterfaceApp = () => {
       res.status(400).json({ error: 'mode is required' });
       return;
     }
-    intent.setOverride(mode, decision);
+    const allowed: IntentMode[] = ['CALM', 'FOCUSED', 'HEALING', 'DEGRADED', 'CRITICAL'];
+    if (!allowed.includes(mode as IntentMode)) {
+      res.status(400).json({ error: `mode must be one of ${allowed.join(', ')}` });
+      return;
+    }
+    intent.setOverride(mode as IntentMode, decision);
     res.json({ status: 'override-set', mode });
   });
 
   app.post('/api/system/perception/signal', (req, res) => {
-    const { source, type, intensity, payload } = req.body ?? {};
-    if (typeof source !== 'string' || typeof type !== 'string' || typeof intensity !== 'number') {
-      res.status(400).json({ error: 'source, type and intensity are required' });
+    const { source, kind, intensity, payload } = req.body ?? {};
+    if (typeof source !== 'string' || typeof kind !== 'string' || typeof intensity !== 'number') {
+      res.status(400).json({ error: 'source, kind and intensity are required' });
       return;
     }
-    perception.ingestSignal({ source, type, intensity, payload, ts: Date.now() });
+    const allowedKinds: ExternalSignalKind[] = [
+      'environmentPressure',
+      'threatDetected',
+      'externalOpportunity',
+      'syncLoss',
+      'upstreamDelaySpike',
+      'resourceRisk',
+      'telemetry',
+    ];
+    if (!allowedKinds.includes(kind as ExternalSignalKind)) {
+      res.status(400).json({
+        error: `kind must be one of ${allowedKinds.join(', ')}`,
+      });
+      return;
+    }
+    perception.ingestSignal({ source, kind: kind as ExternalSignalKind, intensity, payload, ts: Date.now() });
     res.json({ status: 'accepted' });
   });
 
