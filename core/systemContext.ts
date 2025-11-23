@@ -602,6 +602,34 @@ heartbeat.onBeat((beat) => {
     ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
   }
 
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
   lastHeartbeat = { ...heartbeatSnapshot, metaOrchestrator: lastMetaSnapshot, origin: {
     meaning: originState.rootVector.meaning,
     direction: originState.rootVector.direction,

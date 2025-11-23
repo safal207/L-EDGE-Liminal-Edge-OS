@@ -24,4 +24,9 @@ The goal is not to rank runs but to see whether a configuration produces smoothe
 2. Compute the draft metrics locally in notebooks or quick scripts.
 3. Compare runs before/after tuning Resonance, Genesis heuristics, or Hormesis thresholds.
 
+### Quick start scripts
+
+- `examples/ontogenesis_watch.js` streams snapshots + timeline length for a live pulse.
+- `examples/ontogenesis_metrics.js` fetches the timeline and prints `L_volatility`, `S_growth`, and `C_switches` every few seconds (configure via `LIMINAL_API`, `LIMINAL_TIMELINE_LIMIT`, `LIMINAL_INTERVAL_MS`).
+
 A fuller benchmark can layer in pressure bands, Genesis readiness counts, and Civilization resonance, but this v0.1 map keeps the first feedback loop extremely simple.
