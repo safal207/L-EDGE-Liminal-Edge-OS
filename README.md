@@ -170,7 +170,7 @@
 ## 🛰️ Ontogenesis telemetry & dev benchmark
 - Снимок: `/api/system/ontogenesis` — текущая L/S/C-точка.
 - История: `/api/system/ontogenesis/timeline?limit=128` — последние срезы движения.
-- Документация: `docs/liminal_ontogenesis_3d.md` + `docs/liminal_benchmark_dev_map.md` (скетч метрик L/S/C) + `docs/ontogenesis_L1.md` (корневой слой).
+- Документация: `docs/liminal_ontogenesis_3d.md` + `docs/liminal_benchmark_dev_map.md` (скетч метрик L/S/C) + `docs/ontogenesis_L1.md` (корневой слой) + `docs/ontogenesis_L2.md` (Body & Grounding).
 - Примеры: `examples/ontogenesis_watch.js` (живой пульс) и `examples/ontogenesis_metrics.js` (быстрый расчёт L_volatility / S_growth / C_switches).
 
 ---

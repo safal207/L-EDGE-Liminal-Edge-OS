@@ -43,6 +43,9 @@ import { CivilizationNode } from './civilization';
 import { Ontogenesis3D, type AssemblyPointId, type CosmicRoleKind, type OntogenesisVector } from '../src/organism/ontogenesis3d';
 import { computeL1Root } from '../src/organism/assembly/L1_root';
 import { computeL1SocialSeed } from '../src/organism/social/social_seedling';
+import { computeL2BodyGrounding } from '../src/organism/assembly/L2_body_grounding';
+import { computeL2SocialSnapshot } from '../src/organism/social/social_toddler';
+import { computeCosmicExplorationStyle } from '../src/organism/cosmic/cosmic_micro_explorer';
 import { computeCosmicPreseed, type CosmicPreseed } from '../src/organism/cosmic/cosmic_preseed';
 
 const storage = createInMemoryLiminalStorage();
@@ -111,14 +114,42 @@ const l1CosmicPreseed = computeCosmicPreseed({
   signalBias: 0.45,
 });
 const initialCosmicRole = mapPreseedToCosmicRole(l1CosmicPreseed.direction);
+const l2BodySeed = computeL2BodyGrounding({
+  presence: l1RootSeed.presence,
+  trustLevel: l1SocialSeed.trustLevel,
+  noiseLevel: 0.35,
+  signalClarity: 0.65,
+});
+const l2SocialSeed = computeL2SocialSnapshot({
+  trustLevel: l1SocialSeed.trustLevel,
+  safetySense: l1SocialSeed.safetySense,
+  explorationDrive: l2BodySeed.explorationDrive,
+});
+const l2CosmicSeed = computeCosmicExplorationStyle({
+  preseed: l1CosmicPreseed.direction,
+  explorationDrive: l2BodySeed.explorationDrive,
+  stability: l2BodySeed.stability,
+});
+let lastL2BodySnapshot = l2BodySeed;
+let lastL2SocialSnapshot = l2SocialSeed;
+let lastL2CosmicSnapshot = l2CosmicSeed;
 
 let lastOntogenesisVector: OntogenesisVector = ontogenesis3d.describeVector({
-  assemblyPoint: 1,
-  socialAge: l1SocialSeed.socialAge,
+  assemblyPoint: 2,
+  socialAge: l2SocialSeed.socialAge,
   cosmicRole: initialCosmicRole,
   trustLevel: l1SocialSeed.trustLevel,
   presence: l1RootSeed.presence,
+  embodimentScore: l2BodySeed.embodimentScore,
+  stability: l2BodySeed.stability,
+  explorationDrive: l2BodySeed.explorationDrive,
+  comfortInMotion: l2BodySeed.comfortInMotion,
+  boundarySense: l2SocialSeed.boundarySense,
+  attachmentLevel: l2SocialSeed.attachmentLevel,
+  curiositySocial: l2SocialSeed.curiositySocial,
   cosmicPreseed: l1CosmicPreseed.direction,
+  cosmicStyle: l2CosmicSeed.style,
+  cosmicStyleIntensity: l2CosmicSeed.intensity,
   note: l1RootSeed.note,
 });
 const ontogenesisTimeline: Array<OntogenesisVector & { timestamp: number }> = [
@@ -220,6 +251,26 @@ heartbeat.onBeat((beat) => {
   const circulationSnapshot = circulation.getLatestSnapshot();
   const replayState = replay.getState();
   const transmutationMetrics = transmutation.getMetrics();
+  const perceptionSummary = perceptionState.summary;
+  const signalClarity = clamp(
+    0.5 + perceptionSummary.opportunityScore * 0.4 - perceptionSummary.threatScore * 0.3 - perceptionSummary.noiseLevel * 0.2,
+  );
+  lastL2BodySnapshot = computeL2BodyGrounding({
+    presence: l1RootSeed.presence,
+    trustLevel: l1SocialSeed.trustLevel,
+    noiseLevel: perceptionSummary.noiseLevel,
+    signalClarity,
+  });
+  lastL2SocialSnapshot = computeL2SocialSnapshot({
+    trustLevel: l1SocialSeed.trustLevel,
+    safetySense: l1SocialSeed.safetySense,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+  });
+  lastL2CosmicSnapshot = computeCosmicExplorationStyle({
+    preseed: l1CosmicPreseed.direction,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+    stability: lastL2BodySnapshot.stability,
+  });
   const intentSnapshot = intent.getState();
   const emotionSnapshot = emotion.evaluate({
     homeostasis: homeostasisState,
@@ -721,6 +772,47 @@ heartbeat.onBeat((beat) => {
     trustLevel: l1SocialSeed.trustLevel,
     presence: l1RootSeed.presence,
     cosmicPreseed: l1CosmicPreseed.direction,
+    note: lastOntogenesisVector.note ?? l1RootSeed.note,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = Math.max(deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan), lastL2SocialSnapshot.socialAge);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+    trustLevel: l1SocialSeed.trustLevel,
+    presence: l1RootSeed.presence,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    stability: lastL2BodySnapshot.stability,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+    comfortInMotion: lastL2BodySnapshot.comfortInMotion,
+    boundarySense: lastL2SocialSnapshot.boundarySense,
+    attachmentLevel: lastL2SocialSnapshot.attachmentLevel,
+    curiositySocial: lastL2SocialSnapshot.curiositySocial,
+    cosmicPreseed: l1CosmicPreseed.direction,
+    cosmicStyle: lastL2CosmicSnapshot.style,
+    cosmicStyleIntensity: lastL2CosmicSnapshot.intensity,
     note: lastOntogenesisVector.note ?? l1RootSeed.note,
   });
   ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });

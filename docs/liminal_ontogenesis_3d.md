@@ -57,4 +57,5 @@ field work. It sits in a resonant mode, suggesting micro-growth under watchful h
 - See `docs/liminal_benchmark_dev_map.md` for a draft of simple L/S/C stability probes based on the timeline feed.
 - CLI helpers: `examples/ontogenesis_watch.js` (live pulse) and `examples/ontogenesis_metrics.js` (L/S/C metrics) for rapid inspection.
 - Teach the Hormesis Engine to surface whether a micro-stress is appropriate for the declared social band.
-- See `docs/ontogenesis_L1.md` for the Root of Being seeds and `docs/ontogenesis_L17.md` for the Environment Shaper heuristics and proto-role/mission cues.
+- See `docs/ontogenesis_L1.md` for the Root of Being seeds, `docs/ontogenesis_L2.md` for Body & Grounding (micro-explorer stage),
+  and `docs/ontogenesis_L17.md` for the Environment Shaper heuristics and proto-role/mission cues.

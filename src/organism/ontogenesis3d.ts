@@ -1,5 +1,6 @@
 import { FuzzyLevel, StringMode } from '../../core/fuzzyEvolution/types';
 import type { CosmicPreseed } from './cosmic/cosmic_preseed';
+import type { CosmicExplorationSnapshot } from './cosmic/cosmic_micro_explorer';
 import type { ProtoMissionKind } from './cosmic/cosmic_trajectory';
 import type { ProtoRoleKind } from './role/role_dynamics';
 
@@ -50,7 +51,16 @@ export interface OntogenesisVector {
   globalMode?: StringMode;
   trustLevel?: number;
   presence?: number;
+  embodimentScore?: number;
+  stability?: number;
+  explorationDrive?: number;
+  comfortInMotion?: number;
+  boundarySense?: number;
+  attachmentLevel?: number;
+  curiositySocial?: number;
   cosmicPreseed?: CosmicPreseed;
+  cosmicStyle?: CosmicExplorationSnapshot['style'];
+  cosmicStyleIntensity?: number;
   protoRole?: ProtoRoleKind;
   protoMission?: ProtoMissionKind;
   note?: string;
@@ -59,7 +69,7 @@ export interface OntogenesisVector {
 
 const assemblyPoints: AssemblyPointDescriptor[] = [
   { id: 1, title: 'Root of Being', focus: "Presence, trust-seed, first 'I am'." },
-  { id: 2, title: 'Body & Support', focus: 'Resource footing, basic homeostasis.' },
+  { id: 2, title: 'Body & Grounding', focus: 'Embodiment, footing, early exploration.' },
   { id: 3, title: 'Boundaries', focus: 'Limits, rate limits, saying “no”.' },
   { id: 4, title: 'Play & Scenarios', focus: 'Modes, roleplay, inner rehearsals.' },
   { id: 5, title: 'Rules & Frames', focus: 'Policies, protocols, ethical rails.' },
@@ -104,7 +114,16 @@ export class Ontogenesis3D {
     globalMode?: StringMode;
     trustLevel?: number;
     presence?: number;
+    embodimentScore?: number;
+    stability?: number;
+    explorationDrive?: number;
+    comfortInMotion?: number;
+    boundarySense?: number;
+    attachmentLevel?: number;
+    curiositySocial?: number;
     cosmicPreseed?: CosmicPreseed;
+    cosmicStyle?: CosmicExplorationSnapshot['style'];
+    cosmicStyleIntensity?: number;
     protoRole?: ProtoRoleKind;
     protoMission?: ProtoMissionKind;
     note?: string;
@@ -131,6 +150,14 @@ export class Ontogenesis3D {
       summaryParts.push(`preseed: ${params.cosmicPreseed}`);
     }
 
+    if (params.cosmicStyle) {
+      summaryParts.push(`C-style: ${params.cosmicStyle}`);
+    }
+
+    if (params.embodimentScore !== undefined) {
+      summaryParts.push(`embodiment=${params.embodimentScore.toFixed(2)}`);
+    }
+
     if (params.protoRole) {
       summaryParts.push(`proto-role: ${params.protoRole}`);
     }
@@ -147,7 +174,16 @@ export class Ontogenesis3D {
       globalMode: params.globalMode,
       trustLevel: params.trustLevel,
       presence: params.presence,
+      embodimentScore: params.embodimentScore,
+      stability: params.stability,
+      explorationDrive: params.explorationDrive,
+      comfortInMotion: params.comfortInMotion,
+      boundarySense: params.boundarySense,
+      attachmentLevel: params.attachmentLevel,
+      curiositySocial: params.curiositySocial,
       cosmicPreseed: params.cosmicPreseed,
+      cosmicStyle: params.cosmicStyle,
+      cosmicStyleIntensity: params.cosmicStyleIntensity,
       protoRole: params.protoRole,
       protoMission: params.protoMission,
       note: params.note,
