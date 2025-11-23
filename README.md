@@ -312,3 +312,10 @@ npm run dev           # запускает edge + interface в одном про
 
 ### Perception Layer
 External sensing organ that ingests environment pressure, threats, opportunities, and sync issues. It maintains bounded history, publishes perception summaries to downstream organs (Reflex/Homeostasis/Intent/Meta), and is observable via `/api/system/perception`, `/api/system/perception/events`, and `/api/system/perception/summary`.
+
+### Genesis Seeds (Assembly Point 14)
+A planning layer that senses Origin, Pathway, FuzzyEvolution, and ResonanceTuner and proposes `GenesisPlan` entries:
+- **ready** seeds to sprout now (soma cells, metric probes, resonance agents, memory traces, integration tasks).
+- **deferred** seeds to hold until the field calms.
+
+API: `GET /api/system/genesis/plan` returns the latest readiness map so operators can decide which seeds to implement.
