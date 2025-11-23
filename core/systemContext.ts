@@ -36,6 +36,8 @@ import { OriginNode } from './origin/origin';
 import { PathwayNode } from './pathway/pathway';
 import { FuzzyEvolutionNode } from './fuzzyEvolution/fuzzyEvolutionNode';
 import { ResonanceTuner } from './resonanceTuner/resonanceTuner';
+import { GenesisSeeds } from './genesis';
+import { CivilizationNode } from './civilization';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -78,6 +80,8 @@ const origin = new OriginNode();
 const pathway = new PathwayNode();
 const fuzzyEvolution = new FuzzyEvolutionNode();
 const resonanceTuner = new ResonanceTuner();
+const genesisSeeds = new GenesisSeeds();
+const civilizationNode = new CivilizationNode();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 let lastNoosphereReport: NoosphereReport | undefined;
@@ -86,6 +90,8 @@ let lastMetaSnapshot: MetaSystemSnapshot | undefined;
 let lastPathwayState = pathway.getState();
 let lastFuzzyEvolutionState = fuzzyEvolution.getState();
 let lastTuningPlan = resonanceTuner.getLastPlan();
+let lastGenesisPlan = genesisSeeds.getLastPlan();
+let lastCivilizationState = civilizationNode.getState();
 const getLatestNoosphereReport = (): NoosphereReport => {
   if (!lastNoosphereReport) {
     const snapshot = noosphere.getSnapshot();
@@ -103,6 +109,8 @@ const getLatestNoosphereReport = (): NoosphereReport => {
 const getLatestScenarioResults = (): ScenarioResult[] => lastScenarioResults;
 const getLastHeartbeatSnapshot = (): HeartbeatState | undefined => lastHeartbeat;
 const getLastMetaSnapshot = (): MetaSystemSnapshot | undefined => lastMetaSnapshot;
+const getLastGenesisPlan = () => lastGenesisPlan;
+const getLastCivilizationState = () => lastCivilizationState;
 
 const homeostasis = new HomeostasisManager({
   getHeartbeatMetrics: () => lastHeartbeat,
@@ -230,7 +238,7 @@ heartbeat.onBeat((beat) => {
   }
 
   if (replayState.lastResults.length) {
-    const lastResult = replayState.lastResults.at(-1);
+    const lastResult = replayState.lastResults[replayState.lastResults.length - 1];
     if (lastResult) {
       reflex.ingestEvent({
         id: uuidv4(),
@@ -267,7 +275,7 @@ heartbeat.onBeat((beat) => {
   const actionsAfter = reflexState.lastActions.length;
 
   if (actionsAfter > actionsBefore) {
-    const action = reflexState.lastActions.at(-1);
+    const action = reflexState.lastActions[reflexState.lastActions.length - 1];
     if (action) {
       memory.remember({
         source: 'reflex',
@@ -388,6 +396,19 @@ heartbeat.onBeat((beat) => {
     pathway: lastPathwayState,
   });
 
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
   lastHeartbeat = { ...heartbeatSnapshot, metaOrchestrator: lastMetaSnapshot, origin: {
     meaning: originState.rootVector.meaning,
     direction: originState.rootVector.direction,
@@ -481,9 +502,13 @@ export {
   pathway,
   fuzzyEvolution,
   resonanceTuner,
+  genesisSeeds,
+  civilizationNode,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
   getLastHeartbeatSnapshot,
   getLastMetaSnapshot,
+  getLastGenesisPlan,
+  getLastCivilizationState,
 };
