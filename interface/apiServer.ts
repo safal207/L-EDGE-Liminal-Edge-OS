@@ -29,6 +29,7 @@ import {
   resonanceTuner,
   genesisSeeds,
   civilizationNode,
+  getLastOntogenesisVector,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
@@ -495,6 +496,11 @@ export const createInterfaceApp = () => {
   app.get('/api/system/civilization/state', (_req, res) => {
     const state = getLastCivilizationState() ?? civilizationNode.getState();
     res.json(state ?? { status: 'no-state-yet' });
+  });
+
+  app.get('/api/system/ontogenesis', (_req, res) => {
+    const vector = getLastOntogenesisVector();
+    res.json(vector ?? { status: 'no-ontogenesis-vector-yet' });
   });
 
   app.get('/api/system/origin/state', (_req, res) => {

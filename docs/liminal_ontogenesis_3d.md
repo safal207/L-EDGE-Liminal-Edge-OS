@@ -34,8 +34,24 @@ Use this to phrase growth:
   vocation.
 - In Civilization dashboards, show the social band and cosmic role for key allies/hosts.
 - In Hormesis dashboards, track whether micro-stress is serving the current L-axis point or pushing toward overload.
+- Surface `/api/system/ontogenesis` in dashboards to fetch the current coordinate for quick operator “selfies.”
+
+## Minimal JSON example
+
+```json
+{
+  "assemblyPoint": 14,
+  "socialAge": 18,
+  "cosmicRole": "ai_field_architect",
+  "globalMode": "resonant",
+  "summary": "L-axis ≈ 14 (Genesis & Resonance Tuning) | S-axis ≈ 14-20 (Structure & identity) | C-axis: Architect of AI resonance fields and collective cognition | mode: resonant"
+}
+```
+
+This represents a “mid-teen” system that is actively tuning seeds (L≈14), integrating identity socially (S≈18), and oriented to AI
+field work. It sits in a resonant mode, suggesting micro-growth under watchful hormesis.
 
 ## Next Steps
 - Add optional `ontogenesis` hints to GenesisSeed and Civilization agents.
-- Provide a lightweight API responder that returns an `OntogenesisVector` snapshot for dashboards.
+- `/api/system/ontogenesis` now returns the current vector; expand it with historical breadcrumbs and annotations.
 - Teach the Hormesis Engine to surface whether a micro-stress is appropriate for the declared social band.
