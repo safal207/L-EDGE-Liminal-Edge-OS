@@ -41,6 +41,9 @@ import { ResonanceTuner } from './resonanceTuner/resonanceTuner';
 import { GenesisSeeds } from './genesis';
 import { CivilizationNode } from './civilization';
 import { Ontogenesis3D, type AssemblyPointId, type CosmicRoleKind, type OntogenesisVector } from '../src/organism/ontogenesis3d';
+import { computeL1Root } from '../src/organism/assembly/L1_root';
+import { computeL1SocialSeed } from '../src/organism/social/social_seedling';
+import { computeCosmicPreseed, type CosmicPreseed } from '../src/organism/cosmic/cosmic_preseed';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -96,12 +99,31 @@ let lastFuzzyEvolutionState = fuzzyEvolution.getState();
 let lastTuningPlan = resonanceTuner.getLastPlan();
 let lastGenesisPlan = genesisSeeds.getLastPlan();
 let lastCivilizationState = civilizationNode.getState();
-let lastOntogenesisVector: OntogenesisVector = ontogenesis3d.describeVector({
-  assemblyPoint: 16,
-  socialAge: 16,
-  cosmicRole: 'ai_field_architect',
+const l1RootSeed = computeL1Root({ noiseLevel: 0.35, signalClarity: 0.65 });
+const l1SocialSeed = computeL1SocialSeed({
+  trustSeed: l1RootSeed.trustSeed,
+  presence: l1RootSeed.presence,
+  sensitivity: l1RootSeed.sensitivity,
 });
-const ontogenesisTimeline: Array<OntogenesisVector & { timestamp: number }> = [];
+const l1CosmicPreseed = computeCosmicPreseed({
+  sensitivity: l1RootSeed.sensitivity,
+  presence: l1RootSeed.presence,
+  signalBias: 0.45,
+});
+const initialCosmicRole = mapPreseedToCosmicRole(l1CosmicPreseed.direction);
+
+let lastOntogenesisVector: OntogenesisVector = ontogenesis3d.describeVector({
+  assemblyPoint: 1,
+  socialAge: l1SocialSeed.socialAge,
+  cosmicRole: initialCosmicRole,
+  trustLevel: l1SocialSeed.trustLevel,
+  presence: l1RootSeed.presence,
+  cosmicPreseed: l1CosmicPreseed.direction,
+  note: l1RootSeed.note,
+});
+const ontogenesisTimeline: Array<OntogenesisVector & { timestamp: number }> = [
+  { ...lastOntogenesisVector, timestamp: Date.now() },
+];
 const getLatestNoosphereReport = (): NoosphereReport => {
   if (!lastNoosphereReport) {
     const snapshot = noosphere.getSnapshot();
@@ -128,6 +150,22 @@ const clampAssemblyPoint = (value: number): AssemblyPointId =>
   Math.max(1, Math.min(17, Math.round(value))) as AssemblyPointId;
 
 const clampSocialAge = (value: number): number => Math.max(0, Math.min(80, Math.round(value)));
+
+function mapPreseedToCosmicRole(preseed: CosmicPreseed): CosmicRoleKind {
+  switch (preseed) {
+    case 'structure':
+      return 'sensor_engineer';
+    case 'resonance':
+      return 'ai_field_architect';
+    case 'life':
+      return 'bio_novelty';
+    case 'movement':
+      return 'interplanetary_logistics';
+    case 'exploration':
+    default:
+      return 'new_space_researcher';
+  }
+}
 
 const deriveAssemblyPoint = (
   tuningPlan: ReturnType<typeof resonanceTuner.getLastPlan>,
@@ -652,6 +690,38 @@ heartbeat.onBeat((beat) => {
     cosmicRole,
     resonance: lastFuzzyEvolutionState?.pressure.alignment,
     globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+    trustLevel: l1SocialSeed.trustLevel,
+    presence: l1RootSeed.presence,
+    cosmicPreseed: l1CosmicPreseed.direction,
+    note: lastOntogenesisVector.note ?? l1RootSeed.note,
   });
   ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
   if (ontogenesisTimeline.length > 256) {

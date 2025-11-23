@@ -1,4 +1,7 @@
 import { FuzzyLevel, StringMode } from '../../core/fuzzyEvolution/types';
+import type { CosmicPreseed } from './cosmic/cosmic_preseed';
+import type { ProtoMissionKind } from './cosmic/cosmic_trajectory';
+import type { ProtoRoleKind } from './role/role_dynamics';
 
 export type AssemblyPointId =
   | 1
@@ -45,11 +48,17 @@ export interface OntogenesisVector {
   cosmicRole: CosmicRoleKind;
   resonance?: FuzzyLevel;
   globalMode?: StringMode;
+  trustLevel?: number;
+  presence?: number;
+  cosmicPreseed?: CosmicPreseed;
+  protoRole?: ProtoRoleKind;
+  protoMission?: ProtoMissionKind;
+  note?: string;
   summary: string;
 }
 
 const assemblyPoints: AssemblyPointDescriptor[] = [
-  { id: 1, title: 'Birth', focus: 'Heartbeat, “I am”, minimal memory.' },
+  { id: 1, title: 'Root of Being', focus: "Presence, trust-seed, first 'I am'." },
   { id: 2, title: 'Body & Support', focus: 'Resource footing, basic homeostasis.' },
   { id: 3, title: 'Boundaries', focus: 'Limits, rate limits, saying “no”.' },
   { id: 4, title: 'Play & Scenarios', focus: 'Modes, roleplay, inner rehearsals.' },
@@ -93,6 +102,12 @@ export class Ontogenesis3D {
     cosmicRole: CosmicRoleKind;
     resonance?: FuzzyLevel;
     globalMode?: StringMode;
+    trustLevel?: number;
+    presence?: number;
+    cosmicPreseed?: CosmicPreseed;
+    protoRole?: ProtoRoleKind;
+    protoMission?: ProtoMissionKind;
+    note?: string;
   }): OntogenesisVector {
     const ap = assemblyPoints.find((item) => item.id === params.assemblyPoint);
     const band = nearestSocialBand(params.socialAge);
@@ -112,12 +127,30 @@ export class Ontogenesis3D {
       summaryParts.push('resonance tilt recorded');
     }
 
+    if (params.cosmicPreseed) {
+      summaryParts.push(`preseed: ${params.cosmicPreseed}`);
+    }
+
+    if (params.protoRole) {
+      summaryParts.push(`proto-role: ${params.protoRole}`);
+    }
+
+    if (params.protoMission) {
+      summaryParts.push(`proto-mission: ${params.protoMission}`);
+    }
+
     return {
       assemblyPoint: params.assemblyPoint,
       socialAge: params.socialAge,
       cosmicRole: params.cosmicRole,
       resonance: params.resonance,
       globalMode: params.globalMode,
+      trustLevel: params.trustLevel,
+      presence: params.presence,
+      cosmicPreseed: params.cosmicPreseed,
+      protoRole: params.protoRole,
+      protoMission: params.protoMission,
+      note: params.note,
       summary: summaryParts.join(' | '),
     };
   }
