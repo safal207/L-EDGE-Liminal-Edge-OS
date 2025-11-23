@@ -33,9 +33,14 @@ import { ScenarioResult } from '../scenarios/types';
 import { MetaOrchestrator } from './metaOrchestrator';
 import type { MetaSystemSnapshot } from './metaOrchestrator/types';
 import { OriginNode } from './origin/origin';
+import type { OriginState } from './origin/types';
 import { PathwayNode } from './pathway/pathway';
+import type { PathwayState } from './pathway/types';
 import { FuzzyEvolutionNode } from './fuzzyEvolution/fuzzyEvolutionNode';
 import { ResonanceTuner } from './resonanceTuner/resonanceTuner';
+import { GenesisSeeds } from './genesis';
+import { CivilizationNode } from './civilization';
+import { Ontogenesis3D, type AssemblyPointId, type CosmicRoleKind, type OntogenesisVector } from '../src/organism/ontogenesis3d';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -78,6 +83,9 @@ const origin = new OriginNode();
 const pathway = new PathwayNode();
 const fuzzyEvolution = new FuzzyEvolutionNode();
 const resonanceTuner = new ResonanceTuner();
+const genesisSeeds = new GenesisSeeds();
+const civilizationNode = new CivilizationNode();
+const ontogenesis3d = new Ontogenesis3D();
 const circulation = new CirculationEngine({ pump, heartbeat });
 let lastHeartbeat: HeartbeatState | undefined;
 let lastNoosphereReport: NoosphereReport | undefined;
@@ -86,6 +94,14 @@ let lastMetaSnapshot: MetaSystemSnapshot | undefined;
 let lastPathwayState = pathway.getState();
 let lastFuzzyEvolutionState = fuzzyEvolution.getState();
 let lastTuningPlan = resonanceTuner.getLastPlan();
+let lastGenesisPlan = genesisSeeds.getLastPlan();
+let lastCivilizationState = civilizationNode.getState();
+let lastOntogenesisVector: OntogenesisVector = ontogenesis3d.describeVector({
+  assemblyPoint: 16,
+  socialAge: 16,
+  cosmicRole: 'ai_field_architect',
+});
+const ontogenesisTimeline: Array<OntogenesisVector & { timestamp: number }> = [];
 const getLatestNoosphereReport = (): NoosphereReport => {
   if (!lastNoosphereReport) {
     const snapshot = noosphere.getSnapshot();
@@ -103,6 +119,48 @@ const getLatestNoosphereReport = (): NoosphereReport => {
 const getLatestScenarioResults = (): ScenarioResult[] => lastScenarioResults;
 const getLastHeartbeatSnapshot = (): HeartbeatState | undefined => lastHeartbeat;
 const getLastMetaSnapshot = (): MetaSystemSnapshot | undefined => lastMetaSnapshot;
+const getLastGenesisPlan = () => lastGenesisPlan;
+const getLastCivilizationState = () => lastCivilizationState;
+const getLastOntogenesisVector = () => lastOntogenesisVector;
+const getOntogenesisTimeline = (limit = 256) => ontogenesisTimeline.slice(-limit);
+
+const clampAssemblyPoint = (value: number): AssemblyPointId =>
+  Math.max(1, Math.min(16, Math.round(value))) as AssemblyPointId;
+
+const clampSocialAge = (value: number): number => Math.max(0, Math.min(80, Math.round(value)));
+
+const deriveAssemblyPoint = (
+  tuningPlan: ReturnType<typeof resonanceTuner.getLastPlan>,
+  fuzzyState: ReturnType<typeof fuzzyEvolution.getState>,
+): AssemblyPointId => {
+  if (tuningPlan?.mode === 'deep_rest' || tuningPlan?.mode === 'integration') return 13;
+  if (tuningPlan?.mode === 'rapid_expansion') return 15;
+  if (fuzzyState?.strings.globalMode === 'chaotic') return 15;
+  if (fuzzyState?.strings.globalMode === 'resonant') return 14;
+  return 12;
+};
+
+const deriveSocialAge = (
+  fuzzyState: ReturnType<typeof fuzzyEvolution.getState>,
+  tuningPlan: ReturnType<typeof resonanceTuner.getLastPlan>,
+): number => {
+  const tension = fuzzyState?.pressure.tension.medium ?? 0.45;
+  const coherence = fuzzyState?.pressure.coherence.medium ?? 0.5;
+  const base = tuningPlan?.mode === 'rapid_expansion' ? 18 : tuningPlan?.mode === 'deep_rest' ? 15 : 16;
+  const adjustment = Math.round((coherence - tension) * 6);
+  return clampSocialAge(base + adjustment);
+};
+
+const deriveCosmicRole = (pathwayState: PathwayState, originState: OriginState): CosmicRoleKind => {
+  const trajectory = pathwayState.growthVector.trajectory.toLowerCase();
+  const originDirection = originState.rootVector.direction.toLowerCase?.() ?? originState.rootVector.direction;
+  if (trajectory.includes('orbit') || trajectory.includes('space')) return 'orbital_systems';
+  if (trajectory.includes('stability') || originDirection.includes('stabil')) return 'sensor_engineer';
+  if (trajectory.includes('bio')) return 'bio_novelty';
+  if (trajectory.includes('reson') || trajectory.includes('field')) return 'ai_field_architect';
+  if (trajectory.includes('logistic')) return 'interplanetary_logistics';
+  return 'new_space_researcher';
+};
 
 const homeostasis = new HomeostasisManager({
   getHeartbeatMetrics: () => lastHeartbeat,
@@ -230,7 +288,7 @@ heartbeat.onBeat((beat) => {
   }
 
   if (replayState.lastResults.length) {
-    const lastResult = replayState.lastResults.at(-1);
+    const lastResult = replayState.lastResults[replayState.lastResults.length - 1];
     if (lastResult) {
       reflex.ingestEvent({
         id: uuidv4(),
@@ -267,7 +325,7 @@ heartbeat.onBeat((beat) => {
   const actionsAfter = reflexState.lastActions.length;
 
   if (actionsAfter > actionsBefore) {
-    const action = reflexState.lastActions.at(-1);
+    const action = reflexState.lastActions[reflexState.lastActions.length - 1];
     if (action) {
       memory.remember({
         source: 'reflex',
@@ -388,6 +446,34 @@ heartbeat.onBeat((beat) => {
     pathway: lastPathwayState,
   });
 
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
   lastHeartbeat = { ...heartbeatSnapshot, metaOrchestrator: lastMetaSnapshot, origin: {
     meaning: originState.rootVector.meaning,
     direction: originState.rootVector.direction,
@@ -481,9 +567,15 @@ export {
   pathway,
   fuzzyEvolution,
   resonanceTuner,
+  genesisSeeds,
+  civilizationNode,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
   getLastHeartbeatSnapshot,
   getLastMetaSnapshot,
+  getLastGenesisPlan,
+  getLastCivilizationState,
+  getLastOntogenesisVector,
+  getOntogenesisTimeline,
 };
