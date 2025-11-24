@@ -167,6 +167,12 @@
 - `docs/UNIFIED_ARCHITECTURE.md` — единый архитектурный план LIMINAL OS (7 слоёв, контракты, транспорт, риски).
 - `docs/LIMINAL_ASSEMBLY_DOCTRINE.md` — карта точек сборки организма и наблюдательных осей (v0.1), связывающая тело, внутреннее пространство, наблюдателя и линии прошлого/будущего.
 
+## 🛰️ Ontogenesis telemetry & dev benchmark
+- Снимок: `/api/system/ontogenesis` — текущая L/S/C-точка.
+- История: `/api/system/ontogenesis/timeline?limit=128` — последние срезы движения.
+- Документация: `docs/liminal_ontogenesis_3d.md` + `docs/liminal_benchmark_dev_map.md` (скетч метрик L/S/C) + `docs/ontogenesis_L1.md` (корневой слой) + `docs/ontogenesis_L2.md` (Body & Grounding) + `docs/ontogenesis_L3.md` (Play & Patterning) + `docs/ontogenesis_L4.md` (Mastery & Role Embedding).
+- Примеры: `examples/ontogenesis_watch.js` (живой пульс) и `examples/ontogenesis_metrics.js` (быстрый расчёт L_volatility / S_growth / C_switches).
+
 ---
 
 ## 🧰 Как показать «завтра»
