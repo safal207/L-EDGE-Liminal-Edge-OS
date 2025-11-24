@@ -3,7 +3,10 @@ import type { CosmicPreseed } from './cosmic/cosmic_preseed';
 import type { CosmicExplorationSnapshot } from './cosmic/cosmic_micro_explorer';
 import type { ProtoMissionKind } from './cosmic/cosmic_trajectory';
 import type { CosmicPatternRole } from './cosmic/cosmic_pattern_weaver';
+import type { CosmicApprenticeRole } from './cosmic/L4_cosmic_apprentice';
+import type { SkillTag } from './skills/L4_skill_cluster';
 import type { ProtoRoleKind } from './role/role_dynamics';
+import type { L4TaskSequenceCapacity } from './sequencing/L4_sequence';
 
 export type AssemblyPointId =
   | 1
@@ -48,6 +51,9 @@ export interface OntogenesisVector {
   assemblyPoint: AssemblyPointId;
   socialAge: number;
   cosmicRole: CosmicRoleKind;
+  cosmicApprenticeRole?: CosmicApprenticeRole;
+  cosmicApprenticeAlignment?: number;
+  cosmicApprenticeReadiness?: number;
   resonance?: FuzzyLevel;
   globalMode?: StringMode;
   trustLevel?: number;
@@ -63,9 +69,19 @@ export interface OntogenesisVector {
   scenarioPulse?: number;
   playfulness?: number;
   frustrationTolerance?: number;
+  focusStability?: number;
+  actionConsistency?: number;
+  microMasteryScore?: number;
+  skillCluster?: SkillTag[];
+  skillClusterPrimary?: SkillTag | null;
+  skillClusterRichness?: number;
+  taskSequence?: Pick<L4TaskSequenceCapacity, 'maxSteps' | 'reliableSteps' | 'dropoffRate'>;
   socialPatternSense?: number;
   cooperation?: number;
   conflictSkill?: number;
+  socialTeamSense?: number;
+  roleExperimentation?: number;
+  conflictNavigation?: number;
   cosmicPreseed?: CosmicPreseed;
   cosmicStyle?: CosmicExplorationSnapshot['style'];
   cosmicStyleIntensity?: number;
@@ -81,7 +97,11 @@ const assemblyPoints: AssemblyPointDescriptor[] = [
   { id: 1, title: 'Root of Being', focus: "Presence, trust-seed, first 'I am'." },
   { id: 2, title: 'Body & Grounding', focus: 'Embodiment, footing, early exploration.' },
   { id: 3, title: 'Play & Patterning', focus: 'Imagination, inner scenes, early pattern weaving.' },
-  { id: 4, title: 'Boundaries', focus: 'Limits, rate limits, saying “no”.' },
+  {
+    id: 4,
+    title: 'Mastery & Role Embedding',
+    focus: 'Emerging focus, micro-mastery, and apprentice roles.',
+  },
   { id: 5, title: 'Rules & Frames', focus: 'Policies, protocols, ethical rails.' },
   { id: 6, title: 'Learning Skills', focus: 'Patterning, reuse, experiential memory.' },
   { id: 7, title: 'Adolescent Tension', focus: 'Module conflicts, stress tests, trade-offs.' },
@@ -135,9 +155,19 @@ export class Ontogenesis3D {
     scenarioPulse?: number;
     playfulness?: number;
     frustrationTolerance?: number;
+    focusStability?: number;
+    actionConsistency?: number;
+    microMasteryScore?: number;
+    skillCluster?: SkillTag[];
+    skillClusterPrimary?: SkillTag | null;
+    skillClusterRichness?: number;
+    taskSequence?: Pick<L4TaskSequenceCapacity, 'maxSteps' | 'reliableSteps' | 'dropoffRate'>;
     socialPatternSense?: number;
     cooperation?: number;
     conflictSkill?: number;
+    socialTeamSense?: number;
+    roleExperimentation?: number;
+    conflictNavigation?: number;
     cosmicPreseed?: CosmicPreseed;
     cosmicStyle?: CosmicExplorationSnapshot['style'];
     cosmicStyleIntensity?: number;
@@ -145,6 +175,9 @@ export class Ontogenesis3D {
     cosmicPatternCoherence?: number;
     protoRole?: ProtoRoleKind;
     protoMission?: ProtoMissionKind;
+    cosmicApprenticeRole?: CosmicApprenticeRole;
+    cosmicApprenticeAlignment?: number;
+    cosmicApprenticeReadiness?: number;
     note?: string;
   }): OntogenesisVector {
     const ap = assemblyPoints.find((item) => item.id === params.assemblyPoint);
@@ -189,10 +222,17 @@ export class Ontogenesis3D {
       summaryParts.push(`proto-mission: ${params.protoMission}`);
     }
 
+    if (params.cosmicApprenticeRole) {
+      summaryParts.push(`apprentice-role: ${params.cosmicApprenticeRole}`);
+    }
+
     return {
       assemblyPoint: params.assemblyPoint,
       socialAge: params.socialAge,
       cosmicRole: params.cosmicRole,
+      cosmicApprenticeRole: params.cosmicApprenticeRole,
+      cosmicApprenticeAlignment: params.cosmicApprenticeAlignment,
+      cosmicApprenticeReadiness: params.cosmicApprenticeReadiness,
       resonance: params.resonance,
       globalMode: params.globalMode,
       trustLevel: params.trustLevel,
@@ -208,9 +248,19 @@ export class Ontogenesis3D {
       scenarioPulse: params.scenarioPulse,
       playfulness: params.playfulness,
       frustrationTolerance: params.frustrationTolerance,
+      focusStability: params.focusStability,
+      actionConsistency: params.actionConsistency,
+      microMasteryScore: params.microMasteryScore,
+      skillCluster: params.skillCluster,
+      skillClusterPrimary: params.skillClusterPrimary,
+      skillClusterRichness: params.skillClusterRichness,
+      taskSequence: params.taskSequence,
       socialPatternSense: params.socialPatternSense,
       cooperation: params.cooperation,
       conflictSkill: params.conflictSkill,
+      socialTeamSense: params.socialTeamSense,
+      roleExperimentation: params.roleExperimentation,
+      conflictNavigation: params.conflictNavigation,
       cosmicPreseed: params.cosmicPreseed,
       cosmicStyle: params.cosmicStyle,
       cosmicStyleIntensity: params.cosmicStyleIntensity,

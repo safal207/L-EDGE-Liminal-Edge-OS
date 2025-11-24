@@ -52,9 +52,14 @@ import { computeL2BodyGrounding } from '../src/organism/assembly/L2_body_groundi
 import { computeL2SocialSnapshot } from '../src/organism/social/social_toddler';
 import { computeL3PlayPatterning } from '../src/organism/assembly/L3_play_patterning';
 import { computeL3SocialSnapshot } from '../src/organism/social/social_child';
+import { computeL4Mastery } from '../src/organism/assembly/L4_mastery';
 import { computeCosmicExplorationStyle } from '../src/organism/cosmic/cosmic_micro_explorer';
 import { computeCosmicPreseed, type CosmicPreseed } from '../src/organism/cosmic/cosmic_preseed';
 import { computeCosmicPatternWeaver } from '../src/organism/cosmic/cosmic_pattern_weaver';
+import { computeL4SkillCluster } from '../src/organism/skills/L4_skill_cluster';
+import { computeL4TaskSequenceCapacity } from '../src/organism/sequencing/L4_sequence';
+import { computeL4SocialTeam } from '../src/organism/social/L4_social_team';
+import { computeL4CosmicApprentice } from '../src/organism/cosmic/L4_cosmic_apprentice';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -156,12 +161,45 @@ const l3CosmicSeed = computeCosmicPatternWeaver({
   innerPatternScore: l3PlaySeed.innerPatternScore,
   scenarioPulse: l3PlaySeed.scenarioPulse,
 });
+const l4MasterySeed = computeL4Mastery({
+  innerPatternScore: l3PlaySeed.innerPatternScore,
+  scenarioPulse: l3PlaySeed.scenarioPulse,
+  embodimentScore: l2BodySeed.embodimentScore,
+  baseFrustrationTolerance: l3PlaySeed.frustrationTolerance,
+});
+const l4SkillClusterSeed = computeL4SkillCluster({
+  innerPatternScore: l3PlaySeed.innerPatternScore,
+  microMasteryScore: l4MasterySeed.microMasteryScore,
+  socialPatternSense: l3SocialSeed.socialPatternSense,
+  cosmicPreseed: l1CosmicPreseed.direction,
+});
+const l4SequenceSeed = computeL4TaskSequenceCapacity({
+  focusStability: l4MasterySeed.focusStability,
+  actionConsistency: l4MasterySeed.actionConsistency,
+  microMasteryScore: l4MasterySeed.microMasteryScore,
+});
+const l4SocialTeamSeed = computeL4SocialTeam({
+  l3Cooperation: l3SocialSeed.cooperation,
+  l3ConflictSkill: l3SocialSeed.conflictSkill,
+  microMasteryScore: l4MasterySeed.microMasteryScore,
+  frustrationTolerance: l4MasterySeed.frustrationTolerance,
+});
+const l4CosmicApprenticeSeed = computeL4CosmicApprentice({
+  preseed: l1CosmicPreseed.direction,
+  microMasteryScore: l4MasterySeed.microMasteryScore,
+  skillRichness: l4SkillClusterSeed.richness,
+});
 let lastL2BodySnapshot = l2BodySeed;
 let lastL2SocialSnapshot = l2SocialSeed;
 let lastL2CosmicSnapshot = l2CosmicSeed;
 let lastL3PlaySnapshot = l3PlaySeed;
 let lastL3SocialSnapshot = l3SocialSeed;
 let lastL3CosmicSnapshot = l3CosmicSeed;
+let lastL4MasterySnapshot = l4MasterySeed;
+let lastL4SkillCluster = l4SkillClusterSeed;
+let lastL4Sequence = l4SequenceSeed;
+let lastL4SocialTeam = l4SocialTeamSeed;
+let lastL4CosmicApprentice = l4CosmicApprenticeSeed;
 
 const createInitialOntogenesisDescriptor = (params: {
   l1Root: ReturnType<typeof computeL1Root>;
@@ -173,6 +211,11 @@ const createInitialOntogenesisDescriptor = (params: {
   l3Play: ReturnType<typeof computeL3PlayPatterning>;
   l3Social: ReturnType<typeof computeL3SocialSnapshot>;
   l3Cosmic: ReturnType<typeof computeCosmicPatternWeaver>;
+  l4Mastery: ReturnType<typeof computeL4Mastery>;
+  l4SkillCluster: ReturnType<typeof computeL4SkillCluster>;
+  l4Sequence: ReturnType<typeof computeL4TaskSequenceCapacity>;
+  l4SocialTeam: ReturnType<typeof computeL4SocialTeam>;
+  l4CosmicApprentice: ReturnType<typeof computeL4CosmicApprentice>;
   initialCosmicRole: CosmicRoleKind;
 }): OntogenesisDescriptor => {
   const {
@@ -185,6 +228,11 @@ const createInitialOntogenesisDescriptor = (params: {
     l3Play,
     l3Social,
     l3Cosmic,
+    l4Mastery,
+    l4SkillCluster,
+    l4Sequence,
+    l4SocialTeam,
+    l4CosmicApprentice,
     initialCosmicRole,
   } = params;
 
@@ -205,15 +253,32 @@ const createInitialOntogenesisDescriptor = (params: {
     scenarioPulse: l3Play.scenarioPulse,
     playfulness: l3Play.playfulness,
     frustrationTolerance: l3Play.frustrationTolerance,
+    focusStability: l4Mastery.focusStability,
+    actionConsistency: l4Mastery.actionConsistency,
+    microMasteryScore: l4Mastery.microMasteryScore,
     socialPatternSense: l3Social.socialPatternSense,
     cooperation: l3Social.cooperation,
     conflictSkill: l3Social.conflictSkill,
+    socialTeamSense: l4SocialTeam.socialTeamSense,
+    roleExperimentation: l4SocialTeam.roleExperimentation,
+    conflictNavigation: l4SocialTeam.conflictNavigation,
     cosmicPreseed: l1CosmicPreseed.direction,
     cosmicStyle: l2Cosmic.style,
     cosmicStyleIntensity: l2Cosmic.intensity,
     cosmicPatternRole: l3Cosmic.role,
     cosmicPatternCoherence: l3Cosmic.coherence,
-    note: `${l1Root.note}; L2: тело, опора и микро-исследование среды; ${l3Play.note}`,
+    cosmicApprenticeRole: l4CosmicApprentice.role,
+    cosmicApprenticeAlignment: l4CosmicApprentice.alignmentToPreseed,
+    cosmicApprenticeReadiness: l4CosmicApprentice.masteryReadiness,
+    skillCluster: l4SkillCluster.skills,
+    skillClusterPrimary: l4SkillCluster.primarySkill,
+    skillClusterRichness: l4SkillCluster.richness,
+    taskSequence: {
+      maxSteps: l4Sequence.maxSteps,
+      reliableSteps: l4Sequence.reliableSteps,
+      dropoffRate: l4Sequence.dropoffRate,
+    },
+    note: `${l1Root.note}; L2: тело, опора и микро-исследование среды; ${l3Play.note}; ${l4Mastery.note}`,
   };
 };
 
@@ -227,6 +292,11 @@ const initialOntogenesisDescriptor = createInitialOntogenesisDescriptor({
   l3Play: l3PlaySeed,
   l3Social: l3SocialSeed,
   l3Cosmic: l3CosmicSeed,
+  l4Mastery: l4MasterySeed,
+  l4SkillCluster: l4SkillClusterSeed,
+  l4Sequence: l4SequenceSeed,
+  l4SocialTeam: l4SocialTeamSeed,
+  l4CosmicApprentice: l4CosmicApprenticeSeed,
   initialCosmicRole,
 });
 
@@ -1047,6 +1117,126 @@ heartbeat.onBeat((beat) => {
     cosmicPatternRole: lastL3CosmicSnapshot.role,
     cosmicPatternCoherence: lastL3CosmicSnapshot.coherence,
     note: lastOntogenesisVector.note ?? l1RootSeed.note,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastL3SocialSnapshot = computeL3SocialSnapshot({
+    l2Attachment: lastL2SocialSnapshot.attachmentLevel,
+    l2CuriositySocial: lastL2SocialSnapshot.curiositySocial,
+    civAlliesCount: lastCivilizationState.resonance.alliesCount,
+    civOpponentsCount: lastCivilizationState.resonance.opponentsCount,
+  });
+
+  lastL3CosmicSnapshot = computeCosmicPatternWeaver({
+    preseed: l1CosmicPreseed.direction,
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+  });
+
+  lastL4MasterySnapshot = computeL4Mastery({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    baseFrustrationTolerance: lastL3PlaySnapshot.frustrationTolerance,
+  });
+
+  lastL4SkillCluster = computeL4SkillCluster({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    socialPatternSense: lastL3SocialSnapshot.socialPatternSense,
+    cosmicPreseed: l1CosmicPreseed.direction,
+  });
+
+  lastL4Sequence = computeL4TaskSequenceCapacity({
+    focusStability: lastL4MasterySnapshot.focusStability,
+    actionConsistency: lastL4MasterySnapshot.actionConsistency,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+  });
+
+  lastL4SocialTeam = computeL4SocialTeam({
+    l3Cooperation: lastL3SocialSnapshot.cooperation,
+    l3ConflictSkill: lastL3SocialSnapshot.conflictSkill,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    frustrationTolerance: lastL4MasterySnapshot.frustrationTolerance,
+  });
+
+  lastL4CosmicApprentice = computeL4CosmicApprentice({
+    preseed: l1CosmicPreseed.direction,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    skillRichness: lastL4SkillCluster.richness,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = Math.max(
+    deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan),
+    lastL2SocialSnapshot.socialAge,
+    lastL3SocialSnapshot.socialAge,
+    lastL4SocialTeam.socialAge,
+  );
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+    trustLevel: l1SocialSeed.trustLevel,
+    presence: l1RootSeed.presence,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    stability: lastL2BodySnapshot.stability,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+    comfortInMotion: lastL2BodySnapshot.comfortInMotion,
+    boundarySense: lastL2SocialSnapshot.boundarySense,
+    attachmentLevel: lastL2SocialSnapshot.attachmentLevel,
+    curiositySocial: lastL2SocialSnapshot.curiositySocial,
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+    playfulness: lastL3PlaySnapshot.playfulness,
+    frustrationTolerance: lastL3PlaySnapshot.frustrationTolerance,
+    focusStability: lastL4MasterySnapshot.focusStability,
+    actionConsistency: lastL4MasterySnapshot.actionConsistency,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    socialPatternSense: lastL3SocialSnapshot.socialPatternSense,
+    cooperation: lastL3SocialSnapshot.cooperation,
+    conflictSkill: lastL3SocialSnapshot.conflictSkill,
+    socialTeamSense: lastL4SocialTeam.socialTeamSense,
+    roleExperimentation: lastL4SocialTeam.roleExperimentation,
+    conflictNavigation: lastL4SocialTeam.conflictNavigation,
+    cosmicPreseed: l1CosmicPreseed.direction,
+    cosmicStyle: lastL2CosmicSnapshot.style,
+    cosmicStyleIntensity: lastL2CosmicSnapshot.intensity,
+    cosmicPatternRole: lastL3CosmicSnapshot.role,
+    cosmicPatternCoherence: lastL3CosmicSnapshot.coherence,
+    skillCluster: lastL4SkillCluster.skills,
+    skillClusterPrimary: lastL4SkillCluster.primarySkill,
+    skillClusterRichness: lastL4SkillCluster.richness,
+    taskSequence: {
+      maxSteps: lastL4Sequence.maxSteps,
+      reliableSteps: lastL4Sequence.reliableSteps,
+      dropoffRate: lastL4Sequence.dropoffRate,
+    },
+    cosmicApprenticeRole: lastL4CosmicApprentice.role,
+    cosmicApprenticeAlignment: lastL4CosmicApprentice.alignmentToPreseed,
+    cosmicApprenticeReadiness: lastL4CosmicApprentice.masteryReadiness,
+    note:
+      lastOntogenesisVector.note ??
+      `${l1RootSeed.note}; L2: тело, опора и микро-исследование среды; ${lastL3PlaySnapshot.note}; ${lastL4MasterySnapshot.note}`,
   });
   ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
   if (ontogenesisTimeline.length > 256) {

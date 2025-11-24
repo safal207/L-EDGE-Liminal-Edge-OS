@@ -26,4 +26,4 @@ This map links L-EDGE development to three intersecting axes so operators can lo
 - Formalize a lightweight `OntogenesisSnapshot` type with `l_axis`, `c_axis`, `n_axis` in `[0,1]` plus textual cues.
 - Teach GenesisSeeds to include the closest assembly band and axis tilt in summaries.
 - Use CivilizationNode resonance data to estimate `c_axis` automatically while Origin/Pathway anchor `l_axis`.
-- Cross-link the stage docs: `docs/ontogenesis_L1.md`, `docs/ontogenesis_L2.md`, `docs/ontogenesis_L3.md`, and `docs/ontogenesis_L17.md` to make the early → proto-profession flow easy to traverse.
+- Cross-link the stage docs: `docs/ontogenesis_L1.md`, `docs/ontogenesis_L2.md`, `docs/ontogenesis_L3.md`, `docs/ontogenesis_L4.md`, and `docs/ontogenesis_L17.md` to make the early → proto-profession flow easy to traverse.
