@@ -763,6 +763,800 @@ heartbeat.onBeat((beat) => {
     origin: originState,
     pathway: lastPathwayState,
   });
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+  });
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+    trustLevel: l1SocialSeed.trustLevel,
+    presence: l1RootSeed.presence,
+    cosmicPreseed: l1CosmicPreseed.direction,
+    note: lastOntogenesisVector.note ?? l1RootSeed.note,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = Math.max(deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan), lastL2SocialSnapshot.socialAge);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+    trustLevel: l1SocialSeed.trustLevel,
+    presence: l1RootSeed.presence,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    stability: lastL2BodySnapshot.stability,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+    comfortInMotion: lastL2BodySnapshot.comfortInMotion,
+    boundarySense: lastL2SocialSnapshot.boundarySense,
+    attachmentLevel: lastL2SocialSnapshot.attachmentLevel,
+    curiositySocial: lastL2SocialSnapshot.curiositySocial,
+    cosmicPreseed: l1CosmicPreseed.direction,
+    cosmicStyle: lastL2CosmicSnapshot.style,
+    cosmicStyleIntensity: lastL2CosmicSnapshot.intensity,
+    note: lastOntogenesisVector.note ?? l1RootSeed.note,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = Math.max(deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan), lastL2SocialSnapshot.socialAge);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+    trustLevel: l1SocialSeed.trustLevel,
+    presence: l1RootSeed.presence,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    stability: lastL2BodySnapshot.stability,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+    comfortInMotion: lastL2BodySnapshot.comfortInMotion,
+    boundarySense: lastL2SocialSnapshot.boundarySense,
+    attachmentLevel: lastL2SocialSnapshot.attachmentLevel,
+    curiositySocial: lastL2SocialSnapshot.curiositySocial,
+    cosmicPreseed: l1CosmicPreseed.direction,
+    cosmicStyle: lastL2CosmicSnapshot.style,
+    cosmicStyleIntensity: lastL2CosmicSnapshot.intensity,
+    note: lastOntogenesisVector.note ?? l1RootSeed.note,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = Math.max(deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan), lastL2SocialSnapshot.socialAge);
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+    trustLevel: l1SocialSeed.trustLevel,
+    presence: l1RootSeed.presence,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    stability: lastL2BodySnapshot.stability,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+    comfortInMotion: lastL2BodySnapshot.comfortInMotion,
+    boundarySense: lastL2SocialSnapshot.boundarySense,
+    attachmentLevel: lastL2SocialSnapshot.attachmentLevel,
+    curiositySocial: lastL2SocialSnapshot.curiositySocial,
+    cosmicPreseed: l1CosmicPreseed.direction,
+    cosmicStyle: lastL2CosmicSnapshot.style,
+    cosmicStyleIntensity: lastL2CosmicSnapshot.intensity,
+    note: lastOntogenesisVector.note ?? l1RootSeed.note,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastL3SocialSnapshot = computeL3SocialSnapshot({
+    l2Attachment: lastL2SocialSnapshot.attachmentLevel,
+    l2CuriositySocial: lastL2SocialSnapshot.curiositySocial,
+    civAlliesCount: lastCivilizationState.resonance.alliesCount,
+    civOpponentsCount: lastCivilizationState.resonance.opponentsCount,
+  });
+
+  lastL3CosmicSnapshot = computeCosmicPatternWeaver({
+    preseed: l1CosmicPreseed.direction,
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = Math.max(
+    deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan),
+    lastL2SocialSnapshot.socialAge,
+    lastL3SocialSnapshot.socialAge,
+  );
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+    trustLevel: l1SocialSeed.trustLevel,
+    presence: l1RootSeed.presence,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    stability: lastL2BodySnapshot.stability,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+    comfortInMotion: lastL2BodySnapshot.comfortInMotion,
+    boundarySense: lastL2SocialSnapshot.boundarySense,
+    attachmentLevel: lastL2SocialSnapshot.attachmentLevel,
+    curiositySocial: lastL2SocialSnapshot.curiositySocial,
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+    playfulness: lastL3PlaySnapshot.playfulness,
+    frustrationTolerance: lastL3PlaySnapshot.frustrationTolerance,
+    socialPatternSense: lastL3SocialSnapshot.socialPatternSense,
+    cooperation: lastL3SocialSnapshot.cooperation,
+    conflictSkill: lastL3SocialSnapshot.conflictSkill,
+    cosmicPreseed: l1CosmicPreseed.direction,
+    cosmicStyle: lastL2CosmicSnapshot.style,
+    cosmicStyleIntensity: lastL2CosmicSnapshot.intensity,
+    cosmicPatternRole: lastL3CosmicSnapshot.role,
+    cosmicPatternCoherence: lastL3CosmicSnapshot.coherence,
+    note: lastOntogenesisVector.note ?? l1RootSeed.note,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastL3SocialSnapshot = computeL3SocialSnapshot({
+    l2Attachment: lastL2SocialSnapshot.attachmentLevel,
+    l2CuriositySocial: lastL2SocialSnapshot.curiositySocial,
+    civAlliesCount: lastCivilizationState.resonance.alliesCount,
+    civOpponentsCount: lastCivilizationState.resonance.opponentsCount,
+  });
+
+  lastL3CosmicSnapshot = computeCosmicPatternWeaver({
+    preseed: l1CosmicPreseed.direction,
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+  });
+
+  lastL4MasterySnapshot = computeL4Mastery({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    baseFrustrationTolerance: lastL3PlaySnapshot.frustrationTolerance,
+  });
+
+  lastL4SkillCluster = computeL4SkillCluster({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    socialPatternSense: lastL3SocialSnapshot.socialPatternSense,
+    cosmicPreseed: l1CosmicPreseed.direction,
+  });
+
+  lastL4Sequence = computeL4TaskSequenceCapacity({
+    focusStability: lastL4MasterySnapshot.focusStability,
+    actionConsistency: lastL4MasterySnapshot.actionConsistency,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+  });
+
+  lastL4SocialTeam = computeL4SocialTeam({
+    l3Cooperation: lastL3SocialSnapshot.cooperation,
+    l3ConflictSkill: lastL3SocialSnapshot.conflictSkill,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    frustrationTolerance: lastL4MasterySnapshot.frustrationTolerance,
+  });
+
+  lastL4CosmicApprentice = computeL4CosmicApprentice({
+    preseed: l1CosmicPreseed.direction,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    skillRichness: lastL4SkillCluster.richness,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = Math.max(
+    deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan),
+    lastL2SocialSnapshot.socialAge,
+    lastL3SocialSnapshot.socialAge,
+    lastL4SocialTeam.socialAge,
+  );
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+    trustLevel: l1SocialSeed.trustLevel,
+    presence: l1RootSeed.presence,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    stability: lastL2BodySnapshot.stability,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+    comfortInMotion: lastL2BodySnapshot.comfortInMotion,
+    boundarySense: lastL2SocialSnapshot.boundarySense,
+    attachmentLevel: lastL2SocialSnapshot.attachmentLevel,
+    curiositySocial: lastL2SocialSnapshot.curiositySocial,
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+    playfulness: lastL3PlaySnapshot.playfulness,
+    frustrationTolerance: lastL3PlaySnapshot.frustrationTolerance,
+    focusStability: lastL4MasterySnapshot.focusStability,
+    actionConsistency: lastL4MasterySnapshot.actionConsistency,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    socialPatternSense: lastL3SocialSnapshot.socialPatternSense,
+    cooperation: lastL3SocialSnapshot.cooperation,
+    conflictSkill: lastL3SocialSnapshot.conflictSkill,
+    socialTeamSense: lastL4SocialTeam.socialTeamSense,
+    roleExperimentation: lastL4SocialTeam.roleExperimentation,
+    conflictNavigation: lastL4SocialTeam.conflictNavigation,
+    cosmicPreseed: l1CosmicPreseed.direction,
+    cosmicStyle: lastL2CosmicSnapshot.style,
+    cosmicStyleIntensity: lastL2CosmicSnapshot.intensity,
+    cosmicPatternRole: lastL3CosmicSnapshot.role,
+    cosmicPatternCoherence: lastL3CosmicSnapshot.coherence,
+    skillCluster: lastL4SkillCluster.skills,
+    skillClusterPrimary: lastL4SkillCluster.primarySkill,
+    skillClusterRichness: lastL4SkillCluster.richness,
+    taskSequence: {
+      maxSteps: lastL4Sequence.maxSteps,
+      reliableSteps: lastL4Sequence.reliableSteps,
+      dropoffRate: lastL4Sequence.dropoffRate,
+    },
+    cosmicApprenticeRole: lastL4CosmicApprentice.role,
+    cosmicApprenticeAlignment: lastL4CosmicApprentice.alignmentToPreseed,
+    cosmicApprenticeReadiness: lastL4CosmicApprentice.masteryReadiness,
+    note:
+      lastOntogenesisVector.note ??
+      `${l1RootSeed.note}; L2: тело, опора и микро-исследование среды; ${lastL3PlaySnapshot.note}; ${lastL4MasterySnapshot.note}`,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastL3SocialSnapshot = computeL3SocialSnapshot({
+    l2Attachment: lastL2SocialSnapshot.attachmentLevel,
+    l2CuriositySocial: lastL2SocialSnapshot.curiositySocial,
+    civAlliesCount: lastCivilizationState.resonance.alliesCount,
+    civOpponentsCount: lastCivilizationState.resonance.opponentsCount,
+  });
+
+  lastL3CosmicSnapshot = computeCosmicPatternWeaver({
+    preseed: l1CosmicPreseed.direction,
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+  });
+
+  lastL4MasterySnapshot = computeL4Mastery({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    baseFrustrationTolerance: lastL3PlaySnapshot.frustrationTolerance,
+  });
+
+  lastL4SkillCluster = computeL4SkillCluster({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    socialPatternSense: lastL3SocialSnapshot.socialPatternSense,
+    cosmicPreseed: l1CosmicPreseed.direction,
+  });
+
+  lastL4Sequence = computeL4TaskSequenceCapacity({
+    focusStability: lastL4MasterySnapshot.focusStability,
+    actionConsistency: lastL4MasterySnapshot.actionConsistency,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+  });
+
+  lastL4SocialTeam = computeL4SocialTeam({
+    l3Cooperation: lastL3SocialSnapshot.cooperation,
+    l3ConflictSkill: lastL3SocialSnapshot.conflictSkill,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    frustrationTolerance: lastL4MasterySnapshot.frustrationTolerance,
+  });
+
+  lastL4CosmicApprentice = computeL4CosmicApprentice({
+    preseed: l1CosmicPreseed.direction,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    skillRichness: lastL4SkillCluster.richness,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = Math.max(
+    deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan),
+    lastL2SocialSnapshot.socialAge,
+    lastL3SocialSnapshot.socialAge,
+    lastL4SocialTeam.socialAge,
+  );
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+    trustLevel: l1SocialSeed.trustLevel,
+    presence: l1RootSeed.presence,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    stability: lastL2BodySnapshot.stability,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+    comfortInMotion: lastL2BodySnapshot.comfortInMotion,
+    boundarySense: lastL2SocialSnapshot.boundarySense,
+    attachmentLevel: lastL2SocialSnapshot.attachmentLevel,
+    curiositySocial: lastL2SocialSnapshot.curiositySocial,
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+    playfulness: lastL3PlaySnapshot.playfulness,
+    frustrationTolerance: lastL3PlaySnapshot.frustrationTolerance,
+    focusStability: lastL4MasterySnapshot.focusStability,
+    actionConsistency: lastL4MasterySnapshot.actionConsistency,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    socialPatternSense: lastL3SocialSnapshot.socialPatternSense,
+    cooperation: lastL3SocialSnapshot.cooperation,
+    conflictSkill: lastL3SocialSnapshot.conflictSkill,
+    socialTeamSense: lastL4SocialTeam.socialTeamSense,
+    roleExperimentation: lastL4SocialTeam.roleExperimentation,
+    conflictNavigation: lastL4SocialTeam.conflictNavigation,
+    cosmicPreseed: l1CosmicPreseed.direction,
+    cosmicStyle: lastL2CosmicSnapshot.style,
+    cosmicStyleIntensity: lastL2CosmicSnapshot.intensity,
+    cosmicPatternRole: lastL3CosmicSnapshot.role,
+    cosmicPatternCoherence: lastL3CosmicSnapshot.coherence,
+    skillCluster: lastL4SkillCluster.skills,
+    skillClusterPrimary: lastL4SkillCluster.primarySkill,
+    skillClusterRichness: lastL4SkillCluster.richness,
+    taskSequence: {
+      maxSteps: lastL4Sequence.maxSteps,
+      reliableSteps: lastL4Sequence.reliableSteps,
+      dropoffRate: lastL4Sequence.dropoffRate,
+    },
+    cosmicApprenticeRole: lastL4CosmicApprentice.role,
+    cosmicApprenticeAlignment: lastL4CosmicApprentice.alignmentToPreseed,
+    cosmicApprenticeReadiness: lastL4CosmicApprentice.masteryReadiness,
+    note:
+      lastOntogenesisVector.note ??
+      `${l1RootSeed.note}; L2: тело, опора и микро-исследование среды; ${lastL3PlaySnapshot.note}; ${lastL4MasterySnapshot.note}`,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastL3SocialSnapshot = computeL3SocialSnapshot({
+    l2Attachment: lastL2SocialSnapshot.attachmentLevel,
+    l2CuriositySocial: lastL2SocialSnapshot.curiositySocial,
+    civAlliesCount: lastCivilizationState.resonance.alliesCount,
+    civOpponentsCount: lastCivilizationState.resonance.opponentsCount,
+  });
+
+  lastL3CosmicSnapshot = computeCosmicPatternWeaver({
+    preseed: l1CosmicPreseed.direction,
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+  });
+
+  lastL4MasterySnapshot = computeL4Mastery({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    baseFrustrationTolerance: lastL3PlaySnapshot.frustrationTolerance,
+  });
+
+  lastL4SkillCluster = computeL4SkillCluster({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    socialPatternSense: lastL3SocialSnapshot.socialPatternSense,
+    cosmicPreseed: l1CosmicPreseed.direction,
+  });
+
+  lastL4Sequence = computeL4TaskSequenceCapacity({
+    focusStability: lastL4MasterySnapshot.focusStability,
+    actionConsistency: lastL4MasterySnapshot.actionConsistency,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+  });
+
+  lastL4SocialTeam = computeL4SocialTeam({
+    l3Cooperation: lastL3SocialSnapshot.cooperation,
+    l3ConflictSkill: lastL3SocialSnapshot.conflictSkill,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    frustrationTolerance: lastL4MasterySnapshot.frustrationTolerance,
+  });
+
+  lastL4CosmicApprentice = computeL4CosmicApprentice({
+    preseed: l1CosmicPreseed.direction,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    skillRichness: lastL4SkillCluster.richness,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = Math.max(
+    deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan),
+    lastL2SocialSnapshot.socialAge,
+    lastL3SocialSnapshot.socialAge,
+    lastL4SocialTeam.socialAge,
+  );
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+    trustLevel: l1SocialSeed.trustLevel,
+    presence: l1RootSeed.presence,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    stability: lastL2BodySnapshot.stability,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+    comfortInMotion: lastL2BodySnapshot.comfortInMotion,
+    boundarySense: lastL2SocialSnapshot.boundarySense,
+    attachmentLevel: lastL2SocialSnapshot.attachmentLevel,
+    curiositySocial: lastL2SocialSnapshot.curiositySocial,
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+    playfulness: lastL3PlaySnapshot.playfulness,
+    frustrationTolerance: lastL3PlaySnapshot.frustrationTolerance,
+    focusStability: lastL4MasterySnapshot.focusStability,
+    actionConsistency: lastL4MasterySnapshot.actionConsistency,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    socialPatternSense: lastL3SocialSnapshot.socialPatternSense,
+    cooperation: lastL3SocialSnapshot.cooperation,
+    conflictSkill: lastL3SocialSnapshot.conflictSkill,
+    socialTeamSense: lastL4SocialTeam.socialTeamSense,
+    roleExperimentation: lastL4SocialTeam.roleExperimentation,
+    conflictNavigation: lastL4SocialTeam.conflictNavigation,
+    cosmicPreseed: l1CosmicPreseed.direction,
+    cosmicStyle: lastL2CosmicSnapshot.style,
+    cosmicStyleIntensity: lastL2CosmicSnapshot.intensity,
+    cosmicPatternRole: lastL3CosmicSnapshot.role,
+    cosmicPatternCoherence: lastL3CosmicSnapshot.coherence,
+    skillCluster: lastL4SkillCluster.skills,
+    skillClusterPrimary: lastL4SkillCluster.primarySkill,
+    skillClusterRichness: lastL4SkillCluster.richness,
+    taskSequence: {
+      maxSteps: lastL4Sequence.maxSteps,
+      reliableSteps: lastL4Sequence.reliableSteps,
+      dropoffRate: lastL4Sequence.dropoffRate,
+    },
+    cosmicApprenticeRole: lastL4CosmicApprentice.role,
+    cosmicApprenticeAlignment: lastL4CosmicApprentice.alignmentToPreseed,
+    cosmicApprenticeReadiness: lastL4CosmicApprentice.masteryReadiness,
+    note:
+      lastOntogenesisVector.note ??
+      `${l1RootSeed.note}; L2: тело, опора и микро-исследование среды; ${lastL3PlaySnapshot.note}; ${lastL4MasterySnapshot.note}`,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
 
   lastGenesisPlan = genesisSeeds.update({
     origin: originState,
@@ -959,6 +1753,13 @@ heartbeat.onBeat((beat) => {
     summary: lastFuzzyEvolutionState.summary,
   }, tuning: lastTuningPlan
     ? { mode: lastTuningPlan.mode, actions: lastTuningPlan.actions.length, summary: lastTuningPlan.summary }
+    : undefined, genesis: lastGenesisPlan
+    ? {
+        mode: lastGenesisPlan.mode,
+        ready: lastGenesisPlan.ready.length,
+        deferred: lastGenesisPlan.deferred.length,
+        summary: lastGenesisPlan.summary,
+      }
     : undefined };
 
   void runtime.applyIntentDecision(intentStateWithField.decision);
