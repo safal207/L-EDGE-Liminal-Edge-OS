@@ -17,6 +17,19 @@ function fmt(num, digits = 2) {
   return typeof num === 'number' ? num.toFixed(digits) : 'n/a';
 }
 
+function colorize(num, goodHigh = true) {
+  if (typeof num !== 'number') return 'n/a';
+  const value = Number(num);
+  const good = goodHigh ? value >= 0.7 : value <= 0.3;
+  const warn = goodHigh ? value >= 0.4 && value < 0.7 : value > 0.3 && value <= 0.6;
+  const danger = goodHigh ? value < 0.4 : value > 0.6;
+
+  if (good) return `\x1b[32m${fmt(value)}\x1b[0m`; // green
+  if (warn) return `\x1b[33m${fmt(value)}\x1b[0m`; // yellow
+  if (danger) return `\x1b[31m${fmt(value)}\x1b[0m`; // red
+  return fmt(value);
+}
+
 function renderMastery(snapshot) {
   const { microMasteryScore, focusStability, actionConsistency, frustrationTolerance } = snapshot;
   if (
@@ -27,9 +40,9 @@ function renderMastery(snapshot) {
   ) {
     return 'mastery: (no L4 signals yet)';
   }
-  return `mastery: micro=${fmt(microMasteryScore)} focus=${fmt(focusStability)} action=${fmt(
-    actionConsistency,
-  )} frustration=${fmt(frustrationTolerance)}`;
+  return `mastery: micro=${colorize(microMasteryScore)} focus=${colorize(
+    focusStability,
+  )} action=${colorize(actionConsistency)} frustration=${colorize(frustrationTolerance)}`;
 }
 
 function renderSkills(snapshot) {
@@ -38,7 +51,7 @@ function renderSkills(snapshot) {
     return 'skills: (none yet)';
   }
   const list = skillCluster?.length ? skillCluster.join(',') : 'none';
-  return `skills: primary=${skillClusterPrimary ?? 'n/a'} | richness=${fmt(
+  return `skills: primary=${skillClusterPrimary ?? 'n/a'} | richness=${colorize(
     skillClusterRichness,
   )} | all=[${list}]`;
 }
@@ -46,8 +59,9 @@ function renderSkills(snapshot) {
 function renderTaskSequence(snapshot) {
   const seq = snapshot.taskSequence;
   if (!seq) return 'sequence: (n/a)';
-  return `sequence: reliable=${seq.reliableSteps ?? '?'} / max=${seq.maxSteps ?? '?'} | dropoff=${fmt(
+  return `sequence: reliable=${seq.reliableSteps ?? '?'} / max=${seq.maxSteps ?? '?'} | dropoff=${colorize(
     seq.dropoffRate,
+    false,
   )}`;
 }
 
@@ -56,9 +70,9 @@ function renderCosmic(snapshot) {
   if (!cosmicApprenticeRole && cosmicApprenticeAlignment === undefined && cosmicApprenticeReadiness === undefined) {
     return `cosmic: role=${cosmicRole ?? 'n/a'}`;
   }
-  return `cosmic: role=${cosmicRole ?? 'n/a'} | apprentice=${cosmicApprenticeRole ?? 'n/a'} | align=${fmt(
+  return `cosmic: role=${cosmicRole ?? 'n/a'} | apprentice=${cosmicApprenticeRole ?? 'n/a'} | align=${colorize(
     cosmicApprenticeAlignment,
-  )} | ready=${fmt(cosmicApprenticeReadiness)}`;
+  )} | ready=${colorize(cosmicApprenticeReadiness)}`;
 }
 
 function renderHeader(snapshot) {
