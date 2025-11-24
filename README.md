@@ -171,7 +171,7 @@
 - Снимок: `/api/system/ontogenesis` — текущая L/S/C-точка.
 - История: `/api/system/ontogenesis/timeline?limit=128` — последние срезы движения.
 - Документация: `docs/liminal_ontogenesis_3d.md` + `docs/liminal_benchmark_dev_map.md` (скетч метрик L/S/C) + `docs/ontogenesis_L1.md` (корневой слой) + `docs/ontogenesis_L2.md` (Body & Grounding) + `docs/ontogenesis_L3.md` (Play & Patterning) + `docs/ontogenesis_L4.md` (Mastery & Role Embedding).
-- Примеры: `examples/ontogenesis_watch.js` (живой пульс) и `examples/ontogenesis_metrics.js` (быстрый расчёт L_volatility / S_growth / C_switches).
+- Примеры: `examples/ontogenesis_watch.js` (живой пульс), `examples/ontogenesis_metrics.js` (быстрый расчёт L_volatility / S_growth / C_switches), `examples/ontogenesis_l4_watch.js` (L4 mastery/skills/apprentice фокус).
 
 ---
 

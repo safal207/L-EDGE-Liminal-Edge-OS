@@ -99,6 +99,10 @@
 - `src/organism/social/L4_social_team.ts`
 - `src/organism/cosmic/L4_cosmic_apprentice.ts`
 
+### Быстрый просмотр в терминале
+
+- `examples/ontogenesis_l4_watch.js` — CLI-наблюдатель, который выводит L4-показатели (mastery, skill cluster, task sequence, cosmic apprentice).
+
 ---
 
 ## 6. Взаимосвязь L4 с L1–L3
