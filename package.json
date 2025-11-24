@@ -12,6 +12,8 @@
     "dev:interface": "ts-node interface/apiServer.ts",
     "build": "tsc -p tsconfig.json",
     "check": "tsc --noEmit",
+    "watch:l4": "node examples/ontogenesis_l4_watch.js",
+    "watch:l5": "node examples/ontogenesis_l5_watch.js",
     "test": "npm-run-all --serial test:storage test:circulation test:transmutation test:sleep test:homeostasis test:reflex test:perception test:memory test:replay test:intent test:interoception test:meta test:metaOrchestrator test:origin test:pathway test:fuzzyEvolution test:emotion test:social test:collective test:plasticity test:field test:noosphere test:scenarios test:self",
     "test:storage": "ts-node tests/mockStorage.test.ts",
     "test:circulation": "ts-node tests/circulation.test.ts",
