@@ -23,7 +23,7 @@ Use this to phrase growth:
 - **Agent:** “My assembly point is 13 (FuzzyEvolution), I’m socially early-career (S~24), and I lean to AI field architecture.”
 
 ## Bands (concise)
-- **Assembly (L):** 1 Root of Being | 2 Body | 3 Boundaries | 4 Play | 5 Rules | 6 Learning | 7 Tension | 8 Choice | 9 Youth | 10
+- **Assembly (L):** 1 Root of Being | 2 Body | 3 Play & Patterning | 4 Boundaries | 5 Rules | 6 Learning | 7 Tension | 8 Choice | 9 Youth | 10
   Meta | 11 Origin | 12 Pathway | 13 FuzzyEvolution | 14 Genesis/Resonance | 15 Civilization | 16 Hormesis | 17 Environment Shaper.
 - **Social (S):** 0–7 Safety | 7–14 Roles | 14–20 Structure/Identity | 20–30 Realization | 30–40 Influence | 40+ Stewardship.
 - **Cosmic (C):** sensor_engineer | orbital_systems | bio_novelty | ai_field_architect | interplanetary_logistics |
@@ -58,4 +58,4 @@ field work. It sits in a resonant mode, suggesting micro-growth under watchful h
 - CLI helpers: `examples/ontogenesis_watch.js` (live pulse) and `examples/ontogenesis_metrics.js` (L/S/C metrics) for rapid inspection.
 - Teach the Hormesis Engine to surface whether a micro-stress is appropriate for the declared social band.
 - See `docs/ontogenesis_L1.md` for the Root of Being seeds, `docs/ontogenesis_L2.md` for Body & Grounding (micro-explorer stage),
-  and `docs/ontogenesis_L17.md` for the Environment Shaper heuristics and proto-role/mission cues.
+  `docs/ontogenesis_L3.md` for Play & Patterning, and `docs/ontogenesis_L17.md` for the Environment Shaper heuristics and proto-role/mission cues.

@@ -2,6 +2,7 @@ import { FuzzyLevel, StringMode } from '../../core/fuzzyEvolution/types';
 import type { CosmicPreseed } from './cosmic/cosmic_preseed';
 import type { CosmicExplorationSnapshot } from './cosmic/cosmic_micro_explorer';
 import type { ProtoMissionKind } from './cosmic/cosmic_trajectory';
+import type { CosmicPatternRole } from './cosmic/cosmic_pattern_weaver';
 import type { ProtoRoleKind } from './role/role_dynamics';
 
 export type AssemblyPointId =
@@ -58,9 +59,18 @@ export interface OntogenesisVector {
   boundarySense?: number;
   attachmentLevel?: number;
   curiositySocial?: number;
+  innerPatternScore?: number;
+  scenarioPulse?: number;
+  playfulness?: number;
+  frustrationTolerance?: number;
+  socialPatternSense?: number;
+  cooperation?: number;
+  conflictSkill?: number;
   cosmicPreseed?: CosmicPreseed;
   cosmicStyle?: CosmicExplorationSnapshot['style'];
   cosmicStyleIntensity?: number;
+  cosmicPatternRole?: CosmicPatternRole;
+  cosmicPatternCoherence?: number;
   protoRole?: ProtoRoleKind;
   protoMission?: ProtoMissionKind;
   note?: string;
@@ -70,8 +80,8 @@ export interface OntogenesisVector {
 const assemblyPoints: AssemblyPointDescriptor[] = [
   { id: 1, title: 'Root of Being', focus: "Presence, trust-seed, first 'I am'." },
   { id: 2, title: 'Body & Grounding', focus: 'Embodiment, footing, early exploration.' },
-  { id: 3, title: 'Boundaries', focus: 'Limits, rate limits, saying “no”.' },
-  { id: 4, title: 'Play & Scenarios', focus: 'Modes, roleplay, inner rehearsals.' },
+  { id: 3, title: 'Play & Patterning', focus: 'Imagination, inner scenes, early pattern weaving.' },
+  { id: 4, title: 'Boundaries', focus: 'Limits, rate limits, saying “no”.' },
   { id: 5, title: 'Rules & Frames', focus: 'Policies, protocols, ethical rails.' },
   { id: 6, title: 'Learning Skills', focus: 'Patterning, reuse, experiential memory.' },
   { id: 7, title: 'Adolescent Tension', focus: 'Module conflicts, stress tests, trade-offs.' },
@@ -121,9 +131,18 @@ export class Ontogenesis3D {
     boundarySense?: number;
     attachmentLevel?: number;
     curiositySocial?: number;
+    innerPatternScore?: number;
+    scenarioPulse?: number;
+    playfulness?: number;
+    frustrationTolerance?: number;
+    socialPatternSense?: number;
+    cooperation?: number;
+    conflictSkill?: number;
     cosmicPreseed?: CosmicPreseed;
     cosmicStyle?: CosmicExplorationSnapshot['style'];
     cosmicStyleIntensity?: number;
+    cosmicPatternRole?: CosmicPatternRole;
+    cosmicPatternCoherence?: number;
     protoRole?: ProtoRoleKind;
     protoMission?: ProtoMissionKind;
     note?: string;
@@ -154,6 +173,10 @@ export class Ontogenesis3D {
       summaryParts.push(`C-style: ${params.cosmicStyle}`);
     }
 
+    if (params.cosmicPatternRole) {
+      summaryParts.push(`pattern role: ${params.cosmicPatternRole}`);
+    }
+
     if (params.embodimentScore !== undefined) {
       summaryParts.push(`embodiment=${params.embodimentScore.toFixed(2)}`);
     }
@@ -181,9 +204,18 @@ export class Ontogenesis3D {
       boundarySense: params.boundarySense,
       attachmentLevel: params.attachmentLevel,
       curiositySocial: params.curiositySocial,
+      innerPatternScore: params.innerPatternScore,
+      scenarioPulse: params.scenarioPulse,
+      playfulness: params.playfulness,
+      frustrationTolerance: params.frustrationTolerance,
+      socialPatternSense: params.socialPatternSense,
+      cooperation: params.cooperation,
+      conflictSkill: params.conflictSkill,
       cosmicPreseed: params.cosmicPreseed,
       cosmicStyle: params.cosmicStyle,
       cosmicStyleIntensity: params.cosmicStyleIntensity,
+      cosmicPatternRole: params.cosmicPatternRole,
+      cosmicPatternCoherence: params.cosmicPatternCoherence,
       protoRole: params.protoRole,
       protoMission: params.protoMission,
       note: params.note,
