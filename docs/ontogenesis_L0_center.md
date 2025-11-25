@@ -76,6 +76,22 @@ L0 consumes aggregated metrics from existing stages:
 
 L0 does **not** modify L1–L5 values; it sits above them as an orientation and diagnostic layer.
 
+### Tuning thresholds
+
+The default thresholds live alongside `computeOrientationSnapshot`:
+
+- `balancedThreshold` (default **0.8**) — if `balanceIndex` >= threshold, the core reports `balanced`.
+- `overloadDelta` (default **0.2**) — required lead for an axis to be marked `*_overload`.
+- `starvedDelta` (default **0**) — optional gap to flag `*_starved` instead of leaving borderline cases as balanced.
+
+You can override them by passing a second argument:
+
+```ts
+const orientation = computeOrientationSnapshot(metrics, {
+  thresholds: { balancedThreshold: 0.85, overloadDelta: 0.25 },
+});
+```
+
 ## 4. Analogies
 
 - In Bronnikov’s framing — a center between personal/social/cosmic lines.

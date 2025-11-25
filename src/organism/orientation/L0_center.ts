@@ -24,10 +24,34 @@ export interface OrientationInputs {
   C_metrics: number[];
 }
 
+export interface OrientationThresholds {
+  /** balanceIndex >= balancedThreshold is treated as balanced */
+  balancedThreshold: number;
+  /** dominant axis must exceed others by this delta to be overload */
+  overloadDelta: number;
+  /** minimum gap to consider an axis starved (0 keeps previous behavior) */
+  starvedDelta: number;
+}
+
+export interface OrientationConfig {
+  thresholds?: Partial<OrientationThresholds>;
+}
+
+export const DEFAULT_ORIENTATION_THRESHOLDS: OrientationThresholds = {
+  balancedThreshold: 0.8,
+  overloadDelta: 0.2,
+  starvedDelta: 0,
+};
+
 /**
  * L0 – Orientation Core. Reads L/S/C axis metrics and returns a balance snapshot.
  */
-export function computeOrientationSnapshot(inputs: OrientationInputs): OrientationSnapshot {
+export function computeOrientationSnapshot(
+  inputs: OrientationInputs,
+  config: OrientationConfig = {},
+): OrientationSnapshot {
+  const thresholds = { ...DEFAULT_ORIENTATION_THRESHOLDS, ...config.thresholds };
+
   const L_level = clamp01(avg(inputs.L_metrics));
   const S_level = clamp01(avg(inputs.S_metrics));
   const C_level = clamp01(avg(inputs.C_metrics));
@@ -37,7 +61,7 @@ export function computeOrientationSnapshot(inputs: OrientationInputs): Orientati
 
   const dominantAxis = pickDominantAxis(L_level, S_level, C_level);
   const starvedAxis = pickStarvedAxis(L_level, S_level, C_level);
-  const mode = pickMode(L_level, S_level, C_level, balanceIndex);
+  const mode = pickMode(L_level, S_level, C_level, balanceIndex, thresholds);
 
   const note =
     `L0-center: balance=${balanceIndex.toFixed(2)}, ` +
@@ -88,14 +112,22 @@ function pickStarvedAxis(L: number, S: number, C: number): OrientationSnapshot['
   return 'C';
 }
 
-function pickMode(L: number, S: number, C: number, balanceIndex: number): OrientationMode {
-  if (balanceIndex > 0.8) return 'balanced';
+function pickMode(
+  L: number,
+  S: number,
+  C: number,
+  balanceIndex: number,
+  thresholds: OrientationThresholds,
+): OrientationMode {
+  if (balanceIndex >= thresholds.balancedThreshold) return 'balanced';
 
-  if (L > S + 0.2 && L > C + 0.2) return 'L_overload';
-  if (S > L + 0.2 && S > C + 0.2) return 'S_overload';
-  if (C > L + 0.2 && C > S + 0.2) return 'C_overload';
+  if (L >= S + thresholds.overloadDelta && L >= C + thresholds.overloadDelta) return 'L_overload';
+  if (S >= L + thresholds.overloadDelta && S >= C + thresholds.overloadDelta) return 'S_overload';
+  if (C >= L + thresholds.overloadDelta && C >= S + thresholds.overloadDelta) return 'C_overload';
 
   const min = Math.min(L, S, C);
+  const max = Math.max(L, S, C);
+  if (max - min <= thresholds.starvedDelta) return 'balanced';
   if (min === L) return 'L_starved';
   if (min === S) return 'S_starved';
   return 'C_starved';
