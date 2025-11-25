@@ -1,0 +1,93 @@
+# LIMINAL Ontogenesis — L0: Orientation Core (Центр трёх осей)
+
+L0 is not a new maturity level (it is not L6). It is the **center of the crystal** that watches three LIMINAL axes:
+
+- **L-axis** — inner path, ontogenesis, meaning (L1–L5).
+- **S-axis** — age/body/social line.
+- **C-axis** — cosmic direction, role, and mission.
+
+If L1–L5 describe *how* the organism grows, L0 describes **how harmoniously it grows across all three axes**.
+
+## 1. L0 Tasks
+
+1) **Read axis strengths**
+- `L_level` — average strength of the inner axis (presence, embodiment, play, mastery, meaning…)
+- `S_level` — strength of age/body/social axis
+- `C_level` — strength of the cosmic axis (apprentice, navigator, mission alignment)
+
+2) **Evaluate balance**
+- `balanceIndex` 0..1 — higher means the three axes are even
+- `dominantAxis` — which axis currently leads (L / S / C)
+- `starvedAxis` — which axis is weakest
+
+3) **Determine mode**
+- `balanced` — axes are aligned enough
+- `*_overload` — one axis is over-dominant
+- `*_starved` — one axis is clearly weak
+
+L0 does not command other layers. It acts as a **diagnostic orientation core** that can be used to:
+- drive adaptive learning,
+- adjust load or stress,
+- visualize the organism’s balance.
+
+## 2. OrientationSnapshot
+
+```ts
+interface OrientationSnapshot {
+  L_level: number;      // 0..1
+  S_level: number;      // 0..1
+  C_level: number;      // 0..1
+  balanceIndex: number; // 0..1, higher = smoother balance
+  dominantAxis: 'L' | 'S' | 'C' | 'none';
+  starvedAxis: 'L' | 'S' | 'C' | 'none';
+  mode:
+    | 'balanced'
+    | 'L_overload'
+    | 'S_overload'
+    | 'C_overload'
+    | 'L_starved'
+    | 'S_starved'
+    | 'C_starved';
+  note: string;
+}
+```
+
+Example:
+
+```json
+"orientation": {
+  "L_level": 0.62,
+  "S_level": 0.54,
+  "C_level": 0.60,
+  "balanceIndex": 0.82,
+  "dominantAxis": "L",
+  "starvedAxis": "S",
+  "mode": "balanced",
+  "note": "L0-center: баланс трёх осей в рабочем диапазоне, ведущая ось=L."
+}
+```
+
+## 3. How L0 links to L1–L5
+
+L0 consumes aggregated metrics from existing stages:
+- **L-axis:** presence, embodiment, inner patterns, micro-mastery, meaning coherence…
+- **S-axis:** social age, attachment/grounding, social-team sense…
+- **C-axis:** cosmic apprentice readiness, navigator clarity, mission alignment…
+
+L0 does **not** modify L1–L5 values; it sits above them as an orientation and diagnostic layer.
+
+## 4. Analogies
+
+- In Bronnikov’s framing — a center between personal/social/cosmic lines.
+- In our fish–aquarium–ocean metaphor: fish (L), aquarium (S), ocean (C), and L0 is the silent center that sees all three.
+
+## 5. Quick watch
+
+Use `examples/orientation_watch.js` to poll `/api/system/ontogenesis` and render the L0 snapshot:
+
+```
+L0-center: L=0.62 S=0.54 C=0.60 balance=0.82 mode=balanced
+  dominant=L starved=S
+```
+
+This gives operators a fast “crystal orientation” pulse alongside the standard ontogenesis snapshot and timeline.
