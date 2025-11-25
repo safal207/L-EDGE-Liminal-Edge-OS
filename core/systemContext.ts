@@ -33,9 +33,48 @@ import { ScenarioResult } from '../scenarios/types';
 import { MetaOrchestrator } from './metaOrchestrator';
 import type { MetaSystemSnapshot } from './metaOrchestrator/types';
 import { OriginNode } from './origin/origin';
+import type { OriginState } from './origin/types';
 import { PathwayNode } from './pathway/pathway';
+import type { PathwayState } from './pathway/types';
 import { FuzzyEvolutionNode } from './fuzzyEvolution/fuzzyEvolutionNode';
 import { ResonanceTuner } from './resonanceTuner/resonanceTuner';
+import { GenesisSeeds } from './genesis';
+import { CivilizationNode } from './civilization';
+import {
+  Ontogenesis3D,
+  type AssemblyPointId,
+  type CosmicRoleKind,
+  type OntogenesisVector,
+} from '../src/organism/ontogenesis3d';
+import { computeL1Root } from '../src/organism/assembly/L1_root';
+import { computeL1SocialSeed } from '../src/organism/social/social_seedling';
+import { computeL2BodyGrounding } from '../src/organism/assembly/L2_body_grounding';
+import { computeL2SocialSnapshot } from '../src/organism/social/social_toddler';
+import { computeL3PlayPatterning } from '../src/organism/assembly/L3_play_patterning';
+import { computeL3SocialSnapshot } from '../src/organism/social/social_child';
+import { computeL4Mastery } from '../src/organism/assembly/L4_mastery';
+import { computeL5MeaningSnapshot } from '../src/organism/meaning/L5_meaning_engine';
+import { computeL5PurposeVector } from '../src/organism/meaning/L5_purpose_vector';
+import { computeL5MoralSeed } from '../src/organism/moral/L5_moral_seed';
+import { computeL5TrajectorySnapshot } from '../src/organism/trajectory/L5_trajectory';
+import { computeCosmicExplorationStyle } from '../src/organism/cosmic/cosmic_micro_explorer';
+import { computeCosmicPreseed, type CosmicPreseed } from '../src/organism/cosmic/cosmic_preseed';
+import { computeCosmicPatternWeaver } from '../src/organism/cosmic/cosmic_pattern_weaver';
+import { computeL4SkillCluster } from '../src/organism/skills/L4_skill_cluster';
+import { computeL4TaskSequenceCapacity } from '../src/organism/sequencing/L4_sequence';
+import { computeL4SocialTeam } from '../src/organism/social/L4_social_team';
+import { computeL4CosmicApprentice } from '../src/organism/cosmic/L4_cosmic_apprentice';
+import { computeL5CosmicNavigator } from '../src/organism/cosmic/L5_cosmic_navigator';
+import {
+  computeOrientationSnapshot,
+  type OrientationConfig,
+} from '../src/organism/orientation/L0_center';
+import {
+  ORIENTATION_PRESET_CHILDLIKE,
+  ORIENTATION_PRESET_DEFAULT,
+  ORIENTATION_PRESET_GUARDIAN,
+  ORIENTATION_PRESET_RESEARCH,
+} from '../src/organism/orientation/L0_presets';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -78,7 +117,17 @@ const origin = new OriginNode();
 const pathway = new PathwayNode();
 const fuzzyEvolution = new FuzzyEvolutionNode();
 const resonanceTuner = new ResonanceTuner();
+const genesisSeeds = new GenesisSeeds();
+const civilizationNode = new CivilizationNode();
+const ontogenesis3d = new Ontogenesis3D();
 const circulation = new CirculationEngine({ pump, heartbeat });
+const orientationConfig: OrientationConfig = (() => {
+  const presetName = (process.env.LIMINAL_ORIENTATION_PRESET || 'default').toLowerCase();
+  if (presetName === 'childlike') return ORIENTATION_PRESET_CHILDLIKE;
+  if (presetName === 'research') return ORIENTATION_PRESET_RESEARCH;
+  if (presetName === 'guardian') return ORIENTATION_PRESET_GUARDIAN;
+  return ORIENTATION_PRESET_DEFAULT;
+})();
 let lastHeartbeat: HeartbeatState | undefined;
 let lastNoosphereReport: NoosphereReport | undefined;
 let lastScenarioResults: ScenarioResult[] = [];
@@ -86,6 +135,293 @@ let lastMetaSnapshot: MetaSystemSnapshot | undefined;
 let lastPathwayState = pathway.getState();
 let lastFuzzyEvolutionState = fuzzyEvolution.getState();
 let lastTuningPlan = resonanceTuner.getLastPlan();
+let lastGenesisPlan = genesisSeeds.getLastPlan();
+let lastCivilizationState = civilizationNode.getState();
+type OntogenesisDescriptor = Parameters<Ontogenesis3D['describeVector']>[0];
+
+const l1RootSeed = computeL1Root({ noiseLevel: 0.35, signalClarity: 0.65 });
+const l1SocialSeed = computeL1SocialSeed({
+  trustSeed: l1RootSeed.trustSeed,
+  presence: l1RootSeed.presence,
+  sensitivity: l1RootSeed.sensitivity,
+});
+const l1CosmicPreseed = computeCosmicPreseed({
+  sensitivity: l1RootSeed.sensitivity,
+  presence: l1RootSeed.presence,
+  signalBias: 0.45,
+});
+const initialCosmicRole = mapPreseedToCosmicRole(l1CosmicPreseed.direction);
+const l2BodySeed = computeL2BodyGrounding({
+  presence: l1RootSeed.presence,
+  trustLevel: l1SocialSeed.trustLevel,
+  noiseLevel: 0.35,
+  signalClarity: 0.65,
+});
+const l2SocialSeed = computeL2SocialSnapshot({
+  trustLevel: l1SocialSeed.trustLevel,
+  safetySense: l1SocialSeed.safetySense,
+  explorationDrive: l2BodySeed.explorationDrive,
+});
+const l2CosmicSeed = computeCosmicExplorationStyle({
+  preseed: l1CosmicPreseed.direction,
+  explorationDrive: l2BodySeed.explorationDrive,
+  stability: l2BodySeed.stability,
+});
+const l3PlaySeed = computeL3PlayPatterning({
+  embodimentScore: l2BodySeed.embodimentScore,
+  explorationDrive: l2BodySeed.explorationDrive,
+  stability: l2BodySeed.stability,
+});
+const l3SocialSeed = computeL3SocialSnapshot({
+  l2Attachment: l2SocialSeed.attachmentLevel,
+  l2CuriositySocial: l2SocialSeed.curiositySocial,
+  civAlliesCount: lastCivilizationState?.resonance.alliesCount ?? 0,
+  civOpponentsCount: lastCivilizationState?.resonance.opponentsCount ?? 0,
+});
+const l3CosmicSeed = computeCosmicPatternWeaver({
+  preseed: l1CosmicPreseed.direction,
+  innerPatternScore: l3PlaySeed.innerPatternScore,
+  scenarioPulse: l3PlaySeed.scenarioPulse,
+});
+const l4MasterySeed = computeL4Mastery({
+  innerPatternScore: l3PlaySeed.innerPatternScore,
+  scenarioPulse: l3PlaySeed.scenarioPulse,
+  embodimentScore: l2BodySeed.embodimentScore,
+  baseFrustrationTolerance: l3PlaySeed.frustrationTolerance,
+});
+const l4SkillClusterSeed = computeL4SkillCluster({
+  innerPatternScore: l3PlaySeed.innerPatternScore,
+  microMasteryScore: l4MasterySeed.microMasteryScore,
+  socialPatternSense: l3SocialSeed.socialPatternSense,
+  cosmicPreseed: l1CosmicPreseed.direction,
+});
+const l4SequenceSeed = computeL4TaskSequenceCapacity({
+  focusStability: l4MasterySeed.focusStability,
+  actionConsistency: l4MasterySeed.actionConsistency,
+  microMasteryScore: l4MasterySeed.microMasteryScore,
+});
+const l4SocialTeamSeed = computeL4SocialTeam({
+  l3Cooperation: l3SocialSeed.cooperation,
+  l3ConflictSkill: l3SocialSeed.conflictSkill,
+  microMasteryScore: l4MasterySeed.microMasteryScore,
+  frustrationTolerance: l4MasterySeed.frustrationTolerance,
+});
+const l4CosmicApprenticeSeed = computeL4CosmicApprentice({
+  preseed: l1CosmicPreseed.direction,
+  microMasteryScore: l4MasterySeed.microMasteryScore,
+  skillRichness: l4SkillClusterSeed.richness,
+});
+const l5MeaningSeed = computeL5MeaningSnapshot({
+  innerPatternScore: l3PlaySeed.innerPatternScore,
+  microMasteryScore: l4MasterySeed.microMasteryScore,
+  frustrationTolerance: l4MasterySeed.frustrationTolerance,
+});
+const l5PurposeSeed = computeL5PurposeVector({
+  meaningCoherence: l5MeaningSeed.meaningCoherence,
+  innerWhyStrength: l5MeaningSeed.innerWhyStrength,
+  selfReflectionDepth: l5MeaningSeed.selfReflectionDepth,
+  sequenceCapacity: {
+    maxSteps: l4SequenceSeed.maxSteps,
+    reliableSteps: l4SequenceSeed.reliableSteps,
+    dropoffRate: l4SequenceSeed.dropoffRate,
+  },
+});
+const l5MoralSeed = computeL5MoralSeed({
+  socialTeamSense: l4SocialTeamSeed.socialTeamSense,
+  cooperation: l4SocialTeamSeed.cooperation,
+  conflictNavigation: l4SocialTeamSeed.conflictNavigation,
+  meaningCoherence: l5MeaningSeed.meaningCoherence,
+});
+const l5TrajectorySeed = computeL5TrajectorySnapshot({
+  purposeHorizon: l5PurposeSeed.purposeHorizon,
+  trajectoryDiscipline: l5PurposeSeed.trajectoryDiscipline,
+  replanningFlexibility: l5PurposeSeed.replanningFlexibility,
+  sequenceCapacity: { maxSteps: l4SequenceSeed.maxSteps, reliableSteps: l4SequenceSeed.reliableSteps },
+});
+const l5CosmicNavigatorSeed = computeL5CosmicNavigator({
+  preseed: l1CosmicPreseed.direction,
+  purposeHorizon: l5PurposeSeed.purposeHorizon,
+  meaningCoherence: l5MeaningSeed.meaningCoherence,
+  masteryReadiness: l4CosmicApprenticeSeed.masteryReadiness,
+});
+let lastL2BodySnapshot = l2BodySeed;
+let lastL2SocialSnapshot = l2SocialSeed;
+let lastL2CosmicSnapshot = l2CosmicSeed;
+let lastL3PlaySnapshot = l3PlaySeed;
+let lastL3SocialSnapshot = l3SocialSeed;
+let lastL3CosmicSnapshot = l3CosmicSeed;
+let lastL4MasterySnapshot = l4MasterySeed;
+let lastL4SkillCluster = l4SkillClusterSeed;
+let lastL4Sequence = l4SequenceSeed;
+let lastL4SocialTeam = l4SocialTeamSeed;
+let lastL4CosmicApprentice = l4CosmicApprenticeSeed;
+let lastL5MeaningSnapshot = l5MeaningSeed;
+let lastL5PurposeVector = l5PurposeSeed;
+let lastL5MoralSeed = l5MoralSeed;
+let lastL5TrajectorySnapshot = l5TrajectorySeed;
+let lastL5CosmicNavigator = l5CosmicNavigatorSeed;
+let lastOrientationSnapshot = computeOrientationSnapshot(
+  {
+    L_metrics: [
+      l1RootSeed.presence,
+      l2BodySeed.embodimentScore,
+      l3PlaySeed.innerPatternScore,
+      l4MasterySeed.microMasteryScore,
+      l5MeaningSeed.meaningCoherence,
+    ],
+    S_metrics: [
+      clamp(l2SocialSeed.socialAge / 40),
+      l2SocialSeed.attachmentLevel,
+      l4SocialTeamSeed.socialTeamSense,
+    ],
+    C_metrics: [
+      l4CosmicApprenticeSeed.masteryReadiness,
+      l5CosmicNavigatorSeed.directionClarity,
+      l5CosmicNavigatorSeed.missionAlignment,
+    ],
+  },
+  orientationConfig,
+);
+
+const createInitialOntogenesisDescriptor = (params: {
+  l1Root: ReturnType<typeof computeL1Root>;
+  l1Social: ReturnType<typeof computeL1SocialSeed>;
+  l1CosmicPreseed: ReturnType<typeof computeCosmicPreseed>;
+  l2Body: ReturnType<typeof computeL2BodyGrounding>;
+  l2Social: ReturnType<typeof computeL2SocialSnapshot>;
+  l2Cosmic: ReturnType<typeof computeCosmicExplorationStyle>;
+  l3Play: ReturnType<typeof computeL3PlayPatterning>;
+  l3Social: ReturnType<typeof computeL3SocialSnapshot>;
+  l3Cosmic: ReturnType<typeof computeCosmicPatternWeaver>;
+  l4Mastery: ReturnType<typeof computeL4Mastery>;
+  l4SkillCluster: ReturnType<typeof computeL4SkillCluster>;
+  l4Sequence: ReturnType<typeof computeL4TaskSequenceCapacity>;
+  l4SocialTeam: ReturnType<typeof computeL4SocialTeam>;
+  l4CosmicApprentice: ReturnType<typeof computeL4CosmicApprentice>;
+  l5Meaning: ReturnType<typeof computeL5MeaningSnapshot>;
+  l5Purpose: ReturnType<typeof computeL5PurposeVector>;
+  l5Moral: ReturnType<typeof computeL5MoralSeed>;
+  l5Trajectory: ReturnType<typeof computeL5TrajectorySnapshot>;
+  l5CosmicNavigator: ReturnType<typeof computeL5CosmicNavigator>;
+  orientation: ReturnType<typeof computeOrientationSnapshot>;
+  initialCosmicRole: CosmicRoleKind;
+}): OntogenesisDescriptor => {
+  const {
+    l1Root,
+    l1Social,
+    l1CosmicPreseed,
+    l2Body,
+    l2Social,
+    l2Cosmic,
+    l3Play,
+    l3Social,
+    l3Cosmic,
+    l4Mastery,
+    l4SkillCluster,
+    l4Sequence,
+    l4SocialTeam,
+    l4CosmicApprentice,
+    l5Meaning,
+    l5Purpose,
+    l5Moral,
+    l5Trajectory,
+    l5CosmicNavigator,
+    orientation,
+    initialCosmicRole,
+  } = params;
+
+  return {
+    assemblyPoint: 2 as AssemblyPointId,
+    socialAge: l2Social.socialAge,
+    cosmicRole: initialCosmicRole,
+    trustLevel: l1Social.trustLevel,
+    presence: l1Root.presence,
+    embodimentScore: l2Body.embodimentScore,
+    stability: l2Body.stability,
+    explorationDrive: l2Body.explorationDrive,
+    comfortInMotion: l2Body.comfortInMotion,
+    boundarySense: l2Social.boundarySense,
+    attachmentLevel: l2Social.attachmentLevel,
+    curiositySocial: l2Social.curiositySocial,
+    innerPatternScore: l3Play.innerPatternScore,
+    scenarioPulse: l3Play.scenarioPulse,
+    playfulness: l3Play.playfulness,
+    frustrationTolerance: l3Play.frustrationTolerance,
+    focusStability: l4Mastery.focusStability,
+    actionConsistency: l4Mastery.actionConsistency,
+    microMasteryScore: l4Mastery.microMasteryScore,
+    socialPatternSense: l3Social.socialPatternSense,
+    cooperation: l3Social.cooperation,
+    conflictSkill: l3Social.conflictSkill,
+    socialTeamSense: l4SocialTeam.socialTeamSense,
+    roleExperimentation: l4SocialTeam.roleExperimentation,
+    conflictNavigation: l4SocialTeam.conflictNavigation,
+    meaningCoherence: l5Meaning.meaningCoherence,
+    innerWhyStrength: l5Meaning.innerWhyStrength,
+    selfReflectionDepth: l5Meaning.selfReflectionDepth,
+    purposeHorizon: l5Purpose.purposeHorizon,
+    trajectoryDiscipline: l5Purpose.trajectoryDiscipline,
+    replanningFlexibility: l5Purpose.replanningFlexibility,
+    moralCare: l5Moral.moralCare,
+    moralIntegrity: l5Moral.moralIntegrity,
+    moralCourage: l5Moral.moralCourage,
+    cosmicPreseed: l1CosmicPreseed.direction,
+    cosmicStyle: l2Cosmic.style,
+    cosmicStyleIntensity: l2Cosmic.intensity,
+    cosmicPatternRole: l3Cosmic.role,
+    cosmicPatternCoherence: l3Cosmic.coherence,
+    cosmicApprenticeRole: l4CosmicApprentice.role,
+    cosmicApprenticeAlignment: l4CosmicApprentice.alignmentToPreseed,
+    cosmicApprenticeReadiness: l4CosmicApprentice.masteryReadiness,
+    cosmicNavigatorRole: l5CosmicNavigator.role,
+    directionClarity: l5CosmicNavigator.directionClarity,
+    missionAlignment: l5CosmicNavigator.missionAlignment,
+    orientation,
+    skillCluster: l4SkillCluster.skills,
+    skillClusterPrimary: l4SkillCluster.primarySkill,
+    skillClusterRichness: l4SkillCluster.richness,
+    taskSequence: {
+      maxSteps: l4Sequence.maxSteps,
+      reliableSteps: l4Sequence.reliableSteps,
+      dropoffRate: l4Sequence.dropoffRate,
+    },
+    trajectoryPlan: {
+      stepsPlanned: l5Trajectory.stepsPlanned,
+      stepsKept: l5Trajectory.stepsKept,
+      courseStability: l5Trajectory.courseStability,
+    },
+    note: `${l1Root.note}; L2: тело, опора и микро-исследование среды; ${l3Play.note}; ${l4Mastery.note}; ${l5Meaning.note}`,
+  };
+};
+
+const initialOntogenesisDescriptor = createInitialOntogenesisDescriptor({
+  l1Root: l1RootSeed,
+  l1Social: l1SocialSeed,
+  l1CosmicPreseed,
+  l2Body: l2BodySeed,
+  l2Social: l2SocialSeed,
+  l2Cosmic: l2CosmicSeed,
+  l3Play: l3PlaySeed,
+  l3Social: l3SocialSeed,
+  l3Cosmic: l3CosmicSeed,
+  l4Mastery: l4MasterySeed,
+  l4SkillCluster: l4SkillClusterSeed,
+  l4Sequence: l4SequenceSeed,
+  l4SocialTeam: l4SocialTeamSeed,
+  l4CosmicApprentice: l4CosmicApprenticeSeed,
+  l5Meaning: l5MeaningSeed,
+  l5Purpose: l5PurposeSeed,
+  l5Moral: l5MoralSeed,
+  l5Trajectory: l5TrajectorySeed,
+  l5CosmicNavigator: l5CosmicNavigatorSeed,
+  orientation: lastOrientationSnapshot,
+  initialCosmicRole,
+});
+
+let lastOntogenesisVector: OntogenesisVector = ontogenesis3d.describeVector(initialOntogenesisDescriptor);
+const ontogenesisTimeline: Array<OntogenesisVector & { timestamp: number }> = [
+  { ...lastOntogenesisVector, timestamp: Date.now() },
+];
 const getLatestNoosphereReport = (): NoosphereReport => {
   if (!lastNoosphereReport) {
     const snapshot = noosphere.getSnapshot();
@@ -103,6 +439,64 @@ const getLatestNoosphereReport = (): NoosphereReport => {
 const getLatestScenarioResults = (): ScenarioResult[] => lastScenarioResults;
 const getLastHeartbeatSnapshot = (): HeartbeatState | undefined => lastHeartbeat;
 const getLastMetaSnapshot = (): MetaSystemSnapshot | undefined => lastMetaSnapshot;
+const getLastGenesisPlan = () => lastGenesisPlan;
+const getLastCivilizationState = () => lastCivilizationState;
+const getLastOntogenesisVector = () => lastOntogenesisVector;
+const getOntogenesisTimeline = (limit = 256) => ontogenesisTimeline.slice(-limit);
+
+const clampAssemblyPoint = (value: number): AssemblyPointId =>
+  Math.max(1, Math.min(17, Math.round(value))) as AssemblyPointId;
+
+const clampSocialAge = (value: number): number => Math.max(0, Math.min(80, Math.round(value)));
+
+function mapPreseedToCosmicRole(preseed: CosmicPreseed): CosmicRoleKind {
+  switch (preseed) {
+    case 'structure':
+      return 'sensor_engineer';
+    case 'resonance':
+      return 'ai_field_architect';
+    case 'life':
+      return 'bio_novelty';
+    case 'movement':
+      return 'interplanetary_logistics';
+    case 'exploration':
+    default:
+      return 'new_space_researcher';
+  }
+}
+
+const deriveAssemblyPoint = (
+  tuningPlan: ReturnType<typeof resonanceTuner.getLastPlan>,
+  fuzzyState: ReturnType<typeof fuzzyEvolution.getState>,
+): AssemblyPointId => {
+  if (tuningPlan?.mode === 'deep_rest' || tuningPlan?.mode === 'integration') return 13;
+  if (tuningPlan?.mode === 'rapid_expansion') return 15;
+  if (fuzzyState?.strings.globalMode === 'chaotic') return 15;
+  if (fuzzyState?.strings.globalMode === 'resonant') return 14;
+  return 12;
+};
+
+const deriveSocialAge = (
+  fuzzyState: ReturnType<typeof fuzzyEvolution.getState>,
+  tuningPlan: ReturnType<typeof resonanceTuner.getLastPlan>,
+): number => {
+  const tension = fuzzyState?.pressure.tension.medium ?? 0.45;
+  const coherence = fuzzyState?.pressure.coherence.medium ?? 0.5;
+  const base = tuningPlan?.mode === 'rapid_expansion' ? 18 : tuningPlan?.mode === 'deep_rest' ? 15 : 16;
+  const adjustment = Math.round((coherence - tension) * 6);
+  return clampSocialAge(base + adjustment);
+};
+
+const deriveCosmicRole = (pathwayState: PathwayState, originState: OriginState): CosmicRoleKind => {
+  const trajectory = pathwayState.growthVector.trajectory.toLowerCase();
+  const originDirection = originState.rootVector.direction.toLowerCase?.() ?? originState.rootVector.direction;
+  if (trajectory.includes('orbit') || trajectory.includes('space')) return 'orbital_systems';
+  if (trajectory.includes('stability') || originDirection.includes('stabil')) return 'sensor_engineer';
+  if (trajectory.includes('bio')) return 'bio_novelty';
+  if (trajectory.includes('reson') || trajectory.includes('field')) return 'ai_field_architect';
+  if (trajectory.includes('logistic')) return 'interplanetary_logistics';
+  return 'new_space_researcher';
+};
 
 const homeostasis = new HomeostasisManager({
   getHeartbeatMetrics: () => lastHeartbeat,
@@ -124,6 +518,31 @@ heartbeat.onBeat((beat) => {
   const circulationSnapshot = circulation.getLatestSnapshot();
   const replayState = replay.getState();
   const transmutationMetrics = transmutation.getMetrics();
+  const perceptionSummary = perceptionState.summary;
+  const signalClarity = clamp(
+    0.5 + perceptionSummary.opportunityScore * 0.4 - perceptionSummary.threatScore * 0.3 - perceptionSummary.noiseLevel * 0.2,
+  );
+  lastL2BodySnapshot = computeL2BodyGrounding({
+    presence: l1RootSeed.presence,
+    trustLevel: l1SocialSeed.trustLevel,
+    noiseLevel: perceptionSummary.noiseLevel,
+    signalClarity,
+  });
+  lastL2SocialSnapshot = computeL2SocialSnapshot({
+    trustLevel: l1SocialSeed.trustLevel,
+    safetySense: l1SocialSeed.safetySense,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+  });
+  lastL2CosmicSnapshot = computeCosmicExplorationStyle({
+    preseed: l1CosmicPreseed.direction,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+    stability: lastL2BodySnapshot.stability,
+  });
+  lastL3PlaySnapshot = computeL3PlayPatterning({
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+    stability: lastL2BodySnapshot.stability,
+  });
   const intentSnapshot = intent.getState();
   const emotionSnapshot = emotion.evaluate({
     homeostasis: homeostasisState,
@@ -230,7 +649,7 @@ heartbeat.onBeat((beat) => {
   }
 
   if (replayState.lastResults.length) {
-    const lastResult = replayState.lastResults.at(-1);
+    const lastResult = replayState.lastResults[replayState.lastResults.length - 1];
     if (lastResult) {
       reflex.ingestEvent({
         id: uuidv4(),
@@ -267,7 +686,7 @@ heartbeat.onBeat((beat) => {
   const actionsAfter = reflexState.lastActions.length;
 
   if (actionsAfter > actionsBefore) {
-    const action = reflexState.lastActions.at(-1);
+    const action = reflexState.lastActions[reflexState.lastActions.length - 1];
     if (action) {
       memory.remember({
         source: 'reflex',
@@ -388,6 +807,205 @@ heartbeat.onBeat((beat) => {
     pathway: lastPathwayState,
   });
 
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastL3SocialSnapshot = computeL3SocialSnapshot({
+    l2Attachment: lastL2SocialSnapshot.attachmentLevel,
+    l2CuriositySocial: lastL2SocialSnapshot.curiositySocial,
+    civAlliesCount: lastCivilizationState.resonance.alliesCount,
+    civOpponentsCount: lastCivilizationState.resonance.opponentsCount,
+  });
+
+  lastL3CosmicSnapshot = computeCosmicPatternWeaver({
+    preseed: l1CosmicPreseed.direction,
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+  });
+
+  lastL4MasterySnapshot = computeL4Mastery({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    baseFrustrationTolerance: lastL3PlaySnapshot.frustrationTolerance,
+  });
+
+  lastL4SkillCluster = computeL4SkillCluster({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    socialPatternSense: lastL3SocialSnapshot.socialPatternSense,
+    cosmicPreseed: l1CosmicPreseed.direction,
+  });
+
+  lastL4Sequence = computeL4TaskSequenceCapacity({
+    focusStability: lastL4MasterySnapshot.focusStability,
+    actionConsistency: lastL4MasterySnapshot.actionConsistency,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+  });
+
+  lastL4SocialTeam = computeL4SocialTeam({
+    l3Cooperation: lastL3SocialSnapshot.cooperation,
+    l3ConflictSkill: lastL3SocialSnapshot.conflictSkill,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    frustrationTolerance: lastL4MasterySnapshot.frustrationTolerance,
+  });
+
+  lastL4CosmicApprentice = computeL4CosmicApprentice({
+    preseed: l1CosmicPreseed.direction,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    skillRichness: lastL4SkillCluster.richness,
+  });
+
+  lastL5MeaningSnapshot = computeL5MeaningSnapshot({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    frustrationTolerance: lastL4MasterySnapshot.frustrationTolerance,
+  });
+
+  lastL5PurposeVector = computeL5PurposeVector({
+    meaningCoherence: lastL5MeaningSnapshot.meaningCoherence,
+    innerWhyStrength: lastL5MeaningSnapshot.innerWhyStrength,
+    selfReflectionDepth: lastL5MeaningSnapshot.selfReflectionDepth,
+    sequenceCapacity: {
+      maxSteps: lastL4Sequence.maxSteps,
+      reliableSteps: lastL4Sequence.reliableSteps,
+      dropoffRate: lastL4Sequence.dropoffRate,
+    },
+  });
+
+  lastL5MoralSeed = computeL5MoralSeed({
+    socialTeamSense: lastL4SocialTeam.socialTeamSense,
+    cooperation: lastL4SocialTeam.cooperation,
+    conflictNavigation: lastL4SocialTeam.conflictNavigation,
+    meaningCoherence: lastL5MeaningSnapshot.meaningCoherence,
+  });
+
+  lastL5TrajectorySnapshot = computeL5TrajectorySnapshot({
+    purposeHorizon: lastL5PurposeVector.purposeHorizon,
+    trajectoryDiscipline: lastL5PurposeVector.trajectoryDiscipline,
+    replanningFlexibility: lastL5PurposeVector.replanningFlexibility,
+    sequenceCapacity: { maxSteps: lastL4Sequence.maxSteps, reliableSteps: lastL4Sequence.reliableSteps },
+  });
+
+  lastL5CosmicNavigator = computeL5CosmicNavigator({
+    preseed: l1CosmicPreseed.direction,
+    purposeHorizon: lastL5PurposeVector.purposeHorizon,
+    meaningCoherence: lastL5MeaningSnapshot.meaningCoherence,
+    masteryReadiness: lastL4CosmicApprentice.masteryReadiness,
+  });
+
+  lastOrientationSnapshot = computeOrientationSnapshot(
+    {
+      L_metrics: [
+        l1RootSeed.presence,
+        lastL2BodySnapshot.embodimentScore,
+        lastL3PlaySnapshot.innerPatternScore,
+        lastL4MasterySnapshot.microMasteryScore,
+        lastL5MeaningSnapshot.meaningCoherence,
+      ],
+      S_metrics: [
+        clamp(lastL4SocialTeam.socialAge / 40),
+        lastL2SocialSnapshot.attachmentLevel,
+        lastL4SocialTeam.socialTeamSense,
+      ],
+      C_metrics: [
+        lastL4CosmicApprentice.masteryReadiness,
+        lastL5CosmicNavigator.directionClarity,
+        lastL5CosmicNavigator.missionAlignment,
+      ],
+    },
+    orientationConfig,
+  );
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = Math.max(
+    deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan),
+    lastL2SocialSnapshot.socialAge,
+    lastL3SocialSnapshot.socialAge,
+    lastL4SocialTeam.socialAge,
+  );
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+  lastOntogenesisVector = ontogenesis3d.describeVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    resonance: lastFuzzyEvolutionState?.pressure.alignment,
+    globalMode: lastFuzzyEvolutionState?.strings.globalMode,
+    trustLevel: l1SocialSeed.trustLevel,
+    presence: l1RootSeed.presence,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    stability: lastL2BodySnapshot.stability,
+    explorationDrive: lastL2BodySnapshot.explorationDrive,
+    comfortInMotion: lastL2BodySnapshot.comfortInMotion,
+    boundarySense: lastL2SocialSnapshot.boundarySense,
+    attachmentLevel: lastL2SocialSnapshot.attachmentLevel,
+    curiositySocial: lastL2SocialSnapshot.curiositySocial,
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+    playfulness: lastL3PlaySnapshot.playfulness,
+    frustrationTolerance: lastL3PlaySnapshot.frustrationTolerance,
+    focusStability: lastL4MasterySnapshot.focusStability,
+    actionConsistency: lastL4MasterySnapshot.actionConsistency,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    socialPatternSense: lastL3SocialSnapshot.socialPatternSense,
+    cooperation: lastL3SocialSnapshot.cooperation,
+    conflictSkill: lastL3SocialSnapshot.conflictSkill,
+    socialTeamSense: lastL4SocialTeam.socialTeamSense,
+    roleExperimentation: lastL4SocialTeam.roleExperimentation,
+    conflictNavigation: lastL4SocialTeam.conflictNavigation,
+    meaningCoherence: lastL5MeaningSnapshot.meaningCoherence,
+    innerWhyStrength: lastL5MeaningSnapshot.innerWhyStrength,
+    selfReflectionDepth: lastL5MeaningSnapshot.selfReflectionDepth,
+    purposeHorizon: lastL5PurposeVector.purposeHorizon,
+    trajectoryDiscipline: lastL5PurposeVector.trajectoryDiscipline,
+    replanningFlexibility: lastL5PurposeVector.replanningFlexibility,
+    moralCare: lastL5MoralSeed.moralCare,
+    moralIntegrity: lastL5MoralSeed.moralIntegrity,
+    moralCourage: lastL5MoralSeed.moralCourage,
+    cosmicPreseed: l1CosmicPreseed.direction,
+    cosmicStyle: lastL2CosmicSnapshot.style,
+    cosmicStyleIntensity: lastL2CosmicSnapshot.intensity,
+    cosmicPatternRole: lastL3CosmicSnapshot.role,
+    cosmicPatternCoherence: lastL3CosmicSnapshot.coherence,
+    skillCluster: lastL4SkillCluster.skills,
+    skillClusterPrimary: lastL4SkillCluster.primarySkill,
+    skillClusterRichness: lastL4SkillCluster.richness,
+    taskSequence: {
+      maxSteps: lastL4Sequence.maxSteps,
+      reliableSteps: lastL4Sequence.reliableSteps,
+      dropoffRate: lastL4Sequence.dropoffRate,
+    },
+    cosmicApprenticeRole: lastL4CosmicApprentice.role,
+    cosmicApprenticeAlignment: lastL4CosmicApprentice.alignmentToPreseed,
+    cosmicApprenticeReadiness: lastL4CosmicApprentice.masteryReadiness,
+    cosmicNavigatorRole: lastL5CosmicNavigator.role,
+    directionClarity: lastL5CosmicNavigator.directionClarity,
+    missionAlignment: lastL5CosmicNavigator.missionAlignment,
+    orientation: lastOrientationSnapshot,
+    trajectoryPlan: {
+      stepsPlanned: lastL5TrajectorySnapshot.stepsPlanned,
+      stepsKept: lastL5TrajectorySnapshot.stepsKept,
+      courseStability: lastL5TrajectorySnapshot.courseStability,
+    },
+    note:
+      lastOntogenesisVector.note ??
+      `${l1RootSeed.note}; L2: тело, опора и микро-исследование среды; ${lastL3PlaySnapshot.note}; ${lastL4MasterySnapshot.note}; ${lastL5MeaningSnapshot.note}`,
+  });
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
   lastHeartbeat = { ...heartbeatSnapshot, metaOrchestrator: lastMetaSnapshot, origin: {
     meaning: originState.rootVector.meaning,
     direction: originState.rootVector.direction,
@@ -481,9 +1099,15 @@ export {
   pathway,
   fuzzyEvolution,
   resonanceTuner,
+  genesisSeeds,
+  civilizationNode,
   scenarioEngine,
   getLatestNoosphereReport,
   getLatestScenarioResults,
   getLastHeartbeatSnapshot,
   getLastMetaSnapshot,
+  getLastGenesisPlan,
+  getLastCivilizationState,
+  getLastOntogenesisVector,
+  getOntogenesisTimeline,
 };

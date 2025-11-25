@@ -1,4 +1,5 @@
 import type { MetaSystemSnapshot } from './metaOrchestrator/types';
+import type { IdentityTraits } from '../self/contracts';
 
 export type NodeId = string;
 export type ServiceId = string;
@@ -300,7 +301,7 @@ export interface HeartbeatPlasticity {
 
 export interface HeartbeatSelfModel {
   identity: string;
-  traits: Record<string, number>;
+  traits: IdentityTraits;
   arcs: number;
   volatility: number;
 }
