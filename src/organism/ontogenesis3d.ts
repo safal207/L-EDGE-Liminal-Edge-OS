@@ -12,6 +12,7 @@ import type { OrientationSnapshot } from './orientation/L0_center';
 import type { PolaritySnapshot } from './orientation/L0_polarity';
 import type { LoadProfile } from './orientation/L0_load_profile';
 import type { FuzzyBoundsSnapshot } from './orientation/L0_fuzzy_bounds';
+import type { CerebellumSnapshot } from './orientation/L0_cerebellum';
 
 export type AssemblyPointId =
   | 1
@@ -60,6 +61,7 @@ export interface OntogenesisVector {
   polarity?: PolaritySnapshot;
   loadProfile?: LoadProfile;
   fuzzyBounds?: FuzzyBoundsSnapshot;
+  cerebellum?: CerebellumSnapshot;
   cosmicApprenticeRole?: CosmicApprenticeRole;
   cosmicApprenticeAlignment?: number;
   cosmicApprenticeReadiness?: number;
@@ -166,6 +168,7 @@ export class Ontogenesis3D {
     polarity?: PolaritySnapshot;
     loadProfile?: LoadProfile;
     fuzzyBounds?: FuzzyBoundsSnapshot;
+    cerebellum?: CerebellumSnapshot;
     resonance?: FuzzyLevel;
     globalMode?: StringMode;
     trustLevel?: number;
@@ -257,6 +260,10 @@ export class Ontogenesis3D {
       summaryParts.push(`load bias=${params.loadProfile.yinBias.toFixed(2)}`);
     }
 
+    if (params.cerebellum?.stabilityScore !== undefined) {
+      summaryParts.push(`cerebellum stability=${params.cerebellum.stabilityScore.toFixed(2)}`);
+    }
+
     if (params.cosmicPatternRole) {
       summaryParts.push(`pattern role: ${params.cosmicPatternRole}`);
     }
@@ -295,6 +302,7 @@ export class Ontogenesis3D {
       polarity: params.polarity,
       loadProfile: params.loadProfile,
       fuzzyBounds: params.fuzzyBounds,
+      cerebellum: params.cerebellum,
       resonance: params.resonance,
       globalMode: params.globalMode,
       trustLevel: params.trustLevel,

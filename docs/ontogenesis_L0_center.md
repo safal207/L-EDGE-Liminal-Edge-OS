@@ -186,3 +186,25 @@ The snapshot `fuzzyBounds` stores per-axis bands plus global indices:
 - `globalMaximaxIndex` — proximity to upper bounds.
 
 Downstream layers can use this to pick strategies (gentle vs experimental vs crisis), tune load rhythms, or surface risk/fragility on dashboards.
+
+## 10. L0 Cerebellum — smoothing and coordination
+
+The **L0 Cerebellum** is the smoothing/coordination layer for the orientation core. After orientation/polarity/load/fuzzy bounds are computed, `runCerebellumStep(...)`:
+
+- derives healthy targets for each axis (L/S/C) by using the **minimax** bands for yin/yang/tau,
+- nudges current yin/yang/tau toward those targets with small, capped micro-movements instead of hard jumps,
+- recalculates polarity aggregates (global ratio, drift, tau) and lightly retunes the load profile based on the resulting stability.
+
+The cerebellum snapshot records:
+
+- `adjustedPolarity` and `adjustedLoadProfile` (post-smoothing),
+- per-axis micro corrections (`yinDelta`, `yangDelta`, `tauDelta`, `smoothnessGain`),
+- `stabilityScore` / `smoothnessScore` summarizing how calm and steady the step was.
+
+Why it matters:
+
+- keeps axis transitions **smooth** and reduces oscillations,
+- coordinates yin/yang/tau breathing with the L/S/C balance,
+- lowers brittleness by avoiding sharp stress spikes and promoting gentle integration when stability is high.
+
+This makes L0 feel less like a discrete switchboard and more like a living cerebellum that quietly steadies the organism’s posture in motion.
