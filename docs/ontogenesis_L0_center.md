@@ -117,6 +117,11 @@ Thresholds can be overridden through `OrientationConfig`, and common presets liv
 - `ORIENTATION_PRESET_RESEARCH` — strict balance and larger overload gaps for cleaner experiments.
 - `ORIENTATION_PRESET_GUARDIAN` — watchful/mentor preset with moderate strictness.
 
+Human-facing vibe (when you describe it to operators):
+- **childlike** — мягкий, заботливый, подталкивает к игре и исследованию, но рано говорит «хватит нагрузки».
+- **research** — строгий, почти лабораторный: фиксирует перекосы только когда они статистически заметны.
+- **guardian** — режим наставника/охранника: чутко ловит завалы и держит баланс устойчивым.
+
 Example usage:
 
 ```ts
