@@ -10,6 +10,7 @@ export interface LoadProfile {
   socialFocus: number;
   cosmicExplorationFocus: number;
   yinBias: number; // -1..1 — -1 = more yang/action, +1 = more yin/integration
+  tauSupport: number; // 0..1 — support for tau (gray) state where yin ~= yang
   note: string;
 }
 
@@ -27,18 +28,27 @@ export function computeLoadProfile(
   let socialFocus = 0.5;
   let cosmicExplorationFocus = 0.5;
   let yinBias = 0;
+  let tauSupport = 0.5;
 
   if (polarity) {
     yinBias = clampMinus1to1(Math.log2(polarity.globalRatio || 1));
+    tauSupport = clamp01(polarity.globalTau);
   }
 
   globalStress = 0.3 + 0.4 * balanceIndex;
   applyModeAdjustments();
   applyYinYangBias();
+  applyTauSupport();
 
-  const note =
-    buildNote(mode, balanceIndex) +
-    (polarity ? ` Yin/Yang drift=${yinBias.toFixed(2)}. ${polarity.note}` : '');
+  const noteParts: string[] = [];
+  noteParts.push(buildNote(mode, balanceIndex));
+  if (polarity) {
+    noteParts.push(
+      `Yin/Yang drift=${yinBias.toFixed(2)}, globalTau=${polarity.globalTau.toFixed(2)}`,
+    );
+  }
+  noteParts.push(`tauSupport=${tauSupport.toFixed(2)}`);
+  const note = noteParts.join(' | ');
 
   return {
     globalStress: clamp01(globalStress),
@@ -49,6 +59,7 @@ export function computeLoadProfile(
     socialFocus: clamp01(socialFocus),
     cosmicExplorationFocus: clamp01(cosmicExplorationFocus),
     yinBias,
+    tauSupport,
     note,
   };
 
@@ -100,6 +111,27 @@ export function computeLoadProfile(
 
       meaningReflectionFocus -= 0.1 * k;
       globalStress += 0.05 * k;
+    }
+  }
+
+  function applyTauSupport() {
+    if (tauSupport >= 0.7) {
+      globalStress -= 0.05 * (tauSupport - 0.7) / 0.3;
+      playExplorationFocus += 0.05 * tauSupport;
+      meaningReflectionFocus += 0.05 * tauSupport;
+    } else if (tauSupport <= 0.3) {
+      const deficit = (0.3 - tauSupport) / 0.3;
+      globalStress += 0.05 * deficit;
+
+      if (yinBias > 0.1) {
+        const k = deficit * yinBias;
+        skillDrillFocus += 0.1 * k;
+        socialFocus += 0.1 * k;
+      } else if (yinBias < -0.1) {
+        const k = deficit * -yinBias;
+        meaningReflectionFocus += 0.1 * k;
+        playExplorationFocus += 0.1 * k;
+      }
     }
   }
 }

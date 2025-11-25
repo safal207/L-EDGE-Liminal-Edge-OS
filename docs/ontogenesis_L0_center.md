@@ -152,3 +152,17 @@ Beyond raw balance, the organism can track **yin/yang polarity** to keep a healt
 - `yinBias < 0` → tilt toward **yang** (more action/skills/social push, slightly higher stress allowance).
 
 This keeps the three axes **breathing**, alternating yin and yang phases without falling into a destructive imbalance.
+
+## 8. Tau-state: Инь = Ян (“gray matter”)
+
+L0 also tracks a third quality beyond pure yin/yang polarity — the **tau state**, where yin ≈ yang. Think of it as the “gray matter” zone that marks a stable, mature balance.
+
+- Each axis exposes `tau` (0..1) and `state` (`yin-dominant` / `yang-dominant` / `tau-zone`).
+- Global indicators `globalTau` / `tauMaturityIndex` summarize how well the organism holds the gray state over time.
+
+`LoadProfile` uses both `yinBias` and `tauSupport` to gently steer loads:
+
+- High `tauSupport` → softer stress, a touch more play/reflection, minimal jolts to body/social pushes.
+- Low `tauSupport` → small corrective nudges (more action if too yin, more reflection if too yang) to bring axes back toward balance.
+
+Result: the organism not only balances the axes but **breathes** across yin/yang while building the capacity to rest in the tau-zone.
