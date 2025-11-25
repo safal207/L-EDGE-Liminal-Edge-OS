@@ -11,6 +11,7 @@ import type { L4TaskSequenceCapacity } from './sequencing/L4_sequence';
 import type { OrientationSnapshot } from './orientation/L0_center';
 import type { PolaritySnapshot } from './orientation/L0_polarity';
 import type { LoadProfile } from './orientation/L0_load_profile';
+import type { FuzzyBoundsSnapshot } from './orientation/L0_fuzzy_bounds';
 
 export type AssemblyPointId =
   | 1
@@ -58,6 +59,7 @@ export interface OntogenesisVector {
   orientation?: OrientationSnapshot;
   polarity?: PolaritySnapshot;
   loadProfile?: LoadProfile;
+  fuzzyBounds?: FuzzyBoundsSnapshot;
   cosmicApprenticeRole?: CosmicApprenticeRole;
   cosmicApprenticeAlignment?: number;
   cosmicApprenticeReadiness?: number;
@@ -163,6 +165,7 @@ export class Ontogenesis3D {
     orientation?: OrientationSnapshot;
     polarity?: PolaritySnapshot;
     loadProfile?: LoadProfile;
+    fuzzyBounds?: FuzzyBoundsSnapshot;
     resonance?: FuzzyLevel;
     globalMode?: StringMode;
     trustLevel?: number;
@@ -291,6 +294,7 @@ export class Ontogenesis3D {
       orientation: params.orientation,
       polarity: params.polarity,
       loadProfile: params.loadProfile,
+      fuzzyBounds: params.fuzzyBounds,
       resonance: params.resonance,
       globalMode: params.globalMode,
       trustLevel: params.trustLevel,

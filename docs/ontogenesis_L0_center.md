@@ -166,3 +166,23 @@ L0 also tracks a third quality beyond pure yin/yang polarity — the **tau state
 - Low `tauSupport` → small corrective nudges (more action if too yin, more reflection if too yang) to bring axes back toward balance.
 
 Result: the organism not only balances the axes but **breathes** across yin/yang while building the capacity to rest in the tau-zone.
+
+## 9. Fuzzy bounds (minimin / minimax / maximax) for Yin / Yang / Tau
+
+L0 also builds a **safety corridor** around each matter (yin/yang/tau) on every axis (L/S/C):
+
+- `minimin` — red-zone minimum; falling below risks collapse.
+- `minimax` — safe level even in worst cases.
+- `maximax` — upper reasonable bound before drift/overload.
+
+Bands adapt to current stability (tau) and overall balance:
+- higher tau → **wider** corridor (organism is resilient),
+- low tau → **narrower** corridor (organism is fragile).
+
+The snapshot `fuzzyBounds` stores per-axis bands plus global indices:
+
+- `globalMiniminIndex` — distance from the floor,
+- `globalMinimaxIndex` — adherence to safe corridors,
+- `globalMaximaxIndex` — proximity to upper bounds.
+
+Downstream layers can use this to pick strategies (gentle vs experimental vs crisis), tune load rhythms, or surface risk/fragility on dashboards.
