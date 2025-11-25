@@ -107,3 +107,23 @@ L0-center: L=0.62 S=0.54 C=0.60 balance=0.82 mode=balanced
 ```
 
 This gives operators a fast “crystal orientation” pulse alongside the standard ontogenesis snapshot and timeline.
+
+## 6. L0 presets (orientation modes)
+
+Thresholds can be overridden through `OrientationConfig`, and common presets live in `L0_presets.ts`:
+
+- `ORIENTATION_PRESET_DEFAULT` — baseline close to the defaults.
+- `ORIENTATION_PRESET_CHILDLIKE` — softer balance and earlier overload/starved detection for gentle modes.
+- `ORIENTATION_PRESET_RESEARCH` — strict balance and larger overload gaps for cleaner experiments.
+- `ORIENTATION_PRESET_GUARDIAN` — watchful/mentor preset with moderate strictness.
+
+Example usage:
+
+```ts
+import { computeOrientationSnapshot } from './L0_center';
+import { ORIENTATION_PRESET_CHILDLIKE } from './L0_presets';
+
+const orientation = computeOrientationSnapshot(metrics, ORIENTATION_PRESET_CHILDLIKE);
+```
+
+You can also swap presets at runtime via `LIMINAL_ORIENTATION_PRESET` (default/childlike/research/guardian) to change the organism’s “character” without touching L1–L5 logic.
