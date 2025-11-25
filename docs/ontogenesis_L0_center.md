@@ -1,0 +1,154 @@
+# LIMINAL Ontogenesis — L0: Orientation Core (Центр трёх осей)
+
+L0 is not a new maturity level (it is not L6). It is the **center of the crystal** that watches three LIMINAL axes:
+
+- **L-axis** — inner path, ontogenesis, meaning (L1–L5).
+- **S-axis** — age/body/social line.
+- **C-axis** — cosmic direction, role, and mission.
+
+If L1–L5 describe *how* the organism grows, L0 describes **how harmoniously it grows across all three axes**.
+
+## 1. L0 Tasks
+
+1) **Read axis strengths**
+- `L_level` — average strength of the inner axis (presence, embodiment, play, mastery, meaning…)
+- `S_level` — strength of age/body/social axis
+- `C_level` — strength of the cosmic axis (apprentice, navigator, mission alignment)
+
+2) **Evaluate balance**
+- `balanceIndex` 0..1 — higher means the three axes are even
+- `dominantAxis` — which axis currently leads (L / S / C)
+- `starvedAxis` — which axis is weakest
+
+3) **Determine mode**
+- `balanced` — axes are aligned enough
+- `*_overload` — one axis is over-dominant
+- `*_starved` — one axis is clearly weak
+
+L0 does not command other layers. It acts as a **diagnostic orientation core** that can be used to:
+- drive adaptive learning,
+- adjust load or stress,
+- visualize the organism’s balance.
+
+## 2. OrientationSnapshot
+
+```ts
+interface OrientationSnapshot {
+  L_level: number;      // 0..1
+  S_level: number;      // 0..1
+  C_level: number;      // 0..1
+  balanceIndex: number; // 0..1, higher = smoother balance
+  dominantAxis: 'L' | 'S' | 'C' | 'none';
+  starvedAxis: 'L' | 'S' | 'C' | 'none';
+  mode:
+    | 'balanced'
+    | 'L_overload'
+    | 'S_overload'
+    | 'C_overload'
+    | 'L_starved'
+    | 'S_starved'
+    | 'C_starved';
+  note: string;
+}
+```
+
+Example:
+
+```json
+"orientation": {
+  "L_level": 0.62,
+  "S_level": 0.54,
+  "C_level": 0.60,
+  "balanceIndex": 0.82,
+  "dominantAxis": "L",
+  "starvedAxis": "S",
+  "mode": "balanced",
+  "note": "L0-center: баланс трёх осей в рабочем диапазоне, ведущая ось=L."
+}
+```
+
+## 3. How L0 links to L1–L5
+
+L0 consumes aggregated metrics from existing stages:
+- **L-axis:** presence, embodiment, inner patterns, micro-mastery, meaning coherence…
+- **S-axis:** social age, attachment/grounding, social-team sense…
+- **C-axis:** cosmic apprentice readiness, navigator clarity, mission alignment…
+
+L0 does **not** modify L1–L5 values; it sits above them as an orientation and diagnostic layer.
+
+### Tuning thresholds
+
+The default thresholds live alongside `computeOrientationSnapshot`:
+
+- `balancedThreshold` (default **0.8**) — if `balanceIndex` >= threshold, the core reports `balanced`.
+- `overloadDelta` (default **0.2**) — required lead for an axis to be marked `*_overload`.
+- `starvedDelta` (default **0**) — optional gap to flag `*_starved` instead of leaving borderline cases as balanced.
+
+You can override them by passing a second argument:
+
+```ts
+const orientation = computeOrientationSnapshot(metrics, {
+  thresholds: { balancedThreshold: 0.85, overloadDelta: 0.25 },
+});
+```
+
+## 4. Analogies
+
+- In Bronnikov’s framing — a center between personal/social/cosmic lines.
+- In our fish–aquarium–ocean metaphor: fish (L), aquarium (S), ocean (C), and L0 is the silent center that sees all three.
+
+## 5. Quick watch
+
+Use `examples/orientation_watch.js` to poll `/api/system/ontogenesis` and render the L0 snapshot:
+
+```
+L0-center: L=0.62 S=0.54 C=0.60 balance=0.82 mode=balanced
+  dominant=L starved=S
+```
+
+This gives operators a fast “crystal orientation” pulse alongside the standard ontogenesis snapshot and timeline.
+
+## 6. L0 presets (orientation modes)
+
+Thresholds can be overridden through `OrientationConfig`, and common presets live in `L0_presets.ts`:
+
+- `ORIENTATION_PRESET_DEFAULT` — baseline close to the defaults.
+- `ORIENTATION_PRESET_CHILDLIKE` — softer balance and earlier overload/starved detection for gentle modes.
+- `ORIENTATION_PRESET_RESEARCH` — strict balance and larger overload gaps for cleaner experiments.
+- `ORIENTATION_PRESET_GUARDIAN` — watchful/mentor preset with moderate strictness.
+
+Human-facing vibe (when you describe it to operators):
+- **childlike** — мягкий, заботливый, подталкивает к игре и исследованию, но рано говорит «хватит нагрузки».
+- **research** — строгий, почти лабораторный: фиксирует перекосы только когда они статистически заметны.
+- **guardian** — режим наставника/охранника: чутко ловит завалы и держит баланс устойчивым.
+
+Example usage:
+
+```ts
+import { computeOrientationSnapshot } from './L0_center';
+import { ORIENTATION_PRESET_CHILDLIKE } from './L0_presets';
+
+const orientation = computeOrientationSnapshot(metrics, ORIENTATION_PRESET_CHILDLIKE);
+```
+
+You can also swap presets at runtime via `LIMINAL_ORIENTATION_PRESET` (default/childlike/research/guardian) to change the organism’s “character” without touching L1–L5 logic.
+
+## 7. Yin/Yang polarity (“breath” of the axes)
+
+Beyond raw balance, the organism can track **yin/yang polarity** to keep a healthy inhale/exhale rhythm:
+
+- **yin** — integration, rest, reflection.
+- **yang** — action, outward expression, social push.
+
+`L0_polarity.ts` computes for each axis:
+
+- `yin`, `yang` (0..1),
+- `ratio = yin / yang`,
+- `globalRatio` and `yinYangDrift` for the whole system.
+
+`computeLoadProfile(...)` then adds `yinBias` (-1..1) to the load profile:
+
+- `yinBias > 0` → tilt toward **yin** (more meaning/reflection, softer stress, less hard skill drilling).
+- `yinBias < 0` → tilt toward **yang** (more action/skills/social push, slightly higher stress allowance).
+
+This keeps the three axes **breathing**, alternating yin and yang phases without falling into a destructive imbalance.
