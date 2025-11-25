@@ -132,3 +132,23 @@ const orientation = computeOrientationSnapshot(metrics, ORIENTATION_PRESET_CHILD
 ```
 
 You can also swap presets at runtime via `LIMINAL_ORIENTATION_PRESET` (default/childlike/research/guardian) to change the organism’s “character” without touching L1–L5 logic.
+
+## 7. Yin/Yang polarity (“breath” of the axes)
+
+Beyond raw balance, the organism can track **yin/yang polarity** to keep a healthy inhale/exhale rhythm:
+
+- **yin** — integration, rest, reflection.
+- **yang** — action, outward expression, social push.
+
+`L0_polarity.ts` computes for each axis:
+
+- `yin`, `yang` (0..1),
+- `ratio = yin / yang`,
+- `globalRatio` and `yinYangDrift` for the whole system.
+
+`computeLoadProfile(...)` then adds `yinBias` (-1..1) to the load profile:
+
+- `yinBias > 0` → tilt toward **yin** (more meaning/reflection, softer stress, less hard skill drilling).
+- `yinBias < 0` → tilt toward **yang** (more action/skills/social push, slightly higher stress allowance).
+
+This keeps the three axes **breathing**, alternating yin and yang phases without falling into a destructive imbalance.

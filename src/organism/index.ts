@@ -22,5 +22,7 @@ export * from './cosmic/L4_cosmic_apprentice';
 export * from './cosmic/L5_cosmic_navigator';
 export * from './orientation/L0_center';
 export * from './orientation/L0_presets';
+export * from './orientation/L0_polarity';
+export * from './orientation/L0_load_profile';
 export * from './skills/L4_skill_cluster';
 export * from './sequencing/L4_sequence';

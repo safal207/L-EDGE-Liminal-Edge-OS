@@ -9,6 +9,8 @@ import type { SkillTag } from './skills/L4_skill_cluster';
 import type { ProtoRoleKind } from './role/role_dynamics';
 import type { L4TaskSequenceCapacity } from './sequencing/L4_sequence';
 import type { OrientationSnapshot } from './orientation/L0_center';
+import type { PolaritySnapshot } from './orientation/L0_polarity';
+import type { LoadProfile } from './orientation/L0_load_profile';
 
 export type AssemblyPointId =
   | 1
@@ -54,6 +56,8 @@ export interface OntogenesisVector {
   socialAge: number;
   cosmicRole: CosmicRoleKind;
   orientation?: OrientationSnapshot;
+  polarity?: PolaritySnapshot;
+  loadProfile?: LoadProfile;
   cosmicApprenticeRole?: CosmicApprenticeRole;
   cosmicApprenticeAlignment?: number;
   cosmicApprenticeReadiness?: number;
@@ -157,6 +161,8 @@ export class Ontogenesis3D {
     socialAge: number;
     cosmicRole: CosmicRoleKind;
     orientation?: OrientationSnapshot;
+    polarity?: PolaritySnapshot;
+    loadProfile?: LoadProfile;
     resonance?: FuzzyLevel;
     globalMode?: StringMode;
     trustLevel?: number;
@@ -240,6 +246,14 @@ export class Ontogenesis3D {
       summaryParts.push(`L0 balance=${params.orientation.balanceIndex.toFixed(2)}`);
     }
 
+    if (params.polarity?.yinYangDrift !== undefined) {
+      summaryParts.push(`yin/yang drift=${params.polarity.yinYangDrift.toFixed(2)}`);
+    }
+
+    if (params.loadProfile?.yinBias !== undefined) {
+      summaryParts.push(`load bias=${params.loadProfile.yinBias.toFixed(2)}`);
+    }
+
     if (params.cosmicPatternRole) {
       summaryParts.push(`pattern role: ${params.cosmicPatternRole}`);
     }
@@ -275,6 +289,8 @@ export class Ontogenesis3D {
       directionClarity: params.directionClarity,
       missionAlignment: params.missionAlignment,
       orientation: params.orientation,
+      polarity: params.polarity,
+      loadProfile: params.loadProfile,
       resonance: params.resonance,
       globalMode: params.globalMode,
       trustLevel: params.trustLevel,
