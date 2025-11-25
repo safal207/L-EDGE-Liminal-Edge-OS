@@ -8,6 +8,7 @@ import type { CosmicNavigatorRole } from './cosmic/L5_cosmic_navigator';
 import type { SkillTag } from './skills/L4_skill_cluster';
 import type { ProtoRoleKind } from './role/role_dynamics';
 import type { L4TaskSequenceCapacity } from './sequencing/L4_sequence';
+import type { OrientationSnapshot } from './orientation/L0_center';
 
 export type AssemblyPointId =
   | 1
@@ -52,6 +53,7 @@ export interface OntogenesisVector {
   assemblyPoint: AssemblyPointId;
   socialAge: number;
   cosmicRole: CosmicRoleKind;
+  orientation?: OrientationSnapshot;
   cosmicApprenticeRole?: CosmicApprenticeRole;
   cosmicApprenticeAlignment?: number;
   cosmicApprenticeReadiness?: number;
@@ -154,6 +156,7 @@ export class Ontogenesis3D {
     assemblyPoint: AssemblyPointId;
     socialAge: number;
     cosmicRole: CosmicRoleKind;
+    orientation?: OrientationSnapshot;
     resonance?: FuzzyLevel;
     globalMode?: StringMode;
     trustLevel?: number;
@@ -233,6 +236,10 @@ export class Ontogenesis3D {
       summaryParts.push(`C-style: ${params.cosmicStyle}`);
     }
 
+    if (params.orientation?.balanceIndex !== undefined) {
+      summaryParts.push(`L0 balance=${params.orientation.balanceIndex.toFixed(2)}`);
+    }
+
     if (params.cosmicPatternRole) {
       summaryParts.push(`pattern role: ${params.cosmicPatternRole}`);
     }
@@ -267,6 +274,7 @@ export class Ontogenesis3D {
       cosmicNavigatorRole: params.cosmicNavigatorRole,
       directionClarity: params.directionClarity,
       missionAlignment: params.missionAlignment,
+      orientation: params.orientation,
       resonance: params.resonance,
       globalMode: params.globalMode,
       trustLevel: params.trustLevel,

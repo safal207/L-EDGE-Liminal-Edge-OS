@@ -55,7 +55,7 @@ field work. It sits in a resonant mode, suggesting micro-growth under watchful h
 - Add optional `ontogenesis` hints to GenesisSeed and Civilization agents.
 - `/api/system/ontogenesis` now returns the current vector; `/api/system/ontogenesis/timeline` exposes the last slices for quick trend views.
 - See `docs/liminal_benchmark_dev_map.md` for a draft of simple L/S/C stability probes based on the timeline feed.
-- CLI helpers: `examples/ontogenesis_watch.js` (live pulse), `examples/ontogenesis_metrics.js` (L/S/C metrics), `examples/ontogenesis_l4_watch.js` (mastery/skills/apprentice cues), and `examples/ontogenesis_l5_watch.js` (meaning/purpose/moral navigator cues) for rapid inspection.
+- CLI helpers: `examples/ontogenesis_watch.js` (live pulse), `examples/ontogenesis_metrics.js` (L/S/C metrics), `examples/ontogenesis_l4_watch.js` (mastery/skills/apprentice cues), `examples/ontogenesis_l5_watch.js` (meaning/purpose/moral navigator cues), and `examples/orientation_watch.js` (L0 balance of L/S/C) for rapid inspection.
 - Teach the Hormesis Engine to surface whether a micro-stress is appropriate for the declared social band.
 - See `docs/ontogenesis_L1.md` for the Root of Being seeds, `docs/ontogenesis_L2.md` for Body & Grounding (micro-explorer stage),
-  `docs/ontogenesis_L3.md` for Play & Patterning, `docs/ontogenesis_L4.md` for Mastery & Role Embedding, `docs/ontogenesis_L5.md` for Meaning & Direction, and `docs/ontogenesis_L17.md` for the Environment Shaper heuristics and proto-role/mission cues.
+  `docs/ontogenesis_L3.md` for Play & Patterning, `docs/ontogenesis_L4.md` for Mastery & Role Embedding, `docs/ontogenesis_L5.md` for Meaning & Direction, and `docs/ontogenesis_L17.md` for the Environment Shaper heuristics and proto-role/mission cues. Add `docs/ontogenesis_L0_center.md` for the Orientation Core (balance of L/S/C axes).

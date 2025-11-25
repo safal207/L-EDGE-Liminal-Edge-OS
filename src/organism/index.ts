@@ -20,5 +20,6 @@ export * from './cosmic/cosmic_micro_explorer';
 export * from './cosmic/cosmic_pattern_weaver';
 export * from './cosmic/L4_cosmic_apprentice';
 export * from './cosmic/L5_cosmic_navigator';
+export * from './orientation/L0_center';
 export * from './skills/L4_skill_cluster';
 export * from './sequencing/L4_sequence';
