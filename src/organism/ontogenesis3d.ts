@@ -13,6 +13,7 @@ import type { PolaritySnapshot } from './orientation/L0_polarity';
 import type { LoadProfile } from './orientation/L0_load_profile';
 import type { FuzzyBoundsSnapshot } from './orientation/L0_fuzzy_bounds';
 import type { CerebellumSnapshot } from './orientation/L0_cerebellum';
+import type { AxisCouplingSnapshot } from './orientation/L0_axis_coupling';
 
 export type AssemblyPointId =
   | 1
@@ -61,6 +62,7 @@ export interface OntogenesisVector {
   polarity?: PolaritySnapshot;
   loadProfile?: LoadProfile;
   fuzzyBounds?: FuzzyBoundsSnapshot;
+  axisCoupling?: AxisCouplingSnapshot;
   cerebellum?: CerebellumSnapshot;
   cosmicApprenticeRole?: CosmicApprenticeRole;
   cosmicApprenticeAlignment?: number;
@@ -168,6 +170,7 @@ export class Ontogenesis3D {
     polarity?: PolaritySnapshot;
     loadProfile?: LoadProfile;
     fuzzyBounds?: FuzzyBoundsSnapshot;
+    axisCoupling?: AxisCouplingSnapshot;
     cerebellum?: CerebellumSnapshot;
     resonance?: FuzzyLevel;
     globalMode?: StringMode;
@@ -256,6 +259,10 @@ export class Ontogenesis3D {
       summaryParts.push(`yin/yang drift=${params.polarity.yinYangDrift.toFixed(2)}`);
     }
 
+    if (params.axisCoupling?.resonanceFlow !== undefined) {
+      summaryParts.push(`axis flow=${params.axisCoupling.resonanceFlow.toFixed(2)}`);
+    }
+
     if (params.loadProfile?.yinBias !== undefined) {
       summaryParts.push(`load bias=${params.loadProfile.yinBias.toFixed(2)}`);
     }
@@ -302,6 +309,7 @@ export class Ontogenesis3D {
       polarity: params.polarity,
       loadProfile: params.loadProfile,
       fuzzyBounds: params.fuzzyBounds,
+      axisCoupling: params.axisCoupling,
       cerebellum: params.cerebellum,
       resonance: params.resonance,
       globalMode: params.globalMode,

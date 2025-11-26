@@ -1,6 +1,7 @@
 import type { OrientationSnapshot } from './L0_center';
 import type { AxisPolarity, PolaritySnapshot } from './L0_polarity';
 import type { LoadProfile } from './L0_load_profile';
+import type { AxisCouplingSnapshot } from './L0_axis_coupling';
 import type { AxisFuzzyBands, FuzzyBoundsSnapshot } from './L0_fuzzy_bounds';
 
 export type CerebellumMode = 'soft' | 'balanced' | 'strict';
@@ -33,6 +34,7 @@ export interface CerebellumSnapshot {
   axisImbalanceIndex: number; // 0..1
   stabilityScore: number; // 0..1
   smoothnessScore: number; // 0..1
+  axisCoupling?: AxisCouplingSnapshot;
   note: string;
 }
 
@@ -82,6 +84,7 @@ export function runCerebellumStep(
   polarity: PolaritySnapshot,
   load: LoadProfile,
   fuzzy: FuzzyBoundsSnapshot,
+  coupling?: AxisCouplingSnapshot,
   config: CerebellumConfig = DEFAULT_CEREBELLUM_CONFIG,
 ): CerebellumSnapshot {
   const { smoothingFactor, maxCorrectionPerStep } = config;
@@ -99,7 +102,7 @@ export function runCerebellumStep(
   const smoothnessScore = clamp01(
     (corrL.smoothnessGain + corrS.smoothnessGain + corrC.smoothnessGain) / 3,
   );
-  const stabilityScore = computeStabilityScore(recalculated, orientation);
+  const stabilityScore = computeStabilityScore(recalculated, orientation, coupling);
 
   const totalCorrectionMagnitude = clamp01(
     avg([axisCorrectionMagnitude(corrL), axisCorrectionMagnitude(corrS), axisCorrectionMagnitude(corrC)]),
@@ -110,7 +113,12 @@ export function runCerebellumStep(
   );
   const axisImbalanceIndex = clamp01(axisImbalanceFromCorrections(corrL, corrS, corrC));
 
-  const adjustedLoad = adjustLoadProfileWithCerebellum(load, recalculated, stabilityScore);
+  const adjustedLoad = adjustLoadProfileWithCerebellum(
+    load,
+    recalculated,
+    stabilityScore,
+    coupling,
+  );
 
   const note =
     `Cerebellum(mode=${config.mode}): ` +
@@ -130,6 +138,7 @@ export function runCerebellumStep(
       S: corrS,
       C: corrC,
     },
+    axisCoupling: coupling,
     totalCorrectionMagnitude,
     overshootRisk,
     axisImbalanceIndex,
@@ -192,6 +201,7 @@ function adjustLoadProfileWithCerebellum(
   load: LoadProfile,
   polarity: PolaritySnapshot,
   stabilityScore: number,
+  coupling?: AxisCouplingSnapshot,
 ): LoadProfile {
   let {
     globalStress,
@@ -216,8 +226,10 @@ function adjustLoadProfileWithCerebellum(
   socialFocus -= 0.02 * instability;
 
   const updatedNote = note
-    ? `${note} | cerebellumAdjusted(stability=${stability.toFixed(2)})`
-    : `cerebellumAdjusted(stability=${stability.toFixed(2)})`;
+    ? `${note} | cerebellumAdjusted(stability=${stability.toFixed(2)}` +
+      `${coupling ? `, couplingFlow=${coupling.resonanceFlow.toFixed(2)}` : ''})`
+    : `cerebellumAdjusted(stability=${stability.toFixed(2)}` +
+      `${coupling ? `, couplingFlow=${coupling.resonanceFlow.toFixed(2)}` : ''})`;
 
   return {
     globalStress: clamp01(globalStress),
@@ -233,12 +245,17 @@ function adjustLoadProfileWithCerebellum(
   };
 }
 
-function computeStabilityScore(polarity: PolaritySnapshot, orientation: OrientationSnapshot): number {
+function computeStabilityScore(
+  polarity: PolaritySnapshot,
+  orientation: OrientationSnapshot,
+  coupling?: AxisCouplingSnapshot,
+): number {
   const driftPenalty = Math.abs(polarity.yinYangDrift ?? 0);
   const driftScore = 1 / (1 + driftPenalty);
   const tauScore = clamp01(polarity.globalTau ?? polarity.tauMaturityIndex ?? 0);
   const balanceScore = clamp01(orientation.balanceIndex ?? 0.5);
-  return clamp01(avg([driftScore, tauScore, balanceScore]));
+  const couplingScore = coupling ? clamp01(coupling.stabilityIndex) : 0.5;
+  return clamp01(avg([driftScore, tauScore, balanceScore, couplingScore]));
 }
 
 function rebuildPolaritySnapshot(base: PolaritySnapshot): PolaritySnapshot {
