@@ -16,6 +16,7 @@ import type { CerebellumSnapshot } from './orientation/L0_cerebellum';
 import type { AxisCouplingSnapshot } from './orientation/L0_axis_coupling';
 import type { ResonanceSnapshot } from './resonance/L6_resonance_field';
 import type { SomaFlowSnapshot } from './flow/L7_soma_flow';
+import type { CrystalObserverSnapshot } from './observer/L8_crystal_observer';
 
 export type AssemblyPointId =
   | 1
@@ -68,6 +69,7 @@ export interface OntogenesisVector {
   cerebellum?: CerebellumSnapshot;
   resonanceField?: ResonanceSnapshot;
   flow?: SomaFlowSnapshot;
+  crystal?: CrystalObserverSnapshot;
   cosmicApprenticeRole?: CosmicApprenticeRole;
   cosmicApprenticeAlignment?: number;
   cosmicApprenticeReadiness?: number;
@@ -178,6 +180,7 @@ export class Ontogenesis3D {
     cerebellum?: CerebellumSnapshot;
     resonanceField?: ResonanceSnapshot;
     flow?: SomaFlowSnapshot;
+    crystal?: CrystalObserverSnapshot;
     resonance?: FuzzyLevel;
     globalMode?: StringMode;
     trustLevel?: number;
@@ -291,6 +294,10 @@ export class Ontogenesis3D {
       summaryParts.push(`pattern role: ${params.cosmicPatternRole}`);
     }
 
+    if (params.crystal?.crystalStabilityIndex !== undefined) {
+      summaryParts.push(`crystal=${params.crystal.crystalStabilityIndex.toFixed(2)}`);
+    }
+
     if (params.embodimentScore !== undefined) {
       summaryParts.push(`embodiment=${params.embodimentScore.toFixed(2)}`);
     }
@@ -329,6 +336,7 @@ export class Ontogenesis3D {
       cerebellum: params.cerebellum,
       resonanceField: params.resonanceField,
       flow: params.flow,
+      crystal: params.crystal,
       resonance: params.resonance,
       globalMode: params.globalMode,
       trustLevel: params.trustLevel,
