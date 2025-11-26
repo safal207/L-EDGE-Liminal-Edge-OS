@@ -208,3 +208,22 @@ Why it matters:
 - lowers brittleness by avoiding sharp stress spikes and promoting gentle integration when stability is high.
 
 This makes L0 feel less like a discrete switchboard and more like a living cerebellum that quietly steadies the organism’s posture in motion.
+
+### Cerebellum modes (soft / balanced / strict)
+
+- **soft** — минимальные дельты, высокая инерция: подходит для бережных сценариев (детские, восстановление, терапевтические сессии).
+- **balanced** — стандартный режим (по умолчанию), ровное сглаживание без резких скачков.
+- **strict** — агрессивнее гасит перекосы и быстрее тянет к целевым зонам (полезно для стресс-тестов или прод-стабилизации).
+
+Режим задаётся переменной окружения `LIMINAL_CEREBELLUM_MODE` (`soft` | `balanced` | `strict`). Если не указано, используется `balanced`.
+
+### Cerebellum diagnostics
+
+`CerebellumSnapshot` теперь включает быстрые индикаторы, которые можно логировать или выводить на дашборд:
+
+- `totalCorrectionMagnitude` — суммарная сила микрокоррекций за шаг (0..1).
+- `overshootRisk` — риск «перекатывания» за целевые значения (учитывает величину коррекции и τ-устойчивость).
+- `axisImbalanceIndex` — насколько сильно расходятся оси L/S/C по коррекциям.
+- `mode` — активный пресет мозжечка (soft / balanced / strict).
+
+Идея: видеть не только «куда» двигается организм, но и «как мягко» он это делает, где может возникнуть перелёт и какая ось требует больше внимания.

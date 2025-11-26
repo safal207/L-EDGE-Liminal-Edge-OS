@@ -3,7 +3,10 @@ import type { AxisPolarity, PolaritySnapshot } from './L0_polarity';
 import type { LoadProfile } from './L0_load_profile';
 import type { AxisFuzzyBands, FuzzyBoundsSnapshot } from './L0_fuzzy_bounds';
 
+export type CerebellumMode = 'soft' | 'balanced' | 'strict';
+
 export interface CerebellumConfig {
+  mode: CerebellumMode;
   smoothingFactor: number; // 0..1 — how strongly we move toward targets
   maxCorrectionPerStep: number; // 0..1 — caps per-step adjustments
   inertia: number; // 0..1 — placeholder for future smoothing via history
@@ -25,16 +28,48 @@ export interface CerebellumSnapshot {
     S: AxisMicroCorrection;
     C: AxisMicroCorrection;
   };
+  totalCorrectionMagnitude: number; // 0..1
+  overshootRisk: number; // 0..1
+  axisImbalanceIndex: number; // 0..1
   stabilityScore: number; // 0..1
   smoothnessScore: number; // 0..1
   note: string;
 }
 
-export const DEFAULT_CEREBELLUM_CONFIG: CerebellumConfig = {
+export const SOFT_CEREBELLUM_CONFIG: CerebellumConfig = {
+  mode: 'soft',
+  smoothingFactor: 0.25,
+  maxCorrectionPerStep: 0.08,
+  inertia: 0.85,
+};
+
+export const BALANCED_CEREBELLUM_CONFIG: CerebellumConfig = {
+  mode: 'balanced',
   smoothingFactor: 0.35,
   maxCorrectionPerStep: 0.15,
   inertia: 0.7,
 };
+
+export const STRICT_CEREBELLUM_CONFIG: CerebellumConfig = {
+  mode: 'strict',
+  smoothingFactor: 0.5,
+  maxCorrectionPerStep: 0.25,
+  inertia: 0.5,
+};
+
+export const DEFAULT_CEREBELLUM_CONFIG = BALANCED_CEREBELLUM_CONFIG;
+
+export function resolveCerebellumConfigFromMode(mode: string | undefined): CerebellumConfig {
+  switch (mode) {
+    case 'soft':
+      return SOFT_CEREBELLUM_CONFIG;
+    case 'strict':
+      return STRICT_CEREBELLUM_CONFIG;
+    case 'balanced':
+    default:
+      return BALANCED_CEREBELLUM_CONFIG;
+  }
+}
 
 interface AxisTarget {
   yin: number;
@@ -66,14 +101,25 @@ export function runCerebellumStep(
   );
   const stabilityScore = computeStabilityScore(recalculated, orientation);
 
+  const totalCorrectionMagnitude = clamp01(
+    avg([axisCorrectionMagnitude(corrL), axisCorrectionMagnitude(corrS), axisCorrectionMagnitude(corrC)]),
+  );
+  const overshootRisk = clamp01(
+    totalCorrectionMagnitude *
+      (1 - clamp01(recalculated.globalTau ?? recalculated.tauMaturityIndex ?? 0)),
+  );
+  const axisImbalanceIndex = clamp01(axisImbalanceFromCorrections(corrL, corrS, corrC));
+
   const adjustedLoad = adjustLoadProfileWithCerebellum(load, recalculated, stabilityScore);
 
   const note =
-    `Cerebellum: ` +
+    `Cerebellum(mode=${config.mode}): ` +
     `L(dY=${corrL.yinDelta.toFixed(3)},dJ=${corrL.yangDelta.toFixed(3)},dT=${corrL.tauDelta.toFixed(3)}) ` +
     `S(dY=${corrS.yinDelta.toFixed(3)},dJ=${corrS.yangDelta.toFixed(3)},dT=${corrS.tauDelta.toFixed(3)}) ` +
     `C(dY=${corrC.yinDelta.toFixed(3)},dJ=${corrC.yangDelta.toFixed(3)},dT=${corrC.tauDelta.toFixed(3)}); ` +
-    `stability=${stabilityScore.toFixed(2)}, smoothness=${smoothnessScore.toFixed(2)}.`;
+    `stability=${stabilityScore.toFixed(2)}, smoothness=${smoothnessScore.toFixed(2)}, ` +
+    `totalCorr=${totalCorrectionMagnitude.toFixed(2)}, overshootRisk=${overshootRisk.toFixed(2)}, ` +
+    `axisImbalance=${axisImbalanceIndex.toFixed(2)}.`;
 
   return {
     config,
@@ -84,6 +130,9 @@ export function runCerebellumStep(
       S: corrS,
       C: corrC,
     },
+    totalCorrectionMagnitude,
+    overshootRisk,
+    axisImbalanceIndex,
     stabilityScore,
     smoothnessScore,
     note,
@@ -217,6 +266,24 @@ function rebuildPolaritySnapshot(base: PolaritySnapshot): PolaritySnapshot {
     tauMaturityIndex,
     note,
   };
+}
+
+function axisCorrectionMagnitude(corr: AxisMicroCorrection): number {
+  return clamp01(Math.abs(corr.yinDelta) + Math.abs(corr.yangDelta) + Math.abs(corr.tauDelta));
+}
+
+function axisImbalanceFromCorrections(
+  L: AxisMicroCorrection,
+  S: AxisMicroCorrection,
+  C: AxisMicroCorrection,
+): number {
+  const mL = axisCorrectionMagnitude(L);
+  const mS = axisCorrectionMagnitude(S);
+  const mC = axisCorrectionMagnitude(C);
+  const avgMag = avg([mL, mS, mC]);
+  if (avgMag === 0) return 0;
+  const spread = avg([Math.abs(mL - avgMag), Math.abs(mS - avgMag), Math.abs(mC - avgMag)]);
+  return clamp01(spread / (avgMag + 1e-6));
 }
 
 function clamp01(x: number): number {

@@ -173,6 +173,7 @@
 - Документация: `docs/liminal_ontogenesis_3d.md` + `docs/liminal_benchmark_dev_map.md` (скетч метрик L/S/C) + `docs/ontogenesis_L0_center.md` (Orientation Core + polarity/fuzzy bounds + cerebellum smoothing) + `docs/ontogenesis_L1.md` (корневой слой) + `docs/ontogenesis_L2.md` (Body & Grounding) + `docs/ontogenesis_L3.md` (Play & Patterning) + `docs/ontogenesis_L4.md` (Mastery & Role Embedding) + `docs/ontogenesis_L5.md` (Meaning & Direction).
 - Примеры: `examples/ontogenesis_watch.js` (живой пульс), `examples/ontogenesis_metrics.js` (быстрый расчёт L_volatility / S_growth / C_switches), `examples/ontogenesis_l4_watch.js` (L4 mastery/skills/apprentice фокус, цветовая подсветка), `examples/ontogenesis_l5_watch.js` (L5 meaning/purpose/moral фокус), `examples/orientation_watch.js` (L0 balance трёх осей + инь/ян дрейф). Быстрый запуск: `npm run watch:l4`, `npm run watch:l5`, `npm run watch:orientation`.
 - Пресеты L0: переключайте характер баланса осей через `LIMINAL_ORIENTATION_PRESET` (`default`/`childlike`/`research`/`guardian`), см. `docs/ontogenesis_L0_center.md`.
+- Мозжечок L0: режимы `soft`/`balanced`/`strict` настраиваются через `LIMINAL_CEREBELLUM_MODE`; в `CerebellumSnapshot` теперь есть диагностические метрики (totalCorrectionMagnitude, overshootRisk, axisImbalanceIndex) для логов/дашбордов.
 - Коротко о пресетах: **childlike** — мягкий и играющий, рано снимает перегруз; **research** — строгий, фиксирует перекосы только при явных сигналах; **guardian** — наставник/охранник, чутко ловит завалы.
 
 ---
