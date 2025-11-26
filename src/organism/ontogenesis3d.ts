@@ -14,6 +14,7 @@ import type { LoadProfile } from './orientation/L0_load_profile';
 import type { FuzzyBoundsSnapshot } from './orientation/L0_fuzzy_bounds';
 import type { CerebellumSnapshot } from './orientation/L0_cerebellum';
 import type { AxisCouplingSnapshot } from './orientation/L0_axis_coupling';
+import type { ResonanceSnapshot } from './resonance/L6_resonance_field';
 
 export type AssemblyPointId =
   | 1
@@ -64,6 +65,7 @@ export interface OntogenesisVector {
   fuzzyBounds?: FuzzyBoundsSnapshot;
   axisCoupling?: AxisCouplingSnapshot;
   cerebellum?: CerebellumSnapshot;
+  resonanceField?: ResonanceSnapshot;
   cosmicApprenticeRole?: CosmicApprenticeRole;
   cosmicApprenticeAlignment?: number;
   cosmicApprenticeReadiness?: number;
@@ -172,6 +174,7 @@ export class Ontogenesis3D {
     fuzzyBounds?: FuzzyBoundsSnapshot;
     axisCoupling?: AxisCouplingSnapshot;
     cerebellum?: CerebellumSnapshot;
+    resonanceField?: ResonanceSnapshot;
     resonance?: FuzzyLevel;
     globalMode?: StringMode;
     trustLevel?: number;
@@ -271,6 +274,10 @@ export class Ontogenesis3D {
       summaryParts.push(`cerebellum stability=${params.cerebellum.stabilityScore.toFixed(2)}`);
     }
 
+    if (params.resonanceField?.coherenceIndex !== undefined) {
+      summaryParts.push(`resonance coh=${params.resonanceField.coherenceIndex.toFixed(2)}`);
+    }
+
     if (params.cosmicPatternRole) {
       summaryParts.push(`pattern role: ${params.cosmicPatternRole}`);
     }
@@ -311,6 +318,7 @@ export class Ontogenesis3D {
       fuzzyBounds: params.fuzzyBounds,
       axisCoupling: params.axisCoupling,
       cerebellum: params.cerebellum,
+      resonanceField: params.resonanceField,
       resonance: params.resonance,
       globalMode: params.globalMode,
       trustLevel: params.trustLevel,

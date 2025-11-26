@@ -77,6 +77,7 @@ export function computeAxisCoupling(
     polarity.L,
     polarity.C,
     weights,
+    stiffness.LC ?? 1,
   );
   const SC = pairCoupling(
     orientation.S_level,
