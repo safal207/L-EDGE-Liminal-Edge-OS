@@ -15,6 +15,7 @@ import type { FuzzyBoundsSnapshot } from './orientation/L0_fuzzy_bounds';
 import type { CerebellumSnapshot } from './orientation/L0_cerebellum';
 import type { AxisCouplingSnapshot } from './orientation/L0_axis_coupling';
 import type { ResonanceSnapshot } from './resonance/L6_resonance_field';
+import type { SomaFlowSnapshot } from './flow/L7_soma_flow';
 
 export type AssemblyPointId =
   | 1
@@ -66,6 +67,7 @@ export interface OntogenesisVector {
   axisCoupling?: AxisCouplingSnapshot;
   cerebellum?: CerebellumSnapshot;
   resonanceField?: ResonanceSnapshot;
+  flow?: SomaFlowSnapshot;
   cosmicApprenticeRole?: CosmicApprenticeRole;
   cosmicApprenticeAlignment?: number;
   cosmicApprenticeReadiness?: number;
@@ -175,6 +177,7 @@ export class Ontogenesis3D {
     axisCoupling?: AxisCouplingSnapshot;
     cerebellum?: CerebellumSnapshot;
     resonanceField?: ResonanceSnapshot;
+    flow?: SomaFlowSnapshot;
     resonance?: FuzzyLevel;
     globalMode?: StringMode;
     trustLevel?: number;
@@ -258,6 +261,12 @@ export class Ontogenesis3D {
       summaryParts.push(`L0 balance=${params.orientation.balanceIndex.toFixed(2)}`);
     }
 
+    if (params.flow?.globalPressureIndex !== undefined) {
+      summaryParts.push(
+        `flow P=${params.flow.globalPressureIndex.toFixed(2)} N=${params.flow.globalNourishmentIndex.toFixed(2)}`,
+      );
+    }
+
     if (params.polarity?.yinYangDrift !== undefined) {
       summaryParts.push(`yin/yang drift=${params.polarity.yinYangDrift.toFixed(2)}`);
     }
@@ -319,6 +328,7 @@ export class Ontogenesis3D {
       axisCoupling: params.axisCoupling,
       cerebellum: params.cerebellum,
       resonanceField: params.resonanceField,
+      flow: params.flow,
       resonance: params.resonance,
       globalMode: params.globalMode,
       trustLevel: params.trustLevel,
