@@ -1,5 +1,5 @@
 import type { AxisId } from '@/core/types/ontogenesis';
-import type { OntogenesisVector } from '../ontogenesis3d';
+import type { OntogenesisVector } from '@/organism/ontogenesis3d';
 import type { PolaritySnapshot } from '../orientation/L0_polarity';
 import type { SomaFlowSnapshot } from '../flow/L7_soma_flow';
 import type { ResonanceSnapshot } from '../resonance/L6_resonance_field';

@@ -1,7 +1,7 @@
 import type { FuzzyEvolutionState } from '../../../core/fuzzyEvolution/types';
 import type { ResonanceTuningPlan } from '../../../core/resonanceTuner/types';
 import type { CivilizationState } from '../../../core/civilization/types';
-import type { OntogenesisVector } from '../ontogenesis3d';
+import type { OntogenesisVector } from '@/organism/ontogenesis3d';
 
 export interface L17Context {
   fuzzy: FuzzyEvolutionState | null;

@@ -1,5 +1,5 @@
 import type { CivilizationState } from '../../../core/civilization/types';
-import type { OntogenesisVector } from '../ontogenesis3d';
+import type { OntogenesisVector } from '@/organism/ontogenesis3d';
 
 export type ProtoRoleKind =
   | 'apprentice_engineer'

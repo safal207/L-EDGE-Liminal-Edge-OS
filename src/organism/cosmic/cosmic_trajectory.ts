@@ -1,4 +1,4 @@
-import type { CosmicRoleKind, OntogenesisVector } from '../ontogenesis3d';
+import type { CosmicRoleKind, OntogenesisVector } from '@/organism/ontogenesis3d';
 
 export type ProtoMissionKind =
   | 'ai_field_apprentice'
