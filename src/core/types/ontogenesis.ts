@@ -24,6 +24,9 @@ export interface OntogenesisVectorL9State {
   totalStress: number;
   totalRecovery: number;
   mode: string;
+  stressIndex?: number;
+  recoveryScore?: number;
+  overloadRisk?: number;
   overloadAxes?: AxisId[];
   note?: string;
 }

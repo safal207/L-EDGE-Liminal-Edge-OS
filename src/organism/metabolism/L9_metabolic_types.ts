@@ -16,6 +16,10 @@ export interface MetabolicSnapshot {
   totalStress: number; // 0..1
   totalRecovery: number; // 0..1
 
+  stressIndex: number; // 0..1 — общий уровень напряжения
+  recoveryScore: number; // 0..1 — способность восстановиться
+  overloadRisk: number; // 0..1 — риск перегруза в ближайшей перспективе
+
   axes: AxisMetabolicState[];
 
   overloadAxes: AxisId[];

@@ -8,6 +8,9 @@ L9 добавляет метаболическое наблюдение за т�
 
 - **energy / stress / recovery** — для каждой оси L/S/C рассчитывается
   доступная энергия, уровень стресса и глубина восстановления.
+- **stressIndex / recoveryScore / overloadRisk** — агрегированные
+  метрики по всему организму: насколько он напряжён, насколько умеет
+  восстановиться и близок ли к перегрузу.
 - **metabolicMode** — глобальный режим системы:
   - `normal` — нагрузка в пределах нормы,
   - `overload` — заметный перегруз, нужен slowdown,
@@ -34,6 +37,9 @@ interface MetabolicSnapshot {
   totalEnergy: number;
   totalStress: number;
   totalRecovery: number;
+  stressIndex: number;
+  recoveryScore: number;
+  overloadRisk: number;
   axes: AxisMetabolicState[]; // L/S/C
   overloadAxes: AxisId[];
   recommendedSlowdown: boolean;
@@ -41,6 +47,19 @@ interface MetabolicSnapshot {
   note?: string;
 }
 ```
+
+### Быстрый просмотр из консоли
+
+Запусти пример `examples/l9_metabolism_watch.ts` (Node 18+, `ts-node`):
+
+```bash
+npm run l9:watch
+# или
+ts-node examples/l9_metabolism_watch.ts
+```
+
+Скрипт выводит по готовым сценариям energy/stress/recovery, stressIndex,
+recoveryScore и overloadRisk, а также рекомендации slowdown/deepRest.
 
 ## Как читать
 

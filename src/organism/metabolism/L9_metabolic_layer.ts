@@ -42,20 +42,30 @@ export const runL9MetabolicStep = (inputs: MetabolicInputs): MetabolicSnapshot =
 
   const totalEnergy = clamp01((axisL.energy + axisS.energy + axisC.energy) / 3);
   const totalStress = clamp01((axisL.stress + axisS.stress + axisC.stress) / 3);
-  const totalRecovery = clamp01(((axisL.recovery + axisS.recovery + axisC.recovery) / 3) * 0.7 + recentRecoveryIndex * 0.3);
+  const totalRecoveryRaw = clamp01((axisL.recovery + axisS.recovery + axisC.recovery) / 3);
+  const totalRecovery = clamp01(totalRecoveryRaw * 0.7 + recentRecoveryIndex * 0.3);
+
+  const stressIndex = totalStress;
+  const recoveryScore = clamp01((totalRecovery + resonanceQuality) / 2);
+  const overloadRisk = clamp01(stressIndex * (1 - recoveryScore));
 
   const mode = decideMetabolicMode(totalStress, totalRecovery);
   const overloadAxes = axes.filter((axis) => axis.stress > 0.7).map((axis) => axis.axisId);
   const recommendedSlowdown = mode === 'overload' || mode === 'recovery' || mode === 'deep_recovery';
   const recommendedDeepRest = mode === 'deep_recovery';
 
-  const note = `L9: mode=${mode}, energy=${totalEnergy.toFixed(2)}, stress=${totalStress.toFixed(2)}, recovery=${totalRecovery.toFixed(2)}, resonance=${resonanceQuality.toFixed(2)}`;
+  const note = `L9: mode=${mode}, energy=${totalEnergy.toFixed(2)}, stress=${totalStress.toFixed(2)}, recovery=${totalRecovery.toFixed(
+    2,
+  )}, stressIndex=${stressIndex.toFixed(2)}, recoveryScore=${recoveryScore.toFixed(2)}, overloadRisk=${overloadRisk.toFixed(2)}, resonance=${resonanceQuality.toFixed(2)}`;
 
   return {
     mode,
     totalEnergy,
     totalStress,
     totalRecovery,
+    stressIndex,
+    recoveryScore,
+    overloadRisk,
     axes,
     overloadAxes,
     recommendedSlowdown,
@@ -65,4 +75,3 @@ export const runL9MetabolicStep = (inputs: MetabolicInputs): MetabolicSnapshot =
 };
 
 export type { AxisMetabolicState, MetabolicSnapshot, MetabolicMode } from './L9_metabolic_types';
-
