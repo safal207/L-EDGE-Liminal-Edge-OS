@@ -17,6 +17,7 @@ import type { AxisCouplingSnapshot } from './orientation/L0_axis_coupling';
 import type { ResonanceSnapshot } from './resonance/L6_resonance_field';
 import type { SomaFlowSnapshot } from './flow/L7_soma_flow';
 import type { CrystalObserverSnapshot } from './observer/L8_crystal_observer';
+import type { MetabolicSnapshot } from './metabolism/L9_metabolic_layer';
 
 export type AssemblyPointId =
   | 1
@@ -69,6 +70,7 @@ export interface OntogenesisVector {
   cerebellum?: CerebellumSnapshot;
   resonanceField?: ResonanceSnapshot;
   flow?: SomaFlowSnapshot;
+  L9?: MetabolicSnapshot;
   crystal?: CrystalObserverSnapshot;
   cosmicApprenticeRole?: CosmicApprenticeRole;
   cosmicApprenticeAlignment?: number;

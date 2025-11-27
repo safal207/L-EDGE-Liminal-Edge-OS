@@ -19,6 +19,15 @@ export interface PolaritySnapshot {
   taoLevel: number;
 }
 
+export interface OntogenesisVectorL9State {
+  totalEnergy: number;
+  totalStress: number;
+  totalRecovery: number;
+  mode: string;
+  overloadAxes?: AxisId[];
+  note?: string;
+}
+
 export interface OntogenesisVector {
   L0?: unknown;
   L1?: unknown;
@@ -39,6 +48,7 @@ export interface OntogenesisVector {
     crystalStabilityIndex: number;
     note?: string;
   };
+  L9?: OntogenesisVectorL9State;
   timestamp?: number;
 }
 
