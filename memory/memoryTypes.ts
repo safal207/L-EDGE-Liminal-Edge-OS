@@ -1,4 +1,4 @@
-import { PerceptionStatus } from '../perception/types';
+import { PerceptionLevel } from '../perception/types';
 
 export type MemorySource =
   | 'circulation'
@@ -17,7 +17,7 @@ export interface MemoryEvent {
   source: MemorySource | string;
   type: string;
   intensity?: number; // normalized 0..1
-  payload?: Record<string, unknown>;
+  payload?: unknown;
 }
 
 export interface MemorySnapshot {
@@ -55,7 +55,7 @@ export interface RecallResult {
 }
 
 export interface MemoryPerceptionBridge {
-  perceptionStatus: PerceptionStatus;
+  perceptionStatus: PerceptionLevel;
   anomalies: number;
   noiseLevel: number;
 }
