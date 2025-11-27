@@ -146,3 +146,10 @@ Full roadmap: [docs/ROADMAP.md](docs/ROADMAP.md)
 
 ## 🤝 License
 MIT — see [LICENSE](LICENSE).
+
+### Genesis Seeds (Assembly Point 14)
+A planning layer that listens to Origin, Pathway, FuzzyEvolution, and ResonanceTuner and emits a `GenesisPlan`:
+- **ready** seeds that feel safe to sprout (soma cells, metric probes, resonance agents, memory traces, integration tasks).
+- **deferred** seeds that should wait for calmer conditions.
+
+API: `GET /api/system/genesis/plan` returns the latest readiness map for operators to act on.
