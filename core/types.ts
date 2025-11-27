@@ -177,6 +177,7 @@ export interface HeartbeatState {
   pathway?: HeartbeatPathway;
   fuzzyEvolution?: HeartbeatFuzzyEvolution;
   tuning?: HeartbeatTuning;
+  genesis?: HeartbeatGenesis;
   metaOrchestrator?: MetaSystemSnapshot;
 }
 
@@ -413,5 +414,12 @@ export interface HeartbeatFuzzyEvolution {
 export interface HeartbeatTuning {
   mode: string;
   actions: number;
+  summary: string;
+}
+
+export interface HeartbeatGenesis {
+  mode: string;
+  ready: number;
+  deferred: number;
   summary: string;
 }
