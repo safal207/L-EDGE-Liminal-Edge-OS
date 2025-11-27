@@ -1,10 +1,11 @@
+import type { AxisId } from '@/core/types/ontogenesis';
 import type { OrientationSnapshot } from '../orientation/L0_center';
 import type { LoadProfile } from '../orientation/L0_load_profile';
 import type { CerebellumSnapshot } from '../orientation/L0_cerebellum';
 import type { AxisCouplingSnapshot, AxisPair } from '../orientation/L0_axis_coupling';
 import type { ResonanceSnapshot } from '../resonance/L6_resonance_field';
 
-type Axis = 'L' | 'S' | 'C';
+type Axis = AxisId;
 
 export interface FlowConfig {
   sensitivity: number; // 0..1
