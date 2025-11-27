@@ -1,3 +1,7 @@
+import type { CrystalObserverSnapshot } from '@/organism/observer/L8_crystal_observer';
+import type { OrientationSnapshot } from '@/organism/orientation/L0_center';
+import type { MetabolicSnapshot } from '@/organism/metabolism/L9_metabolic_types';
+
 export type AxisId = 'L' | 'S' | 'C';
 
 export interface AxisState {
@@ -19,39 +23,21 @@ export interface PolaritySnapshot {
   taoLevel: number;
 }
 
-export interface OntogenesisVectorL9State {
-  totalEnergy: number;
-  totalStress: number;
-  totalRecovery: number;
-  mode: string;
-  stressIndex?: number;
-  recoveryScore?: number;
-  overloadRisk?: number;
-  overloadAxes?: AxisId[];
+export interface MetabolismVectorState {
+  stressIndex: number;
+  recoveryScore: number;
+  overloadRisk: number;
+  mode: MetabolicSnapshot['mode'];
+  overloadAxes: AxisId[];
   note?: string;
 }
 
 export interface OntogenesisVector {
-  L0?: unknown;
-  L1?: unknown;
-  L2?: unknown;
-  L3?: unknown;
-  L4?: unknown;
-  L5?: unknown;
-  L6?: unknown;
-  L7?: {
-    triAxis: TriAxisState;
-    globalNourishmentIndex: number;
-    globalPressureIndex: number;
-  };
-  L8?: {
-    integrityIndex: number;
-    coherenceIndex: number;
-    planAlignmentIndex: number;
-    crystalStabilityIndex: number;
-    note?: string;
-  };
-  L9?: OntogenesisVectorL9State;
+  triAxis: TriAxisState;
+  stage: number; // L0..L9 (и далее)
+  orientation?: OrientationSnapshot;
+  observer?: CrystalObserverSnapshot;
+  metabolism?: MetabolismVectorState;
   timestamp?: number;
 }
 

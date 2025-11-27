@@ -1,17 +1,12 @@
 #!/usr/bin/env ts-node
-import { runL9MetabolicStep } from '@/organism/metabolism/L9_metabolic_layer';
+import { printMetabolism } from '@/debug/printMetabolism';
 import type { TriAxisState } from '@/core/types/ontogenesis';
+import { runL9MetabolicStep } from '@/organism/metabolism/L9_metabolic_layer';
 
 const baseTriAxis: TriAxisState = {
   L: { id: 'L', value: 0.6, nourishment: 0.7, pressure: 0.3 },
   S: { id: 'S', value: 0.5, nourishment: 0.5, pressure: 0.4 },
   C: { id: 'C', value: 0.4, nourishment: 0.6, pressure: 0.2 },
-};
-
-const bar = (value: number, length = 20): string => {
-  const filled = Math.round(value * length);
-  const empty = Math.max(0, length - filled);
-  return '█'.repeat(filled) + '·'.repeat(empty);
 };
 
 interface Scenario {
@@ -65,20 +60,19 @@ function printScenario(scenario: Scenario) {
   console.log('\n==============================');
   console.log(`Сценарий: ${scenario.name}`);
   console.log('==============================');
-  console.log(`mode           : ${snapshot.mode}`);
-  console.log(`energy         : ${snapshot.totalEnergy.toFixed(2)}  ${bar(snapshot.totalEnergy)}`);
-  console.log(`stressIndex    : ${snapshot.stressIndex.toFixed(2)}  ${bar(snapshot.stressIndex)}`);
-  console.log(`recoveryScore  : ${snapshot.recoveryScore.toFixed(2)}  ${bar(snapshot.recoveryScore)}`);
-  console.log(`overloadRisk   : ${snapshot.overloadRisk.toFixed(2)}  ${bar(snapshot.overloadRisk)}`);
-
-  if (snapshot.overloadAxes.length > 0) {
-    console.log(`overloadAxes   : ${snapshot.overloadAxes.join(', ')} (оси в перегрузе)`);
-  } else {
-    console.log('overloadAxes   : нет осей в перегрузе');
-  }
-
-  console.log(`recommended    : slowdown=${snapshot.recommendedSlowdown}, deepRest=${snapshot.recommendedDeepRest}`);
-  console.log(`note           : ${snapshot.note ?? '-'}`);
+  printMetabolism({
+    stressIndex: snapshot.stressIndex,
+    recoveryScore: snapshot.recoveryScore,
+    overloadRisk: snapshot.overloadRisk,
+    mode: snapshot.mode,
+    overloadAxes: snapshot.overloadAxes,
+    note: snapshot.note,
+  });
+  console.log(
+    `recommendation: slowdown=${snapshot.recommendedSlowdown}, deepRest=${snapshot.recommendedDeepRest}, energy=${snapshot.totalEnergy.toFixed(
+      2,
+    )}`,
+  );
 }
 
 function main() {

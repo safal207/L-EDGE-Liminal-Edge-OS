@@ -17,6 +17,7 @@ import type { AxisCouplingSnapshot } from './orientation/L0_axis_coupling';
 import type { ResonanceSnapshot } from './resonance/L6_resonance_field';
 import type { SomaFlowSnapshot } from './flow/L7_soma_flow';
 import type { CrystalObserverSnapshot } from './observer/L8_crystal_observer';
+import type { AxisId, TriAxisState } from '@/core/types/ontogenesis';
 import type { MetabolicSnapshot } from './metabolism/L9_metabolic_layer';
 
 export type AssemblyPointId =
@@ -62,6 +63,8 @@ export interface OntogenesisVector {
   assemblyPoint: AssemblyPointId;
   socialAge: number;
   cosmicRole: CosmicRoleKind;
+  stage?: number;
+  triAxis?: TriAxisState;
   orientation?: OrientationSnapshot;
   polarity?: PolaritySnapshot;
   loadProfile?: LoadProfile;
@@ -70,6 +73,14 @@ export interface OntogenesisVector {
   cerebellum?: CerebellumSnapshot;
   resonanceField?: ResonanceSnapshot;
   flow?: SomaFlowSnapshot;
+  metabolism?: {
+    stressIndex: number;
+    recoveryScore: number;
+    overloadRisk: number;
+    mode: MetabolicSnapshot['mode'];
+    overloadAxes: AxisId[];
+    note?: string;
+  };
   L9?: MetabolicSnapshot;
   crystal?: CrystalObserverSnapshot;
   cosmicApprenticeRole?: CosmicApprenticeRole;
