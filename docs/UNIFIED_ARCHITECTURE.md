@@ -387,3 +387,10 @@ Iteration 1 добавляет каркас директории для кажд
 
 ### Perception (External Sensing)
 PerceptionEngine ingests external network/runtime/storage signals, classifies them into pressure/threat/opportunity categories, and feeds summaries into homeostasis, reflex, intent, and meta cycles. Health surfaces now include perception summaries alongside interoception metrics.
+
+### Assembly Point 14 – Genesis Seeds
+The Genesis layer composes a readiness plan from Origin, Pathway, FuzzyEvolution, and ResonanceTuner signals. It lists
+`ready` vs `deferred` seeds (soma cells, probes, resonance agents, memory traces, integration tasks) so new work grows
+in tune with the organism’s current vibration.
+
+API: `GET /api/system/genesis/plan`.
