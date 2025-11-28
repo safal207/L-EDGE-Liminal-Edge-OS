@@ -29,6 +29,104 @@ External systems **do not execute L13 directly**. They read `ResponseFrame.inten
 - Network layer reduces noisy traffic on `throttle` with high urgency.
 - LLM runtime opens a small experiment window when `open_exploration_window` arrives with high confidence.
 
+### Consumer playbook (practical snippets)
+
+Below are condensed patterns you can lift into real services. Each consumer listens to `lastResponseFrame` and reacts in its own domain without hard-coding transport logic.
+
+**Scheduler / orchestrator** — respect recovery and stabilization hints:
+
+```ts
+function tickScheduler(context: SystemContext) {
+  const frame = context.lastResponseFrame;
+  if (!frame) return;
+
+  for (const intent of frame.intents) {
+    if (intent.scope !== "scheduling") continue;
+
+    if (intent.kind === "enter_recovery_mode" && intent.confidence > 0.7) {
+      scheduler.setMode("recovery");
+      scheduler.pauseNonEssentialJobs();
+    }
+
+    if (intent.kind === "stabilize" && intent.strength !== "hint") {
+      scheduler.reduceParallelism(0.5);
+    }
+  }
+}
+```
+
+**Network / transport** — quiet noisy channels during overload:
+
+```ts
+function applyNetworkIntents(ctx: SystemContext, net: NetworkClient) {
+  const frame = ctx.lastResponseFrame;
+  if (!frame) return;
+
+  for (const intent of frame.intents) {
+    if (intent.scope !== "network") continue;
+
+    if (intent.kind === "pause_non_critical" && intent.urgency !== "low") {
+      net.pauseChannel("telemetry");
+      net.pauseChannel("debug_logs");
+    }
+
+    if (intent.kind === "throttle") {
+      const factor = Number(intent.params?.["max_load_factor"] ?? 0.7);
+      net.setMaxThroughputFraction(factor);
+    }
+  }
+}
+```
+
+**LLM runtime / agent core** — open and close exploratory windows safely:
+
+```ts
+function updateExplorationMode(ctx: SystemContext, runtime: LlmRuntime) {
+  const frame = ctx.lastResponseFrame;
+  if (!frame) return;
+
+  let open = false;
+  let close = false;
+
+  for (const intent of frame.intents) {
+    if (intent.scope !== "llm_runtime") continue;
+    if (intent.kind === "open_exploration_window" && intent.confidence > 0.6) open = true;
+    if (intent.kind === "close_exploration_window") close = true;
+  }
+
+  if (open) {
+    const maxExp = frame.intents.find((i) => i.kind === "open_exploration_window")?.params?.["max_parallel_experiments"] ?? 1;
+    runtime.enableExploration({ maxParallel: Number(maxExp) });
+  } else if (close) {
+    runtime.disableExploration();
+  }
+}
+```
+
+**UI / operator surface** — soften UX under load, highlight insights when stable:
+
+```ts
+function adaptUi(frame: ResponseFrame, ui: LiminalUI) {
+  const overloadIntent = frame.intents.find((i) => i.reasonKey === "overload_risk");
+  if (overloadIntent) {
+    ui.enableFocusMode();
+    ui.showGentleBanner("System under load — soft mode on");
+    return;
+  }
+
+  const growthIntent = frame.intents.find((i) => i.reasonKey === "good_growth_window");
+  if (growthIntent) {
+    ui.disableFocusMode();
+    ui.highlightInsightsPanel();
+    return;
+  }
+
+  ui.setDefaultLayout();
+}
+```
+
+Use these as starting points; each service maps the abstract intent into its own controls (scheduling knobs, transport throttles, runtime toggles, or UI modes).
+
 ## Example JSON
 
 ```json
