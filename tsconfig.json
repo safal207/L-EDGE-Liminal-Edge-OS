@@ -9,7 +9,12 @@
     "strict": true,
     "skipLibCheck": true,
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "baseUrl": ".",
+    "types": ["node", "vitest"],
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules", "dist"]
