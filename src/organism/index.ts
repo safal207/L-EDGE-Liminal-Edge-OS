@@ -32,5 +32,7 @@ export * from './resonance/presets';
 export * from './flow/L7_soma_flow';
 export * from './observer/L8_crystal_observer';
 export * from './metabolism/L9_metabolic_layer';
+export * from './crystal/L10_crystal_layer';
+export * from './crystal/L10_crystal_types';
 export * from './skills/L4_skill_cluster';
 export * from './sequencing/L4_sequence';

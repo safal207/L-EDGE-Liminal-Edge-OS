@@ -17,6 +17,7 @@ import type { AxisCouplingSnapshot } from './orientation/L0_axis_coupling';
 import type { ResonanceSnapshot } from './resonance/L6_resonance_field';
 import type { SomaFlowSnapshot } from './flow/L7_soma_flow';
 import type { CrystalObserverSnapshot } from './observer/L8_crystal_observer';
+import type { L10CrystalSnapshot } from './crystal/L10_crystal_types';
 import type { AxisId, TriAxisState } from '@/core/types/ontogenesis';
 import type { MetabolicSnapshot } from './metabolism/L9_metabolic_layer';
 
@@ -82,7 +83,8 @@ export interface OntogenesisVector {
     note?: string;
   };
   L9?: MetabolicSnapshot;
-  crystal?: CrystalObserverSnapshot;
+  observer?: CrystalObserverSnapshot;
+  crystal?: L10CrystalSnapshot;
   cosmicApprenticeRole?: CosmicApprenticeRole;
   cosmicApprenticeAlignment?: number;
   cosmicApprenticeReadiness?: number;
@@ -193,7 +195,8 @@ export class Ontogenesis3D {
     cerebellum?: CerebellumSnapshot;
     resonanceField?: ResonanceSnapshot;
     flow?: SomaFlowSnapshot;
-    crystal?: CrystalObserverSnapshot;
+    observer?: CrystalObserverSnapshot;
+    crystal?: L10CrystalSnapshot;
     resonance?: FuzzyLevel;
     globalMode?: StringMode;
     trustLevel?: number;
@@ -307,8 +310,12 @@ export class Ontogenesis3D {
       summaryParts.push(`pattern role: ${params.cosmicPatternRole}`);
     }
 
-    if (params.crystal?.crystalStabilityIndex !== undefined) {
-      summaryParts.push(`crystal=${params.crystal.crystalStabilityIndex.toFixed(2)}`);
+    if (params.observer?.crystalStabilityIndex !== undefined) {
+      summaryParts.push(`crystal=${params.observer.crystalStabilityIndex.toFixed(2)}`);
+    }
+
+    if (params.crystal?.overallScore !== undefined) {
+      summaryParts.push(`crystal-growth=${params.crystal.overallScore.toFixed(2)}`);
     }
 
     if (params.embodimentScore !== undefined) {
@@ -349,6 +356,7 @@ export class Ontogenesis3D {
       cerebellum: params.cerebellum,
       resonanceField: params.resonanceField,
       flow: params.flow,
+      observer: params.observer,
       crystal: params.crystal,
       resonance: params.resonance,
       globalMode: params.globalMode,

@@ -103,6 +103,7 @@ import {
   type CrystalObserverSnapshot,
 } from '@/organism/observer/L8_crystal_observer';
 import { runL9MetabolicStep, type MetabolicSnapshot } from '@/organism/metabolism/L9_metabolic_layer';
+import { runL10CrystalStep, type L10CrystalSnapshot } from '@/organism/crystal/L10_crystal_layer';
 
 const storage = createInMemoryLiminalStorage();
 const runtime = new InMemoryRuntimeAdapter();
@@ -302,6 +303,7 @@ let lastAxisCoupling: AxisCouplingSnapshot;
 let lastResonanceSnapshot: ResonanceSnapshot | null = null;
 let lastSomaFlow: SomaFlowSnapshot | null = null;
 let lastMetabolicSnapshot: MetabolicSnapshot | null = null;
+let lastL10CrystalSnapshot: L10CrystalSnapshot | null = null;
 let lastCrystalObserver: CrystalObserverSnapshot | null = null;
 let lastOrientationSnapshot = computeOrientationSnapshot(
   {
@@ -387,11 +389,15 @@ const describeOntogenesisVector = (params: {
   stage?: number;
   triAxis?: TriAxisState;
   metabolicSnapshot?: MetabolicSnapshot | null;
+  observerSnapshot?: CrystalObserverSnapshot | null;
+  crystalSnapshot?: L10CrystalSnapshot | null;
   note?: string;
 }): OntogenesisVector => {
   const note = buildOntogenesisNote(params.note);
   const triAxis = params.triAxis ?? buildTriAxisSnapshot();
   const metabolicSource = params.metabolicSnapshot ?? lastMetabolicSnapshot;
+  const observerSnapshot = params.observerSnapshot ?? lastCrystalObserver ?? undefined;
+  const crystalSnapshot = params.crystalSnapshot ?? lastL10CrystalSnapshot ?? undefined;
   const metabolism = metabolicSource
     ? {
         stressIndex: metabolicSource.stressIndex,
@@ -472,6 +478,8 @@ const describeOntogenesisVector = (params: {
     axisCoupling: lastAxisCoupling,
     cerebellum: lastCerebellumSnapshot,
     flow: lastSomaFlow ?? undefined,
+    observer: observerSnapshot,
+    crystal: crystalSnapshot,
     note,
   });
 
@@ -479,7 +487,9 @@ const describeOntogenesisVector = (params: {
     ...vector,
     stage: params.stage ?? params.assemblyPoint,
     triAxis,
+    observer: observerSnapshot,
     metabolism,
+    crystal: crystalSnapshot ?? vector.crystal,
   };
 };
 
@@ -495,7 +505,7 @@ lastCrystalObserver = runCrystalObserver(
   lastSomaFlow,
   crystalObserverConfig,
 );
-lastOntogenesisVector = { ...lastOntogenesisVector, crystal: lastCrystalObserver };
+lastOntogenesisVector = { ...lastOntogenesisVector, observer: lastCrystalObserver };
 const ontogenesisTimeline: Array<OntogenesisVector & { timestamp: number }> = [
   { ...lastOntogenesisVector, timestamp: Date.now() },
 ];
@@ -6566,6 +6576,257 @@ const socialAge = Math.max(
         }
       : lastOntogenesisVector.metabolism,
     L9: lastMetabolicSnapshot ?? lastOntogenesisVector.L9,
+  };
+  ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
+  if (ontogenesisTimeline.length > 256) {
+    ontogenesisTimeline.splice(0, ontogenesisTimeline.length - 256);
+  }
+
+  lastGenesisPlan = genesisSeeds.update({
+    origin: originState,
+    pathway: lastPathwayState,
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+  });
+
+  lastCivilizationState = civilizationNode.update({
+    fuzzy: lastFuzzyEvolutionState,
+    tuning: lastTuningPlan,
+    genesis: lastGenesisPlan,
+  });
+
+  lastL3SocialSnapshot = computeL3SocialSnapshot({
+    l2Attachment: lastL2SocialSnapshot.attachmentLevel,
+    l2CuriositySocial: lastL2SocialSnapshot.curiositySocial,
+    civAlliesCount: lastCivilizationState.resonance.alliesCount,
+    civOpponentsCount: lastCivilizationState.resonance.opponentsCount,
+  });
+
+  lastL3CosmicSnapshot = computeCosmicPatternWeaver({
+    preseed: l1CosmicPreseed.direction,
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+  });
+
+  lastL4MasterySnapshot = computeL4Mastery({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    scenarioPulse: lastL3PlaySnapshot.scenarioPulse,
+    embodimentScore: lastL2BodySnapshot.embodimentScore,
+    baseFrustrationTolerance: lastL3PlaySnapshot.frustrationTolerance,
+  });
+
+  lastL4SkillCluster = computeL4SkillCluster({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    socialPatternSense: lastL3SocialSnapshot.socialPatternSense,
+    cosmicPreseed: l1CosmicPreseed.direction,
+  });
+
+  lastL4Sequence = computeL4TaskSequenceCapacity({
+    focusStability: lastL4MasterySnapshot.focusStability,
+    actionConsistency: lastL4MasterySnapshot.actionConsistency,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+  });
+
+  lastL4SocialTeam = computeL4SocialTeam({
+    l3Cooperation: lastL3SocialSnapshot.cooperation,
+    l3ConflictSkill: lastL3SocialSnapshot.conflictSkill,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    frustrationTolerance: lastL4MasterySnapshot.frustrationTolerance,
+  });
+
+  lastL4CosmicApprentice = computeL4CosmicApprentice({
+    preseed: l1CosmicPreseed.direction,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    skillRichness: lastL4SkillCluster.richness,
+  });
+
+  lastL5MeaningSnapshot = computeL5MeaningSnapshot({
+    innerPatternScore: lastL3PlaySnapshot.innerPatternScore,
+    microMasteryScore: lastL4MasterySnapshot.microMasteryScore,
+    frustrationTolerance: lastL4MasterySnapshot.frustrationTolerance,
+  });
+
+  lastL5PurposeVector = computeL5PurposeVector({
+    meaningCoherence: lastL5MeaningSnapshot.meaningCoherence,
+    innerWhyStrength: lastL5MeaningSnapshot.innerWhyStrength,
+    selfReflectionDepth: lastL5MeaningSnapshot.selfReflectionDepth,
+    sequenceCapacity: {
+      maxSteps: lastL4Sequence.maxSteps,
+      reliableSteps: lastL4Sequence.reliableSteps,
+      dropoffRate: lastL4Sequence.dropoffRate,
+    },
+  });
+
+  lastL5MoralSeed = computeL5MoralSeed({
+    socialTeamSense: lastL4SocialTeam.socialTeamSense,
+    cooperation: lastL4SocialTeam.cooperation,
+    conflictNavigation: lastL4SocialTeam.conflictNavigation,
+    meaningCoherence: lastL5MeaningSnapshot.meaningCoherence,
+  });
+
+  lastL5TrajectorySnapshot = computeL5TrajectorySnapshot({
+    purposeHorizon: lastL5PurposeVector.purposeHorizon,
+    trajectoryDiscipline: lastL5PurposeVector.trajectoryDiscipline,
+    replanningFlexibility: lastL5PurposeVector.replanningFlexibility,
+    sequenceCapacity: { maxSteps: lastL4Sequence.maxSteps, reliableSteps: lastL4Sequence.reliableSteps },
+  });
+
+  lastL5CosmicNavigator = computeL5CosmicNavigator({
+    preseed: l1CosmicPreseed.direction,
+    purposeHorizon: lastL5PurposeVector.purposeHorizon,
+    meaningCoherence: lastL5MeaningSnapshot.meaningCoherence,
+    masteryReadiness: lastL4CosmicApprentice.masteryReadiness,
+  });
+
+  lastOrientationSnapshot = computeOrientationSnapshot(
+    {
+      L_metrics: [
+        l1RootSeed.presence,
+        lastL2BodySnapshot.embodimentScore,
+        lastL3PlaySnapshot.innerPatternScore,
+        lastL4MasterySnapshot.microMasteryScore,
+        lastL5MeaningSnapshot.meaningCoherence,
+      ],
+      S_metrics: [
+        clamp(lastL4SocialTeam.socialAge / 40),
+        lastL2SocialSnapshot.attachmentLevel,
+        lastL4SocialTeam.socialTeamSense,
+      ],
+      C_metrics: [
+        lastL4CosmicApprentice.masteryReadiness,
+        lastL5CosmicNavigator.directionClarity,
+        lastL5CosmicNavigator.missionAlignment,
+      ],
+    },
+    orientationConfig,
+  );
+
+  lastPolaritySnapshot = computePolaritySnapshot({
+    L_yinSignals: [l1RootSeed.presence, lastL5MeaningSnapshot.meaningCoherence, lastL5MeaningSnapshot.selfReflectionDepth],
+    L_yangSignals: [lastL3PlaySnapshot.playfulness, lastL4MasterySnapshot.microMasteryScore],
+    S_yinSignals: [lastL2BodySnapshot.stability, lastL2BodySnapshot.comfortInMotion, lastL2SocialSnapshot.attachmentLevel],
+    S_yangSignals: [lastL2BodySnapshot.explorationDrive, lastL3SocialSnapshot.cooperation, lastL4SocialTeam.socialTeamSense],
+    C_yinSignals: [lastL5PurposeVector.purposeHorizon, lastL4CosmicApprentice.masteryReadiness],
+    C_yangSignals: [lastL5CosmicNavigator.directionClarity, lastL5CosmicNavigator.missionAlignment],
+  });
+
+  lastLoadProfile = computeLoadProfile(lastOrientationSnapshot, lastPolaritySnapshot);
+  lastFuzzyBounds = computeFuzzyBounds(lastPolaritySnapshot, lastOrientationSnapshot);
+  lastAxisCoupling = computeAxisCoupling(lastOrientationSnapshot, lastPolaritySnapshot);
+  lastCerebellumSnapshot = runCerebellumStep(
+    lastOrientationSnapshot,
+    lastPolaritySnapshot,
+    lastLoadProfile,
+    lastFuzzyBounds,
+    lastAxisCoupling,
+    cerebellumConfig,
+  );
+
+  lastPolaritySnapshot = lastCerebellumSnapshot.adjustedPolarity;
+  lastLoadProfile = lastCerebellumSnapshot.adjustedLoadProfile;
+  lastFuzzyBounds = computeFuzzyBounds(lastPolaritySnapshot, lastOrientationSnapshot);
+  lastAxisCoupling = computeAxisCoupling(lastOrientationSnapshot, lastPolaritySnapshot);
+  lastResonanceSnapshot = runResonanceStep(
+    Date.now() / 1000,
+    lastResonanceSnapshot,
+    resonanceConfig,
+    lastCerebellumSnapshot,
+    lastAxisCoupling,
+    (config, cere, acl) => adaptResonanceConfig(config, cere, acl, RESONANCE_PRESETS),
+  );
+  if (resonanceConfig.autoAdapt && lastResonanceSnapshot) {
+    resonanceConfig.preset = RESONANCE_PRESETS[lastResonanceSnapshot.preset] ?? resonanceConfig.preset;
+  }
+  lastSomaFlow = computeSomaFlow(
+    lastOrientationSnapshot,
+    lastLoadProfile,
+    lastCerebellumSnapshot,
+    lastAxisCoupling,
+    lastResonanceSnapshot as ResonanceSnapshot,
+    DEFAULT_FLOW_CONFIG,
+  );
+
+  const triAxisSnapshot = buildTriAxisSnapshot();
+  lastMetabolicSnapshot = runL9MetabolicStep({
+    triAxis: triAxisSnapshot,
+    loadIndex: lastLoadProfile.globalStress,
+    resonanceQuality: lastResonanceSnapshot?.coherenceIndex ?? 0.5,
+    recentRecoveryIndex:
+      ((lastSomaFlow?.globalNourishmentIndex ?? 0.5) + (1 - (lastSomaFlow?.globalFatigueRisk ?? 0.5))) / 2,
+  });
+
+  const assemblyPoint = clampAssemblyPoint(deriveAssemblyPoint(lastTuningPlan, lastFuzzyEvolutionState));
+  const socialAge = Math.max(
+    deriveSocialAge(lastFuzzyEvolutionState, lastTuningPlan),
+    lastL2SocialSnapshot.socialAge,
+    lastL3SocialSnapshot.socialAge,
+    lastL4SocialTeam.socialAge,
+  );
+  const cosmicRole = deriveCosmicRole(lastPathwayState, originState);
+
+  const baseOntogenesisVector = describeOntogenesisVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    stage: assemblyPoint,
+    triAxis: triAxisSnapshot,
+    metabolicSnapshot: lastMetabolicSnapshot,
+    note: lastOntogenesisVector.note,
+  });
+
+  const observerHistory = [
+    ...ontogenesisTimeline.map(({ timestamp, ...vector }) => vector),
+    baseOntogenesisVector,
+  ];
+
+  lastCrystalObserver = runCrystalObserver(
+    observerHistory,
+    lastPolaritySnapshot,
+    lastResonanceSnapshot,
+    lastSomaFlow,
+    crystalObserverConfig,
+  );
+
+  lastL10CrystalSnapshot = runL10CrystalStep({
+    triAxis: triAxisSnapshot,
+    stage: assemblyPoint,
+    metabolism: {
+      stressIndex: lastMetabolicSnapshot.stressIndex,
+      recoveryScore: lastMetabolicSnapshot.recoveryScore,
+      overloadRisk: lastMetabolicSnapshot.overloadRisk,
+      mode: lastMetabolicSnapshot.mode,
+    },
+    observerLevel: lastCrystalObserver?.crystalStabilityIndex ?? 0.5,
+  });
+
+  lastOntogenesisVector = describeOntogenesisVector({
+    assemblyPoint,
+    socialAge,
+    cosmicRole,
+    stage: assemblyPoint,
+    triAxis: triAxisSnapshot,
+    metabolicSnapshot: lastMetabolicSnapshot,
+    observerSnapshot: lastCrystalObserver,
+    crystalSnapshot: lastL10CrystalSnapshot,
+    note: lastOntogenesisVector.note,
+  });
+
+  lastOntogenesisVector = {
+    ...lastOntogenesisVector,
+    metabolism: lastMetabolicSnapshot
+      ? {
+          stressIndex: lastMetabolicSnapshot.stressIndex,
+          recoveryScore: lastMetabolicSnapshot.recoveryScore,
+          overloadRisk: lastMetabolicSnapshot.overloadRisk,
+          mode: lastMetabolicSnapshot.mode,
+          overloadAxes: lastMetabolicSnapshot.overloadAxes,
+          note: lastMetabolicSnapshot.note,
+        }
+      : lastOntogenesisVector.metabolism,
+    L9: lastMetabolicSnapshot ?? lastOntogenesisVector.L9,
+    crystal: lastL10CrystalSnapshot ?? lastOntogenesisVector.crystal,
+    observer: lastCrystalObserver ?? lastOntogenesisVector.observer,
   };
   ontogenesisTimeline.push({ ...lastOntogenesisVector, timestamp: Date.now() });
   if (ontogenesisTimeline.length > 256) {
