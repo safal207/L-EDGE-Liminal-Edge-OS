@@ -11,6 +11,7 @@
     "outDir": "dist",
     "rootDir": ".",
     "baseUrl": ".",
+    "types": ["node", "vitest"],
     "paths": {
       "@/*": ["src/*"]
     }

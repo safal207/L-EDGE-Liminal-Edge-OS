@@ -2,6 +2,8 @@ import type { OrganismSnapshot } from '@/core/types/organismSnapshot';
 import type { TriAxisState } from '@/core/types/ontogenesis';
 import { runL10CrystalStep } from '@/organism/crystal/L10_crystal_layer';
 import type { L10CrystalSnapshot } from '@/organism/crystal/L10_crystal_types';
+import { decideGrowthMode } from '@/organism/growthModes/L11_growth_layer';
+import type { GrowthModeSnapshot } from '@/organism/growthModes/L11_growth_types';
 import type { CrystalObserverSnapshot } from '@/organism/observer/L8_crystal_observer';
 import type { OrientationSnapshot } from '@/organism/orientation/L0_center';
 import { runL9MetabolicStep } from '@/organism/metabolism/L9_metabolic_layer';
@@ -14,6 +16,7 @@ export interface OrganismPipelineInputs {
   observer?: CrystalObserverSnapshot | null;
   metabolism?: MetabolicSnapshot | null;
   crystal?: L10CrystalSnapshot | null;
+  growthMode?: GrowthModeSnapshot | null;
   loadIndex?: number;
   resonanceQuality?: number;
   recentRecoveryIndex?: number;
@@ -32,6 +35,7 @@ export const runOrganismPipeline = (inputs: OrganismPipelineInputs): OrganismSna
     observer,
     metabolism,
     crystal,
+    growthMode,
     loadIndex,
     resonanceQuality,
     recentRecoveryIndex,
@@ -62,7 +66,7 @@ export const runOrganismPipeline = (inputs: OrganismPipelineInputs): OrganismSna
       observerLevel,
     });
 
-  return {
+  const snapshot: OrganismSnapshot = {
     triAxis,
     stage,
     orientation: orientation ?? undefined,
@@ -70,5 +74,12 @@ export const runOrganismPipeline = (inputs: OrganismPipelineInputs): OrganismSna
     metabolism: metabolicSnapshot,
     crystal: crystalSnapshot,
     timestamp: Date.now(),
+  };
+
+  const growthModeSnapshot = growthMode ?? decideGrowthMode(snapshot);
+
+  return {
+    ...snapshot,
+    growthMode: growthModeSnapshot,
   };
 };

@@ -14,6 +14,26 @@ const bar = (value: number, length = 20): string => {
   return '█'.repeat(filled) + '·'.repeat(Math.max(0, length - filled));
 };
 
+const growthModeColor = (
+  mode: NonNullable<OrganismSnapshot['growthMode']>['mode'],
+): string => {
+  switch (mode) {
+    case 'gentle':
+      return colorForRecovery(0.8);
+    case 'exploratory':
+      return colorForRecovery(0.7);
+    case 'intensive':
+      return colorForOverloadRisk(0.45);
+    case 'stabilizing':
+      return colorForStress(0.4);
+    case 'therapeutic':
+      return colorForOverloadRisk(0.6);
+    case 'frozen':
+    default:
+      return colorForOverloadRisk(0.9);
+  }
+};
+
 export const renderOrganismSnapshot = (snapshot: OrganismSnapshot): void => {
   console.log('=== L-EDGE Organism Snapshot ===');
   console.log(`stage: L${snapshot.stage}  time: ${new Date(snapshot.timestamp).toISOString()}`);
@@ -55,6 +75,20 @@ export const renderOrganismSnapshot = (snapshot: OrganismSnapshot): void => {
     if (c10.note) console.log(`note          : ${c10.note}`);
   } else {
     console.log('no crystal data');
+  }
+
+  console.log('\n--- L11: Growth Mode ---');
+  if (snapshot.growthMode) {
+    const gm = snapshot.growthMode;
+    const gmColor = growthModeColor(gm.mode);
+
+    console.log(`mode          : ${paint(gmColor, gm.mode)} (conf=${gm.confidence.toFixed(2)})`);
+    console.log(`reason        : ${gm.reason}`);
+    if (gm.recommendations) {
+      console.log('recommendations:', gm.recommendations);
+    }
+  } else {
+    console.log('no growth mode data');
   }
 
   console.log('==============================================');

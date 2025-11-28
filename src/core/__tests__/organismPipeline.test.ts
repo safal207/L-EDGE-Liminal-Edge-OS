@@ -35,6 +35,10 @@ describe('runOrganismPipeline', () => {
     expect(snapshot.crystal).toBeDefined();
     expect(snapshot.crystal?.overallScore).toBeGreaterThanOrEqual(0);
     expect(snapshot.crystal?.overallScore).toBeLessThanOrEqual(1);
+
+    expect(snapshot.growthMode).toBeDefined();
+    expect(snapshot.growthMode?.confidence).toBeGreaterThanOrEqual(0);
+    expect(snapshot.growthMode?.confidence).toBeLessThanOrEqual(1);
   });
 
   it('respects provided metabolism and crystal snapshots', () => {
@@ -74,6 +78,7 @@ describe('runOrganismPipeline', () => {
     expect(snapshot.crystal).toBe(customCrystal);
     expect(snapshot.metabolism?.note).toBe('manual metabolism override');
     expect(snapshot.crystal?.note).toBe('manual crystal snapshot');
+    expect(snapshot.growthMode).toBeDefined();
   });
 
   it('produces stable shape for downstream consumers', () => {
@@ -82,5 +87,6 @@ describe('runOrganismPipeline', () => {
     expect(snapshot).toHaveProperty('triAxis.L.value');
     expect(snapshot).toHaveProperty('metabolism.stressIndex');
     expect(snapshot).toHaveProperty('crystal.harmony.harmonyIndex');
+    expect(snapshot).toHaveProperty('growthMode.mode');
   });
 });
