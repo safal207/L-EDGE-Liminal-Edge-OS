@@ -12,6 +12,13 @@
     "dev:interface": "ts-node interface/apiServer.ts",
     "build": "tsc -p tsconfig.json",
     "check": "tsc --noEmit",
+    "watch:l4": "node examples/ontogenesis_l4_watch.js",
+    "watch:l5": "node examples/ontogenesis_l5_watch.js",
+    "watch:orientation": "node examples/orientation_watch.js",
+    "watch:organism": "ts-node examples/organism_snapshot_watch.ts",
+    "l9:watch": "ts-node examples/l9_metabolism_watch.ts",
+    "watch:response": "ts-node examples/response_frame_consumers.ts",
+    "test:organismPipeline": "vitest run src/core/__tests__/organismPipeline.test.ts src/organism/growthModes/__tests__/L11_growth_layer.test.ts src/nerve/__tests__/L12_external_signals.test.ts src/nerve/__tests__/L13_response_layer.test.ts",
     "test": "npm-run-all --serial test:storage test:circulation test:transmutation test:sleep test:homeostasis test:reflex test:perception test:memory test:replay test:intent test:interoception test:meta test:metaOrchestrator test:origin test:pathway test:fuzzyEvolution test:emotion test:social test:collective test:plasticity test:field test:noosphere test:scenarios test:self",
     "test:storage": "ts-node tests/mockStorage.test.ts",
     "test:circulation": "ts-node tests/circulation.test.ts",
@@ -52,6 +59,7 @@
     "@types/uuid": "^10.0.0",
     "npm-run-all": "^4.1.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.14"
   }
 }
