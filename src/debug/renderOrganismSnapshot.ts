@@ -39,6 +39,21 @@ export const renderOrganismSnapshot = (snapshot: OrganismSnapshot): void => {
   console.log(`stage: L${snapshot.stage}  time: ${new Date(snapshot.timestamp).toISOString()}`);
   console.log(`axes: L=${snapshot.triAxis.L.value.toFixed(2)}  S=${snapshot.triAxis.S.value.toFixed(2)}  C=${snapshot.triAxis.C.value.toFixed(2)}`);
 
+  if (snapshot.externalSignals) {
+    const ext = snapshot.externalSignals;
+    console.log('\n--- L12: External Signals ---');
+    console.log(`externalStress      : ${ext.externalStress.toFixed(2)}`);
+    console.log(`externalRecovery    : ${ext.externalRecovery.toFixed(2)}`);
+    console.log(`externalExploration : ${ext.externalExploration.toFixed(2)}`);
+    if (ext.lastStrongSignal) {
+      console.log(
+        `lastStrongSignal    : [${ext.lastStrongSignal.source}] ${ext.lastStrongSignal.kind} (intensity=${ext.lastStrongSignal.intensity.toFixed(
+          2,
+        )})`,
+      );
+    }
+  }
+
   console.log('\n--- L9: Metabolism ---');
   if (snapshot.metabolism) {
     const m = snapshot.metabolism;

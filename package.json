@@ -17,7 +17,7 @@
     "watch:orientation": "node examples/orientation_watch.js",
     "watch:organism": "ts-node examples/organism_snapshot_watch.ts",
     "l9:watch": "ts-node examples/l9_metabolism_watch.ts",
-    "test:organismPipeline": "vitest run src/core/__tests__/organismPipeline.test.ts src/organism/growthModes/__tests__/L11_growth_layer.test.ts",
+    "test:organismPipeline": "vitest run src/core/__tests__/organismPipeline.test.ts src/organism/growthModes/__tests__/L11_growth_layer.test.ts src/nerve/__tests__/L12_external_signals.test.ts",
     "test": "npm-run-all --serial test:storage test:circulation test:transmutation test:sleep test:homeostasis test:reflex test:perception test:memory test:replay test:intent test:interoception test:meta test:metaOrchestrator test:origin test:pathway test:fuzzyEvolution test:emotion test:social test:collective test:plasticity test:field test:noosphere test:scenarios test:self",
     "test:storage": "ts-node tests/mockStorage.test.ts",
     "test:circulation": "ts-node tests/circulation.test.ts",
