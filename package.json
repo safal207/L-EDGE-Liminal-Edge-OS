@@ -36,6 +36,7 @@
     "test:origin": "ts-node core/origin/tests/origin.test.ts",
     "test:pathway": "ts-node core/pathway/tests/pathway.test.ts",
     "test:fuzzyEvolution": "ts-node core/fuzzyEvolution/tests/fuzzyEvolutionNode.test.ts",
+    "test:genesis": "ts-node core/genesis/tests/genesisSeeds.test.ts",
     "test:emotion": "ts-node emotion/tests/emotionEngine.test.ts",
     "test:social": "ts-node social/tests/socialResonance.test.ts",
     "test:collective": "ts-node resonance/tests/collectiveResonanceEngine.test.ts",
