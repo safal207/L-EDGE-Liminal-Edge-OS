@@ -1,0 +1,49 @@
+import type { CrystalObserverSnapshot } from '@/organism/observer/L8_crystal_observer';
+import type { L10CrystalSnapshot } from '@/organism/crystal/L10_crystal_types';
+import type { OrientationSnapshot } from '@/organism/orientation/L0_center';
+import type { MetabolicSnapshot } from '@/organism/metabolism/L9_metabolic_types';
+
+export type AxisId = 'L' | 'S' | 'C';
+
+export interface AxisState {
+  id: AxisId;
+  value: number;
+  nourishment: number;
+  pressure: number;
+}
+
+export interface TriAxisState {
+  L: AxisState;
+  S: AxisState;
+  C: AxisState;
+}
+
+export interface PolaritySnapshot {
+  yinLevel: number;
+  yangLevel: number;
+  taoLevel: number;
+}
+
+export interface MetabolismVectorState {
+  stressIndex: number;
+  recoveryScore: number;
+  overloadRisk: number;
+  mode: MetabolicSnapshot['mode'];
+  overloadAxes: AxisId[];
+  note?: string;
+}
+
+export interface OntogenesisVector {
+  triAxis: TriAxisState;
+  stage: number; // L0..L9 (и далее)
+  orientation?: OrientationSnapshot;
+  observer?: CrystalObserverSnapshot;
+  crystal?: L10CrystalSnapshot;
+  metabolism?: MetabolismVectorState;
+  timestamp?: number;
+}
+
+export interface OntogenesisTimelineEntry {
+  timestamp: number;
+  vector: OntogenesisVector;
+}

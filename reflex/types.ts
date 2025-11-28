@@ -3,9 +3,9 @@ export type ReflexSeverity = 'info' | 'warning' | 'critical';
 export interface ReflexEvent {
   id: string;
   ts: number;
-  source: 'homeostasis' | 'heartbeat' | 'runtime' | 'circulation' | 'external';
+  source: 'homeostasis' | 'heartbeat' | 'runtime' | 'circulation' | 'external' | 'replay';
   kind: string;
-  details?: Record<string, unknown>;
+  details?: unknown;
 }
 
 export interface ReflexAction {
