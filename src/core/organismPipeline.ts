@@ -9,6 +9,7 @@ import type { CrystalObserverSnapshot } from '@/organism/observer/L8_crystal_obs
 import type { OrientationSnapshot } from '@/organism/orientation/L0_center';
 import { runL9MetabolicStep } from '@/organism/metabolism/L9_metabolic_layer';
 import type { MetabolicSnapshot } from '@/organism/metabolism/L9_metabolic_layer';
+import { computeResponseFrame } from '@/nerve/L13_response_layer';
 
 export interface OrganismPipelineInputs {
   triAxis: TriAxisState;
@@ -21,7 +22,7 @@ export interface OrganismPipelineInputs {
   loadIndex?: number;
   resonanceQuality?: number;
   recentRecoveryIndex?: number;
-  externalSignals?: ExternalSignalsAggregate | null;
+  externalSignals?: ExternalSignalsAggregate;
 }
 
 const fallback = (value: number | undefined, defaultValue: number): number => {
@@ -99,7 +100,7 @@ export const runOrganismPipeline = (inputs: OrganismPipelineInputs): OrganismSna
       : rawCrystalSnapshot
     : undefined;
 
-  const snapshot: OrganismSnapshot = {
+  const snapshotBase: OrganismSnapshot = {
     triAxis,
     stage,
     orientation: orientation ?? undefined,
@@ -110,10 +111,16 @@ export const runOrganismPipeline = (inputs: OrganismPipelineInputs): OrganismSna
     timestamp: Date.now(),
   };
 
-  const growthModeSnapshot = growthMode ?? decideGrowthMode(snapshot);
+  const growthModeSnapshot = growthMode ?? decideGrowthMode(snapshotBase);
+  const snapshot: OrganismSnapshot = {
+    ...snapshotBase,
+    growthMode: growthModeSnapshot,
+  };
+
+  const responseFrame = computeResponseFrame({ snapshot, external: externalSignals });
 
   return {
     ...snapshot,
-    growthMode: growthModeSnapshot,
+    responseFrame,
   };
 };

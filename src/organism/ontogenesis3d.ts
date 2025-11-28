@@ -21,6 +21,7 @@ import type { L10CrystalSnapshot } from './crystal/L10_crystal_types';
 import type { GrowthModeSnapshot } from './growthModes/L11_growth_types';
 import type { AxisId, TriAxisState } from '@/core/types/ontogenesis';
 import type { MetabolicSnapshot } from './metabolism/L9_metabolic_layer';
+import type { ResponseFrame } from '@/nerve/L13_response_types';
 
 export type AssemblyPointId =
   | 1
@@ -87,6 +88,7 @@ export interface OntogenesisVector {
   observer?: CrystalObserverSnapshot;
   crystal?: L10CrystalSnapshot;
   growthMode?: GrowthModeSnapshot;
+  responseFrame?: ResponseFrame;
   cosmicApprenticeRole?: CosmicApprenticeRole;
   cosmicApprenticeAlignment?: number;
   cosmicApprenticeReadiness?: number;

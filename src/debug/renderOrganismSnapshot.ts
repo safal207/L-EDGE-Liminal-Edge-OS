@@ -1,4 +1,5 @@
 import type { OrganismSnapshot } from '@/core/types/organismSnapshot';
+import { renderResponseFrame } from '@/nerve/L13_response_render';
 import { colorForMode, colorForOverloadRisk, colorForRecovery, colorForStress } from '@/ui/colorScale';
 
 const paint = (hex: string, text: string) => {
@@ -104,6 +105,10 @@ export const renderOrganismSnapshot = (snapshot: OrganismSnapshot): void => {
     }
   } else {
     console.log('no growth mode data');
+  }
+
+  if (snapshot.responseFrame) {
+    renderResponseFrame(snapshot.responseFrame);
   }
 
   console.log('==============================================');

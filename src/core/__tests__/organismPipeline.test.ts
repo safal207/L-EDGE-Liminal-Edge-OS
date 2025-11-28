@@ -88,5 +88,6 @@ describe('runOrganismPipeline', () => {
     expect(snapshot).toHaveProperty('metabolism.stressIndex');
     expect(snapshot).toHaveProperty('crystal.harmony.harmonyIndex');
     expect(snapshot).toHaveProperty('growthMode.mode');
+    expect(snapshot.responseFrame?.intents.length).toBeGreaterThan(0);
   });
 });
