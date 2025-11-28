@@ -16,6 +16,6 @@ export interface OrganismSnapshot {
   metabolism?: MetabolicSnapshot;
   crystal?: L10CrystalSnapshot;
   growthMode?: GrowthModeSnapshot;
-   responseFrame?: ResponseFrame;
+  responseFrame?: ResponseFrame;
   timestamp: number;
 }
