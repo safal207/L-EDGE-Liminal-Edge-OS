@@ -28,6 +28,29 @@ Key capabilities:
    `learningGain`, and `tensegrityPotential` are exposed on each snapshot for
    downstream dashboards and control logic.
 
+### TransitionFeeling: чувство как сенсор перехода
+
+L16 не только измеряет устойчивость организма, но и фиксирует то, **как он “чувствует” переходы состояний**.
+
+Мы вводим сущность `TransitionFeeling`, которая описывает:
+
+- `intensity` — насколько сильным был переход (0..1),
+- `direction` — в какую сторону сдвинулась фаза:
+  - `toward_rigidity` (сжатие, охлаждение),
+  - `toward_fluidity` (текучесть, мягкая адаптация),
+  - `toward_chaos` (перегрев, высокая вариативность),
+- `deltaPhase` и `rate` — величина и скорость переключения фазы,
+- `axisShift` — смещение фокуса по трём осям (inner / social / cosmic).
+
+Интуитивно:
+
+> **когда организм меняет состояние, он ощущает “волну перехода” — это и есть TransitionFeeling.**
+
+Эти данные используются для:
+- диагностики метастабильности,
+- визуализации переходов,
+- последующих адаптаций в онтогенезе.
+
 ## Data structures
 
 * `MultiframeConfig` — frameId (`near|mid|far`), balance vector, Yin/Yang/Tao
