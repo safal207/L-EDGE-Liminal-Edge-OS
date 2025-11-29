@@ -1,6 +1,14 @@
 import type { OrganismSnapshot } from '@/core/types/organismSnapshot';
 import type { TriAxisState } from '@/core/types/ontogenesis';
 import type { ExternalSignalsAggregate } from '@/nerve/L12_external_signals_types';
+import {
+  DEFAULT_AUTOPOIETIC_CONFIG,
+  runAutopoieticStep,
+} from '@/organism/autopoietic/L16_autopoietic_layer';
+import type {
+  AutopoieticConfig,
+  AutopoieticSnapshot,
+} from '@/organism/autopoietic/L16_autopoietic_types';
 import { runL10CrystalStep } from '@/organism/crystal/L10_crystal_layer';
 import type { L10CrystalSnapshot } from '@/organism/crystal/L10_crystal_types';
 import { decideGrowthMode } from '@/organism/growthModes/L11_growth_layer';
@@ -23,6 +31,8 @@ export interface OrganismPipelineInputs {
   resonanceQuality?: number;
   recentRecoveryIndex?: number;
   externalSignals?: ExternalSignalsAggregate;
+  previousAutopoietic?: AutopoieticSnapshot | null;
+  autopoieticConfig?: AutopoieticConfig;
 }
 
 const fallback = (value: number | undefined, defaultValue: number): number => {
@@ -45,6 +55,8 @@ export const runOrganismPipeline = (inputs: OrganismPipelineInputs): OrganismSna
     resonanceQuality,
     recentRecoveryIndex,
     externalSignals,
+    previousAutopoietic,
+    autopoieticConfig,
   } = inputs;
 
   const externalStress = externalSignals?.externalStress ?? 0;
@@ -119,8 +131,15 @@ export const runOrganismPipeline = (inputs: OrganismPipelineInputs): OrganismSna
 
   const responseFrame = computeResponseFrame({ snapshot, external: externalSignals });
 
+  const autopoietic = runAutopoieticStep({
+    snapshot,
+    previous: previousAutopoietic,
+    config: autopoieticConfig ?? DEFAULT_AUTOPOIETIC_CONFIG,
+  });
+
   return {
     ...snapshot,
     responseFrame,
+    autopoietic,
   };
 };

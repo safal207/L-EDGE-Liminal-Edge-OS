@@ -107,6 +107,42 @@ export const renderOrganismSnapshot = (snapshot: OrganismSnapshot): void => {
     console.log('no growth mode data');
   }
 
+  if (snapshot.autopoietic) {
+    const auto = snapshot.autopoietic;
+    const tenseColor = colorForOverloadRisk(auto.tensegrityPotential);
+    const stabilityColor = colorForRecovery(auto.stability.stabilityIndex);
+
+    console.log('\n--- L16: Autopoietic Assembly ---');
+    console.log(
+      `frame        : ${auto.currentFrame.frameId} → target ${auto.targetFrame.frameId} (${auto.immuneCycle.phase})`,
+    );
+    console.log(
+      `tensegrity   : ${paint(tenseColor, auto.tensegrityPotential.toFixed(2))}  ${paint(
+        tenseColor,
+        bar(auto.tensegrityPotential),
+      )}`,
+    );
+    console.log(
+      `stabilityIdx : ${paint(stabilityColor, auto.stability.stabilityIndex.toFixed(2))}  ${paint(
+        stabilityColor,
+        bar(auto.stability.stabilityIndex),
+      )}`,
+    );
+    console.log(
+      `recoveryTime : ${auto.stability.recoveryTimeMs}ms  overshoot=${auto.stability.overshootLevel.toFixed(
+        2,
+      )}  learningGain=${auto.stability.learningGain.toFixed(2)}`,
+    );
+    if (auto.immuneCycle.activeDisturbance) {
+      console.log(
+        `disturbance : ${auto.immuneCycle.activeDisturbance.id} (mag=${auto.immuneCycle.activeDisturbance.magnitude.toFixed(
+          2,
+        )})`,
+      );
+    }
+    if (auto.note) console.log(`note         : ${auto.note}`);
+  }
+
   if (snapshot.responseFrame) {
     renderResponseFrame(snapshot.responseFrame);
   }

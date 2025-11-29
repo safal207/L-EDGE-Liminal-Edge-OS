@@ -4,6 +4,7 @@ import type { OrientationSnapshot } from '@/organism/orientation/L0_center';
 import type { GrowthModeSnapshot } from '@/organism/growthModes/L11_growth_types';
 import type { MetabolicSnapshot } from '@/organism/metabolism/L9_metabolic_types';
 import type { ResponseFrame } from '@/nerve/L13_response_types';
+import type { AutopoieticSnapshot } from '@/organism/autopoietic/L16_autopoietic_types';
 
 export type AxisId = 'L' | 'S' | 'C';
 
@@ -44,6 +45,7 @@ export interface OntogenesisVector {
   metabolism?: MetabolismVectorState;
   growthMode?: GrowthModeSnapshot;
   responseFrame?: ResponseFrame;
+  autopoietic?: AutopoieticSnapshot;
   timestamp?: number;
 }
 

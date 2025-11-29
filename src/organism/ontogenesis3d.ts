@@ -18,6 +18,7 @@ import type { ResonanceSnapshot } from './resonance/L6_resonance_field';
 import type { SomaFlowSnapshot } from './flow/L7_soma_flow';
 import type { CrystalObserverSnapshot } from './observer/L8_crystal_observer';
 import type { L10CrystalSnapshot } from './crystal/L10_crystal_types';
+import type { AutopoieticSnapshot } from './autopoietic/L16_autopoietic_types';
 import type { GrowthModeSnapshot } from './growthModes/L11_growth_types';
 import type { AxisId, TriAxisState } from '@/core/types/ontogenesis';
 import type { MetabolicSnapshot } from './metabolism/L9_metabolic_layer';
@@ -87,6 +88,7 @@ export interface OntogenesisVector {
   L9?: MetabolicSnapshot;
   observer?: CrystalObserverSnapshot;
   crystal?: L10CrystalSnapshot;
+  autopoietic?: AutopoieticSnapshot;
   growthMode?: GrowthModeSnapshot;
   responseFrame?: ResponseFrame;
   cosmicApprenticeRole?: CosmicApprenticeRole;

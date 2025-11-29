@@ -7,7 +7,8 @@ concise growth posture.
 ## Overview
 - **OrganismSnapshot** is the consolidated state for the living system. It keeps
   the current tri-axis levels (L/S/C), metabolic supervision (L9), crystal growth
-  signals (L10), and the resolved growth mode (L11).
+  signals (L10), the resolved growth mode (L11), and the autopoietic multiframe
+  state (L16).
 - **Growth Modes (L11)** read the snapshot and pick a lightweight development
   posture (gentle/intensive/therapeutic/stabilizing/exploratory/frozen) with
   confidence and recommendations for orchestration.
@@ -22,6 +23,8 @@ concise growth posture.
 - `crystal` — L10 crystal snapshot with `harmonyIndex`, `growthMomentum`,
   `stabilityIndex`, `overallScore`, and `preferredAdjustments`.
 - `growthMode` — L11 growth mode snapshot (see below).
+- `autopoietic` — L16 multiframe/immune snapshot with `tensegrityPotential`,
+  immune cycle phase, and stability metrics.
 - `timestamp` — epoch ms when the snapshot was produced.
 
 ## Growth Modes (L11)

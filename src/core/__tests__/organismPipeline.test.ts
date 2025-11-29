@@ -39,6 +39,7 @@ describe('runOrganismPipeline', () => {
     expect(snapshot.growthMode).toBeDefined();
     expect(snapshot.growthMode?.confidence).toBeGreaterThanOrEqual(0);
     expect(snapshot.growthMode?.confidence).toBeLessThanOrEqual(1);
+    expect(snapshot.autopoietic).toBeDefined();
   });
 
   it('respects provided metabolism and crystal snapshots', () => {
@@ -89,5 +90,6 @@ describe('runOrganismPipeline', () => {
     expect(snapshot).toHaveProperty('crystal.harmony.harmonyIndex');
     expect(snapshot).toHaveProperty('growthMode.mode');
     expect(snapshot.responseFrame?.intents.length).toBeGreaterThan(0);
+    expect(snapshot.autopoietic?.immuneCycle.phase).toBeDefined();
   });
 });
