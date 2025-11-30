@@ -7,6 +7,17 @@ import type { MetabolicSnapshot } from '@/organism/metabolism/L9_metabolic_layer
 import type { ExternalSignalsAggregate } from '@/nerve/L12_external_signals_types';
 import type { ResponseFrame } from '@/nerve/L13_response_types';
 import type { TriAxisState } from './ontogenesis';
+import type {
+  TemporalState,
+  TemporalSteeringDecision,
+  TimeCrystalVector,
+} from '@/core/temporal/l17-types';
+
+export interface TemporalSnapshotBundle {
+  state: TemporalState;
+  timeCrystal: TimeCrystalVector;
+  decision: TemporalSteeringDecision;
+}
 
 export interface OrganismSnapshot {
   triAxis: TriAxisState;
@@ -19,5 +30,6 @@ export interface OrganismSnapshot {
   growthMode?: GrowthModeSnapshot;
   responseFrame?: ResponseFrame;
   autopoietic?: AutopoieticSnapshot;
+  temporal?: TemporalSnapshotBundle;
   timestamp: number;
 }

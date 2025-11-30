@@ -13,9 +13,7 @@ import {
   type MultiframeConfig,
   type StabilityMetrics,
   type YinYangTaoState,
-  type TransitionFeeling,
 } from './L16_autopoietic_types';
-import { computeTransitionFeeling } from './transitionFeeling';
 
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 
@@ -287,33 +285,13 @@ export const runAutopoieticStep = (inputs: AutopoieticInputs): AutopoieticSnapsh
     `stability=${stability.stabilityIndex.toFixed(2)}`,
   ];
 
-  const feeling = previous
-    ? computeTransitionFeeling({
-        phaseBefore: previous.tensegrityPotential,
-        phaseAfter: tensegrityPotential,
-        deltaTimeMs: now - previous.timestamp,
-        axisBefore: previous.currentFrame.balance,
-        axisAfter: disturbedFrame.balance,
-      })
-    : {
-        intensity: 0,
-        direction: 'toward_fluidity',
-        deltaPhase: 0,
-        rate: 0,
-        axisShift: { inner: 0, social: 0, cosmic: 0 },
-        phaseBefore: tensegrityPotential,
-        phaseAfter: tensegrityPotential,
-      };
-
   return {
-    timestamp: now,
     currentFrame: disturbedFrame,
     targetFrame,
     tensegrityPotential,
     immuneCycle: nextCycle,
     stability,
     disturbanceHistory,
-    feeling,
     note: noteParts.join(' | '),
   };
 };

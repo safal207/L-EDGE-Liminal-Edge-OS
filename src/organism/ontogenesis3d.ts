@@ -21,6 +21,7 @@ import type { L10CrystalSnapshot } from './crystal/L10_crystal_types';
 import type { AutopoieticSnapshot } from './autopoietic/L16_autopoietic_types';
 import type { GrowthModeSnapshot } from './growthModes/L11_growth_types';
 import type { AxisId, TriAxisState } from '@/core/types/ontogenesis';
+import type { TemporalSteeringDecision } from '@/core/temporal/l17-types';
 import type { MetabolicSnapshot } from './metabolism/L9_metabolic_layer';
 import type { ResponseFrame } from '@/nerve/L13_response_types';
 
@@ -91,6 +92,13 @@ export interface OntogenesisVector {
   autopoietic?: AutopoieticSnapshot;
   growthMode?: GrowthModeSnapshot;
   responseFrame?: ResponseFrame;
+  temporal?: {
+    tmi?: number;
+    drift?: number;
+    alignment?: number;
+    mode?: TemporalSteeringDecision['mode'];
+    warning?: TemporalSteeringDecision['warningLevel'];
+  };
   cosmicApprenticeRole?: CosmicApprenticeRole;
   cosmicApprenticeAlignment?: number;
   cosmicApprenticeReadiness?: number;

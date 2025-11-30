@@ -50,8 +50,8 @@ describe('L16 autopoietic layer', () => {
         recoveryScore: 0.35,
       },
     };
-    const previous = runAutopoieticStep({ snapshot: baseSnapshot, now: Date.now() - 1000 });
-    const step = runAutopoieticStep({ snapshot: overloaded, now: Date.now(), previous });
+
+    const step = runAutopoieticStep({ snapshot: overloaded, now: Date.now() });
     expect(step.immuneCycle.phase === 'Detecting' || step.immuneCycle.phase === 'Compensating').toBe(true);
   });
 

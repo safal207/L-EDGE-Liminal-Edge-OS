@@ -18,6 +18,11 @@ import type { OrientationSnapshot } from '@/organism/orientation/L0_center';
 import { runL9MetabolicStep } from '@/organism/metabolism/L9_metabolic_layer';
 import type { MetabolicSnapshot } from '@/organism/metabolism/L9_metabolic_layer';
 import { computeResponseFrame } from '@/nerve/L13_response_layer';
+import {
+  buildTemporalState,
+  type TemporalSnapshot,
+  type TemporalGoalProjection,
+} from '@/core/temporal';
 
 export interface OrganismPipelineInputs {
   triAxis: TriAxisState;
@@ -33,6 +38,9 @@ export interface OrganismPipelineInputs {
   externalSignals?: ExternalSignalsAggregate;
   previousAutopoietic?: AutopoieticSnapshot | null;
   autopoieticConfig?: AutopoieticConfig;
+  temporalHistory?: TemporalSnapshot[];
+  goalProjection?: TemporalGoalProjection;
+  now?: number;
 }
 
 const fallback = (value: number | undefined, defaultValue: number): number => {
@@ -62,6 +70,7 @@ export const runOrganismPipeline = (inputs: OrganismPipelineInputs): OrganismSna
   const externalStress = externalSignals?.externalStress ?? 0;
   const externalRecovery = externalSignals?.externalRecovery ?? 0;
   const externalExploration = externalSignals?.externalExploration ?? 0;
+  const nowTimestamp = inputs.now ?? Date.now();
 
   const effectiveLoadIndex = clamp01(fallback(loadIndex, 0.4) + externalStress * 0.3);
   const effectiveRecentRecovery = clamp01(fallback(recentRecoveryIndex, 0.5) + externalRecovery * 0.3);
@@ -120,7 +129,7 @@ export const runOrganismPipeline = (inputs: OrganismPipelineInputs): OrganismSna
     externalSignals: externalSignals ?? undefined,
     metabolism: metabolicSnapshot,
     crystal: crystalSnapshot,
-    timestamp: Date.now(),
+    timestamp: nowTimestamp,
   };
 
   const growthModeSnapshot = growthMode ?? decideGrowthMode(snapshotBase);
@@ -137,9 +146,28 @@ export const runOrganismPipeline = (inputs: OrganismPipelineInputs): OrganismSna
     config: autopoieticConfig ?? DEFAULT_AUTOPOIETIC_CONFIG,
   });
 
+  const { state: temporalState, steering } = buildTemporalState({
+    triAxis,
+    stage,
+    autopoietic,
+    metabolism: {
+      stressIndex: metabolicSnapshot.stressIndex,
+      recoveryScore: metabolicSnapshot.recoveryScore,
+      overloadRisk: metabolicSnapshot.overloadRisk,
+    },
+    goalProjection: inputs.goalProjection,
+    temporalHistory: inputs.temporalHistory,
+    now: nowTimestamp,
+  });
+
   return {
     ...snapshot,
     responseFrame,
     autopoietic,
+    temporal: {
+      state: temporalState,
+      timeCrystal: steering.vector,
+      decision: steering,
+    },
   };
 };

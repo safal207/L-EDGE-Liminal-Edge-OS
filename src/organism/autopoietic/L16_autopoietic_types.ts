@@ -64,48 +64,13 @@ export interface AutopoieticConfig {
   tensegrityTolerance: number;
 }
 
-export type PhaseDirection = "toward_rigidity" | "toward_fluidity" | "toward_chaos";
-
-export interface AxisVector {
-  inner: number;
-  social: number;
-  cosmic: number;
-}
-
-/**
- * Feeling = sensor of a phase transition.
- * "How strongly did the organism feel this transition?"
- */
-export interface TransitionFeeling {
-  /** 0..1 — насколько сильно система чувствует переход */
-  intensity: number;
-
-  /** направление фазового сдвига */
-  direction: PhaseDirection;
-
-  /** смена фазы: φ_after - φ_before */
-  deltaPhase: number;
-
-  /** скорость фазового перехода: |deltaPhase| / Δt */
-  rate: number;
-
-  /** изменение акцентов по осям */
-  axisShift: AxisVector;
-
-  /** фаза до и после (для визуализации/логирования) */
-  phaseBefore: number;
-  phaseAfter: number;
-}
-
 export interface AutopoieticSnapshot {
-  timestamp: number;
   currentFrame: MultiframeConfig;
   targetFrame: MultiframeConfig;
   tensegrityPotential: number;
   immuneCycle: ImmuneCycleState;
   stability: StabilityMetrics;
   disturbanceHistory: DisturbanceScenario[];
-  feeling: TransitionFeeling;
   note?: string;
 }
 

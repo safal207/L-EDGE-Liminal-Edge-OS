@@ -5,6 +5,7 @@ import type { GrowthModeSnapshot } from '@/organism/growthModes/L11_growth_types
 import type { MetabolicSnapshot } from '@/organism/metabolism/L9_metabolic_types';
 import type { ResponseFrame } from '@/nerve/L13_response_types';
 import type { AutopoieticSnapshot } from '@/organism/autopoietic/L16_autopoietic_types';
+import type { TemporalSteeringDecision } from '@/core/temporal/l17-types';
 
 export type AxisId = 'L' | 'S' | 'C';
 
@@ -46,6 +47,13 @@ export interface OntogenesisVector {
   growthMode?: GrowthModeSnapshot;
   responseFrame?: ResponseFrame;
   autopoietic?: AutopoieticSnapshot;
+  temporal?: {
+    tmi?: number;
+    drift?: number;
+    alignment?: number;
+    mode?: TemporalSteeringDecision['mode'];
+    warning?: TemporalSteeringDecision['warningLevel'];
+  };
   timestamp?: number;
 }
 

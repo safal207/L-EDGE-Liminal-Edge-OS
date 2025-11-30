@@ -107,6 +107,28 @@ export const renderOrganismSnapshot = (snapshot: OrganismSnapshot): void => {
     console.log('no growth mode data');
   }
 
+  if (snapshot.temporal) {
+    const { state, decision, timeCrystal } = snapshot.temporal;
+    console.log('\n--- L17: Temporal Self-Steering ---');
+    console.log(
+      `mode          : ${decision.mode} (warning=${decision.warningLevel}, safe=${decision.safeToAdjust})`,
+    );
+    console.log(`tmi           : ${timeCrystal.tmi.value.toFixed(2)}  ${bar(Math.min(1, timeCrystal.tmi.value / 3))}`);
+    console.log(`drift         : ${timeCrystal.drift.value.toFixed(2)}  ${bar(timeCrystal.drift.value)}`);
+    console.log(`alignment     : ${timeCrystal.alignment.value.toFixed(2)}  ${bar(timeCrystal.alignment.value)}`);
+    console.log(
+      `deltaAxes     : inner=${timeCrystal.deltaAxes.inner.toFixed(2)} social=${timeCrystal.deltaAxes.social.toFixed(
+        2,
+      )} cosmic=${timeCrystal.deltaAxes.cosmic.toFixed(2)}`,
+    );
+    console.log(
+      `phase target  : ${timeCrystal.targetPhase.toFixed(2)} (conf=${timeCrystal.confidence.toFixed(2)}, horizon=${
+        timeCrystal.horizonSteps
+      })`,
+    );
+    console.log(`history size  : ${state.past.length}`);
+  }
+
   if (snapshot.autopoietic) {
     const auto = snapshot.autopoietic;
     const tenseColor = colorForOverloadRisk(auto.tensegrityPotential);
