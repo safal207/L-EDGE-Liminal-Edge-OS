@@ -218,8 +218,9 @@ const ensureCycleStart = (
   const recovery = snapshot.metabolism?.recoveryScore ?? 0.5;
   const tensegrity = computeTensegrity(currentFrame, snapshot);
 
+  const previousPhase = previous?.phase ?? 'Idle';
   const shouldStart =
-    previous?.phase === 'Idle' &&
+    previousPhase === 'Idle' &&
     (tensegrity > config.tensegrityTolerance || overload > 0.65 || (stress > 0.6 && recovery < 0.4));
 
   if (!shouldStart) return previous ?? { phase: 'Idle', currentFrame };
