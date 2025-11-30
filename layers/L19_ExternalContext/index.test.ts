@@ -14,18 +14,19 @@ describe("L19 External Context Layer", () => {
     expect(result.ctxSignal.source).toBe("system");
     expect(result.relevance.relevance).toBeGreaterThan(0.7);
     expect(result.pressure.pressureType).toBe("challenge");
-    expect(result.pressure.color).toBe("🟧");
+    expect(result.pressure.zone).toBe("high");
+    expect(result.pressure.color).toBe("#F44336");
     expect(result.meaning.affectedAxis).toBe("outer");
     expect(result.summary).toContain("cpu_load_high");
   });
 
   it("maps pressure colors to the defined scale", () => {
-    expect(getPressureColor(0.1)).toBe("🟦");
-    expect(getPressureColor(0.3)).toBe("🟩");
-    expect(getPressureColor(0.5)).toBe("🟨");
-    expect(getPressureColor(0.7)).toBe("🟧");
-    expect(getPressureColor(0.9)).toBe("🟥");
-    expect(getPressureColor(1.3)).toBe("🟪");
+    expect(getPressureColor(0.1).name).toBe("low");
+    expect(getPressureColor(0.1).hex).toBe("#4CAF50");
+    expect(getPressureColor(0.5).name).toBe("medium");
+    expect(getPressureColor(0.5).label).toBe("среднее давление");
+    expect(getPressureColor(0.7).name).toBe("high");
+    expect(getPressureColor(0.7).hex).toBe("#F44336");
   });
 
   it("normalizes incoming signals", () => {
