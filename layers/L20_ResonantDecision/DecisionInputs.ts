@@ -1,3 +1,5 @@
+import type { DecisionMode } from "./ResonantStateCandidate";
+
 export type PhaseState = "solid" | "liquid" | "vapor";
 export type PressureType = "support" | "challenge" | "neutral";
 
@@ -28,6 +30,7 @@ export interface DecisionInputs {
     cosmicAlignment: number;
     luckWindowOpen: boolean;
     luckWindowStrength: number;
+    mode: DecisionMode;
   };
 }
 
@@ -38,7 +41,37 @@ export interface InnerStateInput {
 }
 
 export interface ContextStateInput extends Partial<DecisionInputs["context"]> {}
-export interface FlowStateInput extends Partial<DecisionInputs["flow"]> {}
+export interface FlowStateInput extends Partial<DecisionInputs["flow"]> {
+  alignment?: {
+    fai?: number;
+    inner_alignment?: number;
+    innerAlignment?: number;
+    social_alignment?: number;
+    socialAlignment?: number;
+    cosmic_alignment?: number;
+    cosmicAlignment?: number;
+    phase_fit?: number;
+    phaseFit?: number;
+    context_fit?: number;
+    contextFit?: number;
+  };
+  luck_window?: {
+    is_open?: boolean;
+    isOpen?: boolean;
+    strength?: number;
+  };
+  luckWindow?: {
+    is_open?: boolean;
+    isOpen?: boolean;
+    strength?: number;
+  };
+  flow_suggestion?: {
+    mode?: DecisionMode;
+  };
+  flowSuggestion?: {
+    mode?: DecisionMode;
+  };
+}
 
 const clamp01 = (value: number): number => Math.max(0, Math.min(1, value));
 
@@ -69,6 +102,7 @@ const defaults: DecisionInputs = {
     cosmicAlignment: 0.5,
     luckWindowOpen: false,
     luckWindowStrength: 0,
+    mode: "stabilize",
   },
 };
 
@@ -99,8 +133,47 @@ const clampInputs = (input: DecisionInputs): DecisionInputs => ({
     cosmicAlignment: clamp01(input.flow.cosmicAlignment),
     luckWindowOpen: Boolean(input.flow.luckWindowOpen),
     luckWindowStrength: clamp01(input.flow.luckWindowStrength),
+    mode: input.flow.mode,
   },
 });
+
+const extractFlowState = (flowState: FlowStateInput = {}): Partial<DecisionInputs["flow"]> => {
+  const fromL21 =
+    "alignment" in flowState ||
+    "luck_window" in flowState ||
+    "luckWindow" in flowState ||
+    "flow_suggestion" in flowState ||
+    "flowSuggestion" in flowState;
+
+  if (!fromL21) return flowState;
+
+  const alignment = flowState.alignment ?? {};
+  const luck = flowState.luck_window ?? flowState.luckWindow ?? {};
+  const suggestion = flowState.flow_suggestion ?? flowState.flowSuggestion ?? {};
+
+  return {
+    fai: alignment.fai,
+    innerAlignment: alignment.inner_alignment ?? alignment.innerAlignment,
+    socialAlignment: alignment.social_alignment ?? alignment.socialAlignment,
+    cosmicAlignment: alignment.cosmic_alignment ?? alignment.cosmicAlignment,
+    luckWindowOpen: luck.is_open ?? luck.isOpen,
+    luckWindowStrength: luck.strength,
+    mode: suggestion.mode,
+  };
+};
+
+const normalizeFlowMode = (mode?: DecisionMode): DecisionMode => {
+  const modes: DecisionMode[] = [
+    "stabilize",
+    "explore",
+    "push",
+    "pivot",
+    "slow_down",
+    "connect",
+    "rest",
+  ];
+  return modes.includes(mode as DecisionMode) ? (mode as DecisionMode) : "stabilize";
+};
 
 export const buildDecisionInputs = (
   innerState: InnerStateInput = {},
@@ -112,8 +185,8 @@ export const buildDecisionInputs = (
     meaning: { ...defaults.meaning, ...(innerState.meaning || {}) },
     phase: { ...defaults.phase, ...(innerState.phase || {}) },
     context: { ...defaults.context, ...contextState },
-    flow: { ...defaults.flow, ...flowState },
+    flow: { ...defaults.flow, ...extractFlowState(flowState) },
   };
-
+  merged.flow.mode = normalizeFlowMode(merged.flow.mode);
   return clampInputs(merged);
 };

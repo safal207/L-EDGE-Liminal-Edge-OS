@@ -159,6 +159,24 @@ Decision = argmax(resonance_score(candidates))
 
 Важно: даже "самое удачное" действие не обязательно будет "самым простым" — иногда лучший резонанс требует небольшой боли сейчас для сильного роста потом.
 
+### 4.3 Влияние режима потока (из L21)
+
+L20 получает из L21 поле `flow_suggestion.mode`:
+
+- `stabilize`
+- `explore`
+- `push`
+- `pivot`
+- `slow_down`
+
+В зависимости от режима, L20 подстраивает веса метрик в Resonant State Transition Engine. Например:
+
+- при `push` возрастает важность `flowAlignment`, `globalUtility`, `futureSmoothness`, снижается страх `entropyCost`.
+- при `stabilize` усиливаются `phaseAlignment`, `contextConductivity`, `entropyCost`.
+- при `slow_down` система ещё сильнее бережёт фазу и ресурс.
+
+Так решения становятся не только резонансными, но и идут **в такт** текущему потоку.
+
 ---
 
 5. DecisionEnvelope — обёртка решения
