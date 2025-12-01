@@ -3,6 +3,8 @@
 
 import type { FluidRegionState, InformationalFluidSnapshot } from "./L23_informational_fluid";
 import type { LuckVector } from "./L24_trajectory_harmonizer";
+import { DecisionBus } from "../core/DecisionBus";
+import type { ResonantSignal } from "../core/ResonantSignal";
 
 export interface WaveOption {
   id: string;
@@ -273,6 +275,29 @@ export class WaveChoiceEngine {
 
     return summary;
   }
+}
+
+// Пример интеграции L24 с DecisionBus: отправляем решение как волновой сигнал
+export function emitWaveDecision(decision: WaveDecision): void {
+  if (!decision.chosen) {
+    return;
+  }
+
+  const signal: ResonantSignal = {
+    sourceLayer: "L24",
+    target: "ALL",
+    amplitude: Math.max(0.1, decision.ranked[0]?.score.combinedScore ?? 0.1),
+    probabilityShift: (decision.ranked[0]?.score.luckAlignment ?? 0) - 0.5,
+    timestamp: Date.now(),
+    metadata: {
+      chosenOptionId: decision.chosen.id,
+      chosenOptionLabel: decision.chosen.label,
+      contextGoal: decision.context.goalDescription,
+      topScore: decision.ranked[0]?.score,
+    },
+  };
+
+  DecisionBus.emit(signal);
 }
 
 function clamp01(x: number): number {
