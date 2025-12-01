@@ -63,7 +63,18 @@ export interface TrajectoryHarmonizerConfig {
 }
 
 export class TrajectoryHarmonizer {
-  constructor(private config: TrajectoryHarmonizerConfig) {}
+  private config: TrajectoryHarmonizerConfig;
+
+  constructor(config?: Partial<TrajectoryHarmonizerConfig>) {
+    const defaults: TrajectoryHarmonizerConfig = {
+      weightResonance: 0.35,
+      weightLuck: 0.35,
+      weightRisk: 0.4,
+      weightGain: 0.35,
+    };
+
+    this.config = { ...defaults, ...config } satisfies TrajectoryHarmonizerConfig;
+  }
 
   decide(
     candidates: TrajectoryCandidate[],
@@ -152,7 +163,7 @@ export class TrajectoryHarmonizer {
         }
 
         // Добавляем влияние coherence: чем более упорядочено, тем безопаснее "опираться"
-        score = score * 0.7 + pattern.coherence * 0.3;
+        score = score * 0.6 + pattern.coherence * 0.3 + (1 - pattern.inertia) * 0.1;
 
         total += score;
         count += 1;
@@ -160,11 +171,15 @@ export class TrajectoryHarmonizer {
     }
 
     if (count === 0) return 0.5; // если нет регионов, считаем средним
-    return total / count;
+    return this.clamp01(total / count);
   }
 
   private computeLuckAlignment(trajectory: TrajectoryCandidate, luck: LuckVector): number {
-    const trajectoryTags = new Set(trajectory.tags ?? []);
+    const trajectoryTags = new Set([
+      ...(trajectory.tags ?? []),
+      ...trajectory.steps.flatMap((step) => step.tags ?? []),
+    ]);
+
     let tagMatch = 0;
 
     for (const tag of luck.focusTags) {
@@ -174,14 +189,13 @@ export class TrajectoryHarmonizer {
     }
     const tagScore = luck.focusTags.length > 0 ? tagMatch / luck.focusTags.length : 0.5;
 
-    const riskDiff = Math.abs(trajectory.predictedRisk - luck.riskAppetite);
+    const riskDiff = Math.abs(this.clamp01(trajectory.predictedRisk) - this.clamp01(luck.riskAppetite));
     const riskScore = 1 - riskDiff; // чем ближе, тем лучше
 
-    const isChangeHeavy =
-      (trajectory.timeHorizonMs ?? 0) > 0 && trajectory.predictedGain > 0.6 ? 1 : 0;
-    const changeScore = 1 - Math.abs(isChangeHeavy - luck.changeDrive);
+    const changeIntensity = this.estimateChangeIntensity(trajectory);
+    const changeScore = 1 - Math.abs(changeIntensity - this.clamp01(luck.changeDrive));
 
-    return (tagScore + riskScore + changeScore) / 3;
+    return this.clamp01((tagScore + riskScore + changeScore) / 3);
   }
 
   private computeEnvironmentRisk(
@@ -216,7 +230,7 @@ export class TrajectoryHarmonizer {
         }
 
         // Чем ниже coherence, тем выше риск (хаотичная вода)
-        localRisk = localRisk * 0.7 + (1 - pattern.coherence) * 0.3;
+        localRisk = localRisk * 0.6 + (1 - pattern.coherence) * 0.3 + pattern.inertia * 0.1;
 
         riskTotal += localRisk;
         count += 1;
@@ -224,7 +238,7 @@ export class TrajectoryHarmonizer {
     }
 
     if (count === 0) return 0.5;
-    return riskTotal / count;
+    return this.clamp01(riskTotal / count);
   }
 
   private computeContextPenalty(trajectory: TrajectoryCandidate, context: DecisionContext): number {
@@ -268,7 +282,12 @@ export class TrajectoryHarmonizer {
       }
     }
 
-    return Math.min(1, penalty);
+    if (context.horizonMs && trajectory.timeHorizonMs) {
+      const overrunRatio = Math.max(0, trajectory.timeHorizonMs - context.horizonMs) / context.horizonMs;
+      penalty += Math.min(0.2, overrunRatio * 0.2);
+    }
+
+    return this.clamp01(penalty);
   }
 
   private buildReasonSummary(
@@ -276,13 +295,38 @@ export class TrajectoryHarmonizer {
   ): string {
     if (ranked.length === 0) return "No trajectories provided.";
 
-    const top = ranked[0];
-    return [
-      `Chosen trajectory: ${top.trajectory.label}`,
-      `Resonance: ${(top.scores.resonanceScore * 100).toFixed(1)}%`,
-      `Luck alignment: ${(top.scores.luckAlignment * 100).toFixed(1)}%`,
-      `Environment risk: ${(top.scores.environmentRisk * 100).toFixed(1)}%`,
-      `Combined score: ${top.scores.combinedScore.toFixed(3)}`,
-    ].join(" | ");
+    const [top, ...rest] = ranked;
+    const runnerUp = rest[0];
+    const lines = [
+      `Chosen trajectory: ${top.trajectory.label} (combined ${top.scores.combinedScore.toFixed(3)})`,
+      `Resonance ${(top.scores.resonanceScore * 100).toFixed(1)}%, luck ${(top.scores.luckAlignment * 100).toFixed(1)}%, env risk ${(top.scores.environmentRisk * 100).toFixed(1)}%`,
+    ];
+
+    if (runnerUp) {
+      lines.push(
+        `Runner-up: ${runnerUp.trajectory.label} — delta ${(top.scores.combinedScore - runnerUp.scores.combinedScore).toFixed(3)}`,
+      );
+    }
+
+    return lines.join(" | ");
+  }
+
+  private estimateChangeIntensity(trajectory: TrajectoryCandidate): number {
+    const normalizedHorizon = trajectory.timeHorizonMs
+      ? Math.min(1, trajectory.timeHorizonMs / (365 * 24 * 60 * 60 * 1000))
+      : 0.5;
+
+    const gainSignal = this.clamp01(trajectory.predictedGain);
+    const riskSignal = this.clamp01(trajectory.predictedRisk);
+    const costSignal = this.clamp01(trajectory.predictedCost);
+
+    // Быстрые, резкие и дорогие траектории означают высокий drive на изменение
+    const impulse = gainSignal * 0.4 + riskSignal * 0.3 + costSignal * 0.2 + (1 - normalizedHorizon) * 0.1;
+
+    return this.clamp01(impulse);
+  }
+
+  private clamp01(value: number): number {
+    return Math.max(0, Math.min(1, value));
   }
 }
