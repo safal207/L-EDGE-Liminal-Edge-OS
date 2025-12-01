@@ -15,6 +15,11 @@ import {
   type ResonanceWeights,
 } from "./ResonantStateTransitionEngine";
 import { buildDecisionEnvelope, type DecisionEnvelope } from "./DecisionEnvelope";
+import {
+  adjustWeightsByFlowMode,
+  defaultResonanceWeights,
+  normalizeResonanceWeights,
+} from "./flowModeWeights";
 
 export interface ResonantDecisionOutput {
   inputs: DecisionInputs;
@@ -34,8 +39,15 @@ export const L20_ResonantDecisionOrchestrator = (
 ): ResonantDecisionOutput => {
   const inputs = buildDecisionInputs(innerState, contextState, flowState);
   const candidates = buildResonantCandidates(inputs, externalCandidates);
-  const scored = runResonantStateTransitionEngine(inputs, candidates, weights);
-  const decision = buildDecisionEnvelope(inputs, scored);
+  const flowMode = flowState?.flow_suggestion?.mode ?? inputs.flow.mode;
+  const baseWeights = defaultResonanceWeights();
+  const adjustedWeights = adjustWeightsByFlowMode({ ...baseWeights, ...weights }, flowMode);
+  const normalizedWeights = normalizeResonanceWeights(adjustedWeights);
+  const scored = runResonantStateTransitionEngine(inputs, candidates, normalizedWeights);
+  const decision = buildDecisionEnvelope(inputs, scored, {
+    flowMode,
+    weights: normalizedWeights,
+  });
 
   return { inputs, candidates: scored, decision };
 };
@@ -44,3 +56,4 @@ export * from "./DecisionInputs";
 export * from "./ResonantStateCandidate";
 export * from "./ResonantStateTransitionEngine";
 export * from "./DecisionEnvelope";
+export * from "./flowModeWeights";

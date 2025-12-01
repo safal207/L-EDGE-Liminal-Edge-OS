@@ -49,7 +49,7 @@ describe("L20 Resonant Decision Orchestrator", () => {
   });
 
   it("scores candidates and returns a resonant decision envelope", () => {
-    const weights: ResonanceWeights = { coherence: 0.3, entropy: 0.05 };
+    const weights: ResonanceWeights = { coherence: 0.3, entropyCost: 0.05 };
     const externalCandidates = [
       {
         id: "connect_people",
