@@ -1,5 +1,6 @@
 import type { DecisionInputs } from "./DecisionInputs";
 import type { ResonantStateCandidate, DecisionMode } from "./ResonantStateCandidate";
+import { defaultResonanceWeights, normalizeResonanceWeights } from "./flowModeWeights";
 
 export interface ScoredResonantCandidate extends ResonantStateCandidate {
   coherenceScore: number;
@@ -15,13 +16,13 @@ export interface ScoredResonantCandidate extends ResonantStateCandidate {
 
 export interface ResonanceWeights {
   coherence?: number;
-  harmonic?: number;
-  phase?: number;
-  context?: number;
-  smoothness?: number;
-  utility?: number;
-  flow?: number;
-  entropy?: number;
+  harmonicFit?: number;
+  phaseAlignment?: number;
+  contextConductivity?: number;
+  futureSmoothness?: number;
+  globalUtility?: number;
+  flowAlignment?: number;
+  entropyCost?: number;
 }
 
 const clamp01 = (value: number): number => Math.max(0, Math.min(1, value));
@@ -34,41 +35,6 @@ const MODE_ENTROPY: Record<DecisionMode, number> = {
   slow_down: 0.2,
   connect: 0.25,
   rest: 0.1,
-};
-
-const baseWeights: Required<ResonanceWeights> = {
-  coherence: 0.22,
-  harmonic: 0.14,
-  phase: 0.12,
-  context: 0.12,
-  smoothness: 0.12,
-  utility: 0.14,
-  flow: 0.1,
-  entropy: 0.08,
-};
-
-const normalizeWeights = (weights: ResonanceWeights): Required<ResonanceWeights> => {
-  const merged = { ...baseWeights, ...weights } as Required<ResonanceWeights>;
-  const sum =
-    merged.coherence +
-    merged.harmonic +
-    merged.phase +
-    merged.context +
-    merged.smoothness +
-    merged.utility +
-    merged.flow +
-    merged.entropy;
-  if (sum === 0) return baseWeights;
-  return {
-    coherence: merged.coherence / sum,
-    harmonic: merged.harmonic / sum,
-    phase: merged.phase / sum,
-    context: merged.context / sum,
-    smoothness: merged.smoothness / sum,
-    utility: merged.utility / sum,
-    flow: merged.flow / sum,
-    entropy: merged.entropy / sum,
-  };
 };
 
 const computeCoherence = (candidate: ResonantStateCandidate, inputs: DecisionInputs) => {
@@ -144,7 +110,7 @@ export const runResonantStateTransitionEngine = (
   candidates: ResonantStateCandidate[],
   weights: ResonanceWeights = {}
 ): ScoredResonantCandidate[] => {
-  const w = normalizeWeights(weights);
+  const w = normalizeResonanceWeights(Object.keys(weights).length ? weights : defaultResonanceWeights());
 
   return candidates.map((candidate) => {
     const coherenceScore = computeCoherence(candidate, inputs);
@@ -158,13 +124,13 @@ export const runResonantStateTransitionEngine = (
 
     const resonanceScore = clamp01(
       w.coherence * coherenceScore +
-        w.harmonic * harmonicFit +
-        w.phase * phaseAlignment +
-        w.context * contextConductivity +
-        w.smoothness * futurePathSmoothness +
-        w.utility * globalUtility +
-        w.flow * flowAlignment -
-        w.entropy * entropyCost
+        w.harmonicFit * harmonicFit +
+        w.phaseAlignment * phaseAlignment +
+        w.contextConductivity * contextConductivity +
+        w.futureSmoothness * futurePathSmoothness +
+        w.globalUtility * globalUtility +
+        w.flowAlignment * flowAlignment -
+        w.entropyCost * entropyCost
     );
 
     return {
