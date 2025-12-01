@@ -1,4 +1,6 @@
-export function computeFlowAlignmentIndex(inputs) {
+import { classifyFlowQuality, defaultL21FlowConfig } from "./L21_config.js";
+
+export function computeFlowAlignmentIndex(inputs, config = defaultL21FlowConfig) {
   const { time, meaning, phase, context, collective } = inputs;
 
   const inner_alignment = avg([
@@ -35,7 +37,8 @@ export function computeFlowAlignmentIndex(inputs) {
     social_alignment: clamp01(social_alignment),
     cosmic_alignment: clamp01(cosmic_alignment),
     phase_fit: clamp01(phase_fit),
-    context_fit: clamp01(context_fit)
+    context_fit: clamp01(context_fit),
+    quality: classifyFlowQuality(fai, config)
   };
 }
 

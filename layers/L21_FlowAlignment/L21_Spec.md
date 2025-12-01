@@ -512,3 +512,44 @@ function computeConfidence(fai, luckWindow, phase, pressure) {
 
 
 Но формально: L21 как слой оси удачи / Axis-F у тебя уже оформлен.
+
+---
+
+## 8. Наблюдаемость и объяснения
+
+L21 теперь экспортирует сигналы, которые можно прямо вкладывать в итоговый decision envelope:
+
+- **flow_alignment**: `{ value: FAI, quality: "low|medium|high" }` — качество танцованности.
+- **luck_window**: `{ isOpen, openness, timing: "now|soon|later" }` — сила и тайминг окна удачи.
+- **cooperative_field**: `{ score, mode: "solo|team|clustered" }` — коллективное поле.
+- **flow_suggestion**: `{ mode, confidence }` — мягкий режим для L20.
+- **flow_explain**: `string[]` — человеко-читаемые пояснения, почему выбран режим.
+
+Эти поля проходят в L20 и в итоговый объект решения, чтобы ось потока была наблюдаемой, а не «магической».
+
+---
+
+## 9. Конфигурация порогов (L21FlowConfig)
+
+Все ключевые пороги вынесены в конфиг `L21FlowConfig`:
+
+```js
+export const defaultL21FlowConfig = {
+  flowThresholds: { high: 0.66, medium: 0.33 },
+  luckThresholds: { open: 0.5 },
+  pressureSweetSpot: { min: 0.4, max: 0.75 },
+};
+```
+
+Функции вычисления FAI, LuckWindow и FlowSuggestion принимают конфиг, так что его можно тюнинговать или обучать.
+
+---
+
+## 10. Демонстрация «до/после»
+
+Демо `examples/L20_L21_flow_demo/run_demo.ts` считает два прогона:
+
+- **before flow** — базовые веса RSTE без поправки на ось удачи,
+- **after flow** — с поправкой на `flow_suggestion.mode`.
+
+В выводе видно `decision_delta_score` и объяснения `flow_explain`, чтобы оценить реальное влияние L21 на выбор решения.

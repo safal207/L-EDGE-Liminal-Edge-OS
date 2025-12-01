@@ -1,4 +1,6 @@
-export function buildFlowSuggestion(inputs, alignment, luckWindow, cooperativeField) {
+import { classifyFlowQuality, defaultL21FlowConfig } from "./L21_config.js";
+
+export function buildFlowSuggestion(inputs, alignment, luckWindow, cooperativeField, config = defaultL21FlowConfig) {
   const fai = alignment.fai;
   const pressure = inputs.context.pressure_intensity;
   const phase = inputs.phase.stability;
@@ -21,11 +23,21 @@ export function buildFlowSuggestion(inputs, alignment, luckWindow, cooperativeFi
     }
   }
 
-  const confidence = computeConfidence(fai, luckWindow, phase, pressure);
+  const confidence = computeConfidence(fai, luckWindow, phase, pressure, config);
+  const explain = buildFlowExplain({
+    mode,
+    fai,
+    pressure,
+    phase,
+    luckWindow,
+    alignmentQuality: classifyFlowQuality(fai, config),
+    cooperativeField,
+  });
 
   return {
     mode,
     confidence,
+    explain,
     reasoning: {
       fai,
       luck_window: luckWindow.is_open,
@@ -36,9 +48,33 @@ export function buildFlowSuggestion(inputs, alignment, luckWindow, cooperativeFi
   };
 }
 
-function computeConfidence(fai, luckWindow, phase, pressure) {
+function computeConfidence(fai, luckWindow, phase, pressure, config) {
   let base = fai;
   if (luckWindow.is_open) base += luckWindow.strength * 0.2;
-  base += (phase - pressure) * 0.1;
+  const { min, max } = config.pressureSweetSpot;
+  const pressureFit = pressure >= min && pressure <= max ? 0.05 : -0.05;
+  base += (phase - pressure) * 0.1 + pressureFit;
   return Math.max(0, Math.min(1, base));
+}
+
+function buildFlowExplain({ mode, fai, pressure, phase, luckWindow, alignmentQuality, cooperativeField }) {
+  const messages = [];
+
+  const luckMsg = luckWindow.is_open
+    ? `Luck window open (${(luckWindow.strength * 100).toFixed(0)}%)`
+    : "Luck window closed";
+  const pressureMsg = `Context pressure ${(pressure * 100).toFixed(0)}%`;
+  const phaseMsg = `Phase stability ${(phase * 100).toFixed(0)}% (${mode})`;
+  const coop = cooperativeField || {};
+  const cooperativeScore = ((coop.cohesion ?? 0) + (coop.spacing ?? 0) + (coop.passing_lanes ?? 0)) / 3;
+  const coopMsg = `Cooperative field ${(cooperativeScore * 100).toFixed(0)}% (conflict ${(coop.conflict_level ?? 0) * 100}%)`;
+
+  messages.push(`Flow alignment ${alignmentQuality} (FAI ${(fai * 100).toFixed(0)}%)`);
+  messages.push(luckMsg);
+  messages.push(pressureMsg);
+  messages.push(phaseMsg);
+  messages.push(coopMsg);
+  messages.push(`Chosen flow mode: ${mode}`);
+
+  return messages;
 }

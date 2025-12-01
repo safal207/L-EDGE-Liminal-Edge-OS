@@ -13,6 +13,24 @@ export interface DecisionEnvelope {
   intensity: number;
   resonanceScore: number;
   riskBand: RiskBand;
+  flow_alignment?: {
+    value: number;
+    quality?: string;
+  };
+  luck_window?: {
+    isOpen: boolean;
+    openness: number;
+    timing?: string;
+  };
+  cooperative_field?: {
+    score: number;
+    mode?: string;
+  };
+  flow_suggestion?: {
+    mode: string;
+    confidence?: number;
+  };
+  flow_explain?: string[];
   alignment: {
     inner: number;
     social: number;
@@ -47,6 +65,8 @@ export const buildDecisionEnvelope = (
   const riskBand = computeRiskBand(best.entropyCost, best.resonanceScore);
 
   const { innerAlignment, socialAlignment, cosmicAlignment } = inputs.flow;
+  const flowAlignmentValue = inputs.flow.fai;
+  const flowQuality = inputs.flow.quality;
 
   return {
     chosenCandidateId: best.id,
@@ -54,6 +74,24 @@ export const buildDecisionEnvelope = (
     intensity: clamp01(best.intensity),
     resonanceScore: best.resonanceScore,
     riskBand,
+    flow_alignment: {
+      value: flowAlignmentValue,
+      quality: flowQuality,
+    },
+    luck_window: {
+      isOpen: inputs.flow.luckWindowOpen,
+      openness: inputs.flow.luckWindowStrength,
+      timing: inputs.flow.luckWindowTiming,
+    },
+    cooperative_field: {
+      score: inputs.flow.cooperativeScore ?? 0,
+      mode: inputs.flow.cooperativeMode,
+    },
+    flow_suggestion: {
+      mode: meta.flowMode ?? inputs.flow.mode,
+      confidence: inputs.flow.confidence,
+    },
+    flow_explain: inputs.flow.explain,
     alignment: {
       inner: innerAlignment,
       social: socialAlignment,

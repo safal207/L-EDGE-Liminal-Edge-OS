@@ -1,7 +1,15 @@
 // @ts-nocheck
 // L21 is authored in JS; the demo consumes runtime API only
 import { L21_FlowAlignment } from "../../layers/L21_FlowAlignment/index.js";
-import { L20_ResonantDecisionOrchestrator } from "../../layers/L20_ResonantDecision/index.js";
+import {
+  buildDecisionInputs,
+  buildResonantCandidates,
+  runResonantStateTransitionEngine,
+  buildDecisionEnvelope,
+  defaultResonanceWeights,
+  adjustWeightsByFlowMode,
+  normalizeResonanceWeights,
+} from "../../layers/L20_ResonantDecision/index.js";
 import demo from "./inputs_example.json";
 import type { DecisionMode } from "../../layers/L20_ResonantDecision/ResonantStateCandidate";
 
@@ -54,20 +62,54 @@ function runDemo() {
   const l20Context = normalizeContextForL20(contextState);
   const l20Candidates = normalizeCandidates(externalCandidates);
 
-  const result = L20_ResonantDecisionOrchestrator(
-    l20Inner,
-    l20Context,
-    flowState,
-    l20Candidates
+  const inputs = buildDecisionInputs(l20Inner, l20Context, flowState);
+  const candidates = buildResonantCandidates(inputs, l20Candidates);
+  const flowMode = (flowState.flow_suggestion?.mode as DecisionMode) ?? "stabilize";
+
+  const baseWeights = normalizeResonanceWeights(defaultResonanceWeights());
+  const flowWeights = normalizeResonanceWeights(
+    adjustWeightsByFlowMode({ ...baseWeights }, flowMode)
   );
 
-  console.log("\n=== L20 Decision with Flow Mode ===");
-  console.log("Flow mode:", result.decision.reasoning.flowMode);
-  console.log("Chosen decision:");
-  console.dir(result.decision, { depth: null });
+  const scoredBefore = runResonantStateTransitionEngine(inputs, candidates, baseWeights);
+  const scoredAfter = runResonantStateTransitionEngine(inputs, candidates, flowWeights);
 
-  console.log("\nScored candidates:");
-  result.candidates
+  const decisionBefore = buildDecisionEnvelope(inputs, scoredBefore, {
+    flowMode: "stabilize",
+    weights: baseWeights,
+  });
+  const decisionAfter = buildDecisionEnvelope(inputs, scoredAfter, {
+    flowMode,
+    weights: flowWeights,
+  });
+
+  const result = {
+    flowState,
+    decision_before_flow: decisionBefore,
+    decision_after_flow: decisionAfter,
+    decision_delta_score: decisionAfter.resonanceScore - decisionBefore.resonanceScore,
+    candidates_before_flow: scoredBefore,
+    candidates_after_flow: scoredAfter,
+  };
+
+  console.log("\n=== L20 Decision with Flow Mode ===");
+  console.log("Flow mode:", result.decision_after_flow.flow_suggestion?.mode);
+  console.log("Chosen decision (after flow):");
+  console.dir(result.decision_after_flow, { depth: null });
+
+  console.log("\nDecision before flow adjustments:");
+  console.dir(result.decision_before_flow, { depth: null });
+  console.log("Decision delta (after - before):", result.decision_delta_score.toFixed(3));
+
+  console.log("\nScored candidates (before flow):");
+  result.candidates_before_flow
+    .sort((a, b) => b.resonanceScore - a.resonanceScore)
+    .forEach((c) => {
+      console.log(`- ${c.id}: score=${c.resonanceScore.toFixed(3)} mode=${c.mode}`);
+    });
+
+  console.log("\nScored candidates (after flow):");
+  result.candidates_after_flow
     .sort((a, b) => b.resonanceScore - a.resonanceScore)
     .forEach((c) => {
       console.log(`- ${c.id}: score=${c.resonanceScore.toFixed(3)} mode=${c.mode}`);
