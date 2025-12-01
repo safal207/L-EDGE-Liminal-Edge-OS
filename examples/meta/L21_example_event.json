@@ -1,0 +1,22 @@
+{
+  "id": "evt-2025-12-01T12:00:00.000Z-L21",
+  "timestamp": "2025-12-01T12:00:00.000Z",
+  "layer": "L21_FLOW_ALIGNMENT",
+  "label": "flow_decision_evaluated",
+  "axes": {
+    "self": 0.78,
+    "social": 0.71,
+    "cosmic": 0.42
+  },
+  "metrics": {
+    "flow_alignment": 0.78,
+    "luck_openness": 0.63,
+    "coop_score": 0.71
+  },
+  "context": {
+    "suggested_mode": "push",
+    "confidence": 0.82,
+    "candidate_before": "Option B",
+    "candidate_after": "Option A"
+  }
+}
