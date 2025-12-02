@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { LAYERS_BY_ID, LIMINAL_LAYERS_MANIFEST } from '../core/layers.manifest';
+import {
+  LAYERS_BY_ID,
+  LIMINAL_LAYERS_MANIFEST,
+  getDependencies,
+  getLayer,
+} from '../core/layers.manifest';
 
 describe('LIMINAL_LAYERS_MANIFEST', () => {
   const ids = LIMINAL_LAYERS_MANIFEST.map((layer) => layer.id);
@@ -39,5 +44,16 @@ describe('LIMINAL_LAYERS_MANIFEST', () => {
 
   it('returns undefined for unknown ids', () => {
     expect(LAYERS_BY_ID.get('L999')).toBeUndefined();
+  });
+
+  it('provides lookup helpers for layers and dependencies', () => {
+    expect(getLayer('L0')).toEqual(LIMINAL_LAYERS_MANIFEST[0]);
+    expect(getLayer('L999')).toBeUndefined();
+
+    const dependencies = getDependencies('L13');
+    const expected = ['L9', 'L10', 'L11', 'L12'];
+
+    expect(dependencies.map((layer) => layer.id)).toEqual(expected);
+    expect(getDependencies('L999')).toEqual([]);
   });
 });

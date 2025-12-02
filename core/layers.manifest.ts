@@ -261,3 +261,19 @@ export const LIMINAL_LAYERS_MANIFEST: LiminalLayerManifest = [
 export const LAYERS_BY_ID = new Map<string, LiminalLayerSpec>(
   LIMINAL_LAYERS_MANIFEST.map((layer) => [layer.id, layer]),
 );
+
+export function getLayer(id: string): LiminalLayerSpec | undefined {
+  return LAYERS_BY_ID.get(id);
+}
+
+export function getDependencies(id: string): LiminalLayerSpec[] {
+  const layer = LAYERS_BY_ID.get(id);
+
+  if (!layer) {
+    return [];
+  }
+
+  return layer.dependencies
+    .map((dependencyId) => LAYERS_BY_ID.get(dependencyId))
+    .filter((dependency): dependency is LiminalLayerSpec => Boolean(dependency));
+}
