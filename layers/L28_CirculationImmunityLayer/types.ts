@@ -1,10 +1,10 @@
-export type FlowChannelType = "nutrient" | "signal" | "waste" | "heat";
+export type FlowType = "nutrient" | "signal" | "waste" | "heat";
 
 export interface FlowSignal {
   /**
    * Тип переносимого сигнала: питательный поток, командный импульс, сброс тепла или отходы.
    */
-  type: FlowChannelType;
+  type: FlowType;
   /**
    * Интенсивность или объём потока.
    */
@@ -19,7 +19,7 @@ export interface FlowChannel {
   /**
    * Тип канала: питательный, сигнальный, вывод отходов или отвода тепла.
    */
-  type: FlowChannelType;
+  type: FlowType;
   /**
    * Пропускная способность канала.
    */
@@ -31,7 +31,11 @@ export interface FlowChannel {
   /**
    * Регулирует поток с учётом нагрузки и текущего состояния организма.
    */
-  regulate(signal: FlowSignal): FlowSignal;
+  regulate(signal: FlowSignal, loadFactor?: number): FlowSignal;
+  /**
+   * Уникальный идентификатор канала — помогает иммунным узлам отслеживать его состояние.
+   */
+  id?: string;
 }
 
 export interface PerceptionSignal {
@@ -53,7 +57,7 @@ export interface PerceptionSignal {
   metadata?: Record<string, unknown>;
 }
 
-export type ThreatLevel = "low" | "medium" | "high" | "critical";
+export type ThreatLevel = "ok" | "warning" | "low" | "medium" | "high" | "critical";
 
 export interface ImmuneAction {
   /**
@@ -75,6 +79,14 @@ export interface ImmuneAction {
 }
 
 export interface ImmuneNode {
+  /**
+   * Уникальный идентификатор иммунного узла.
+   */
+  id?: string;
+  /**
+   * Каналы, за которыми этот узел следит.
+   */
+  watchChannels?: string[];
   /**
    * Обнаруживает потенциальную угрозу или искажение на основе входящего сигнала.
    */
@@ -106,6 +118,33 @@ export interface PulseRegulator {
    * Следующий такт для синхронизации других слоёв.
    */
   nextBeat(): number;
+}
+
+/**
+ * Минимальный программный интерфейс для «сердца» L28.
+ */
+export interface L28CirculationEngine {
+  /**
+   * Каналы, по которым движутся питательные, сигнальные, тепловые и очистительные потоки.
+   */
+  channels: FlowChannel[];
+  /**
+   * Иммунные узлы, отслеживающие состояние каналов и пульса.
+   */
+  immuneNodes: ImmuneNode[];
+
+  /**
+   * Основной «такт» циркуляции.
+   */
+  pump(): void;
+  /**
+   * Запуск очистки и детокса потока.
+   */
+  filter(): void;
+  /**
+   * Восстановление после перегрузки или неудачных траекторий.
+   */
+  regenerate(): void;
 }
 
 export interface RegenerationEngine {
