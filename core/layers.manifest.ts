@@ -262,6 +262,10 @@ export const LAYERS_BY_ID = new Map<string, LiminalLayerSpec>(
   LIMINAL_LAYERS_MANIFEST.map((layer) => [layer.id, layer]),
 );
 
+export function listLayers(): LiminalLayerManifest {
+  return LIMINAL_LAYERS_MANIFEST;
+}
+
 export function getLayer(id: string): LiminalLayerSpec | undefined {
   return LAYERS_BY_ID.get(id);
 }
