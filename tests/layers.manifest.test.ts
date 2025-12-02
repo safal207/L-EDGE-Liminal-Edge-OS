@@ -36,4 +36,8 @@ describe('LIMINAL_LAYERS_MANIFEST', () => {
     expect(LAYERS_BY_ID.has('L30')).toBe(true);
     expect(LAYERS_BY_ID.size).toBe(LIMINAL_LAYERS_MANIFEST.length);
   });
+
+  it('returns undefined for unknown ids', () => {
+    expect(LAYERS_BY_ID.get('L999')).toBeUndefined();
+  });
 });
