@@ -1,99 +1,54 @@
-export interface EmergentLink {
+export type InsightPhase = "seed" | "growing" | "mature" | "legacy";
+
+export interface InsightMeta {
   /**
-   * Уникальный идентификатор инсайта или новой связи.
+   * Уникальный идентификатор инсайта и его семени/мотивa.
    */
   id: string;
   /**
-   * Человеко-понятное описание инсайта.
-   */
-  description: string;
-  /**
-   * Слои или органы, на стыке которых возник инсайт.
-   */
-  originLayers: string[];
-  /**
-   * Момент формирования инсайта (timestamp).
+   * Момент появления инсайта (timestamp).
    */
   createdAt: number;
   /**
-   * Уверенность системы в устойчивости новой связи.
+   * Краткое описание того, что родилось.
    */
-  confidence: number;
+  summary: string;
+  /**
+   * С какими слоями инсайт резонирует сильнее всего (L21, L25, L29, L26–L28 и т.д.).
+   */
+  originLayers: string[];
+  /**
+   * Насколько сильно инсайт «звенит» по системе (вес внимания, а не фильтр).
+   */
+  resonanceScore: number;
+  /**
+   * Текущая фаза жизни инсайта.
+   */
+  phase: InsightPhase;
+  /**
+   * Может ли инсайт менять цель или курс системы.
+   */
+  canAffectGoal: boolean;
 }
 
-export interface InsightState {
+export interface L30InsightField {
   /**
-   * Напряжение между слоями (несоответствие ожиданий и текущих траекторий).
+   * Регистрация нового инсайта (без цензуры или порогов).
    */
-  tension: number;
-  /**
-   * Степень синхронизации с дыханием и ритмом L29.
-   */
-  rhythmAlignment: number;
-  /**
-   * Окно удачи и временной возможности из L21.
-   */
-  temporalOpportunity: number;
-  /**
-   * Доступная энергетика и ресурсные буферы из L26–L28.
-   */
-  energy: number;
-  /**
-   * Итоговый интегральный показатель, готов ли организм к вспышке инсайта.
-   */
-  score: number;
-}
+  registerInsight(summary: string, originLayers: string[]): InsightMeta;
 
-export interface InsightTrigger {
   /**
-   * Анализирует состояние и определяет, созрели ли условия для инсайта.
+   * Обновление фаз инсайтов во времени (дозревание, интеграция, уход в наследие).
    */
-  shouldTrigger(state: InsightState): boolean;
-}
+  evolveInsights(now: number): void;
 
-export interface ResonanceAnalyzer {
   /**
-   * Сканирует резонанс между ключевыми слоями и вычисляет напряжение.
+   * Получение инсайтов, которые «звенят» сильнее всего в текущей конфигурации организма.
    */
-  scan(): InsightState;
-}
+  getActiveInsights(limit?: number): InsightMeta[];
 
-export interface EmergentMapper {
   /**
-   * Формирует новую связь или паттерн на основе текущего состояния.
+   * Пометка инсайта как изменившего цель/курс системы.
    */
-  create(state: InsightState): EmergentLink;
-}
-
-export interface TemporalSelector {
-  /**
-   * Определяет лучший момент для применения инсайта.
-   */
-  select(state: InsightState): number;
-}
-
-export interface IntegrationWeaver {
-  /**
-   * Встраивает новый инсайт, сохраняя целостность ритмов и иммунитета.
-   */
-  weave(link: EmergentLink): void;
-}
-
-export interface L30InsightEngine {
-  /**
-   * Получает метрики резонанса и обновляет state.
-   */
-  analyze(state: InsightState): InsightState;
-  /**
-   * Проверяет, стоит ли инициировать вспышку инсайта.
-   */
-  shouldTrigger(state: InsightState): boolean;
-  /**
-   * Создаёт новую связь, когда score превышает порог.
-   */
-  createEmergentLink(state: InsightState): EmergentLink;
-  /**
-   * Вплетает инсайт в организм для долговременного эффекта.
-   */
-  integrate(link: EmergentLink): void;
+  markAsGoalShifting(id: string): void;
 }
