@@ -1,7 +1,21 @@
 import { OrganelleMesh } from "../src/core/l26-organelleMesh";
-import { OrganelleDescriptor, OrganelleTask } from "../src/core/types/organelle";
+import {
+  MineralMatrix,
+  OrganelleDescriptor,
+  OrganelleTask,
+} from "../src/core/types/organelle";
 
 const mesh = new OrganelleMesh();
+
+const mineralMatrix: MineralMatrix = {
+  structuralIntegrity: 0.82,
+  ionFlowStability: 0.86,
+  microRepairRate: 0.72,
+  adaptationSpeed: 0.78,
+  mineralBalance: { Ca: 1, Mg: 0.95, Fe: 0.88, Si: 0.9 },
+};
+
+mesh.setMineralMatrix(mineralMatrix);
 
 const mitochondria: OrganelleDescriptor = {
   state: {
@@ -39,4 +53,5 @@ const dispatchResult = mesh.dispatchTask(task);
 const snapshot = mesh.snapshot();
 
 console.log("Dispatch Result:", dispatchResult);
+console.log("Mineral Matrix:", snapshot.mineralMatrix);
 console.log("Mesh snapshot:", JSON.stringify(snapshot, null, 2));

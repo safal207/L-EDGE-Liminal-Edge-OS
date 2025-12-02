@@ -54,3 +54,11 @@ export interface OrganelleTask {
   deadlineMs?: number;
   priority?: number;
 }
+
+export interface MineralMatrix {
+  structuralIntegrity: number;
+  ionFlowStability: number;
+  microRepairRate: number;
+  adaptationSpeed: number;
+  mineralBalance: Record<string, number>;
+}
