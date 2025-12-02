@@ -23,13 +23,14 @@ export type LiminalLayerCategory =
   | 'coordination'
   | 'execution'
   | 'circulation'
-  | 'rhythm';
+  | 'rhythm'
+  | (string & {});
 
 export interface LiminalLayerSpec {
   id: `L${number}` | string;
   name: string;
   description: string;
-  category: LiminalLayerCategory | string;
+  category: LiminalLayerCategory;
   dependencies: string[];
 }
 
@@ -256,3 +257,7 @@ export const LIMINAL_LAYERS_MANIFEST: LiminalLayerManifest = [
     dependencies: ['L21', 'L25', 'L26', 'L27', 'L28', 'L29'],
   },
 ];
+
+export const LAYERS_BY_ID = new Map<string, LiminalLayerSpec>(
+  LIMINAL_LAYERS_MANIFEST.map((layer) => [layer.id, layer]),
+);
