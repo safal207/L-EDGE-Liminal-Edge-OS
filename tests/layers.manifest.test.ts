@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
-  LAYERS_BY_ID,
-  LIMINAL_LAYERS_MANIFEST,
   getDependencies,
   getLayer,
+  LAYERS_BY_ID,
+  LIMINAL_LAYERS_MANIFEST,
 } from '../core/layers.manifest';
 
 describe('LIMINAL_LAYERS_MANIFEST', () => {
