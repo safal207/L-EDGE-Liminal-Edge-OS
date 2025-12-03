@@ -63,6 +63,10 @@ function logSnapshot(snapshot: BreathingSnapshot) {
   };
 
   console.log("Breathing snapshot", summary);
+
+  if (snapshot.tone) {
+    console.log("Organism tone", snapshot.tone);
+  }
 }
 
 runDemo();

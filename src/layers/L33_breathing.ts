@@ -1,3 +1,6 @@
+import type { OrganismTone } from '@/layers/shared/organismTone';
+import { deriveOrganismTone, setCurrentOrganismTone } from '@/layers/shared/organismTone';
+
 export type BreathingPhase = "inhale" | "exhale" | "hold";
 
 export interface RetrospectiveMetrics {
@@ -33,6 +36,8 @@ export interface BreathingSnapshot {
   fuzzFatigue: number;
 
   luckSynergyScore: number;
+
+  tone?: OrganismTone;
 
   createdAt: string;
 }
@@ -145,6 +150,10 @@ export function runBreathingCycle(metrics: RetrospectiveMetrics): BreathingSnaps
     createdAt: new Date().toISOString(),
   };
 
+  const tone = deriveOrganismTone(snapshot);
+  snapshot.tone = tone;
+  setCurrentOrganismTone(tone);
+
   breathingLog.push(snapshot);
   if (breathingLog.length > 1000) {
     breathingLog.shift();
@@ -160,6 +169,7 @@ export function getBreathingHistory(limit = 50): BreathingSnapshot[] {
 export function resetBreathingState(): void {
   breathingLog.length = 0;
   cycleCounter = 0;
+  setCurrentOrganismTone(null);
 }
 
 function clamp01(value: number): number {
