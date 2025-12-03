@@ -1,5 +1,13 @@
 import { getRecentInsights, LiminalInsight } from "./L30_insights";
 
+type CalibrationMatchQuality =
+  | "well_calibrated"
+  | "overconfident"
+  | "underconfident"
+  | "missed"
+  | "lucky"
+  | "unlucky";
+
 export type ForesightImpactAxis = "risk" | "reward" | "stability" | "exploration";
 
 export interface DecisionOutcome {
@@ -34,6 +42,9 @@ export interface ForesightSignal {
   metadata?: Record<string, unknown>;
   createdAt: number;
 }
+
+let globalConfidenceScale = 1;
+const foresightByDecisionId = new Map<string, ForesightSignal>();
 
 export function buildInsightContextForDecision(
   decision: DecisionOutcome,
@@ -87,6 +98,7 @@ export function generateForesightSignal(decision: DecisionOutcome): ForesightSig
   const insightPenalty = 0.15 * (1 - insightContext.coherence) * insightWeight;
 
   let confidence = clamp01(baseConfidence + insightBoost - insightPenalty);
+  confidence = clamp01(confidence * globalConfidenceScale);
 
   let expectedImpact: ForesightSignal["expectedImpact"] = riskLevel >= 0 ? "positive" : "negative";
   if (insightWeight > 0.2) {
@@ -97,7 +109,7 @@ export function generateForesightSignal(decision: DecisionOutcome): ForesightSig
     }
   }
 
-  return {
+  const signal: ForesightSignal = {
     id: `foresight_${Date.now()}`,
     sourceDecisionId: decision.id,
     horizonMs: 5 * 60 * 1000,
@@ -125,6 +137,10 @@ export function generateForesightSignal(decision: DecisionOutcome): ForesightSig
     },
     createdAt: Date.now(),
   };
+
+  recordForesightSignal(signal);
+
+  return signal;
 }
 
 function extractTagsFromDecision(decision: DecisionOutcome): string[] {
@@ -151,4 +167,37 @@ function clampSigned(value: number): number {
   if (value < -1) return -1;
   if (value > 1) return 1;
   return value;
+}
+
+export function recordForesightSignal(signal: ForesightSignal): void {
+  if (!signal?.sourceDecisionId) return;
+  foresightByDecisionId.set(signal.sourceDecisionId, signal);
+}
+
+export function getForesightByDecisionId(
+  decisionId: string,
+): ForesightSignal | undefined {
+  return foresightByDecisionId.get(decisionId);
+}
+
+export function clearForesightRegistry(): void {
+  foresightByDecisionId.clear();
+}
+
+export function applyForesightCalibration(matchQuality: CalibrationMatchQuality): number {
+  if (matchQuality === "overconfident") {
+    globalConfidenceScale = Math.max(0.5, globalConfidenceScale - 0.02);
+  } else if (matchQuality === "underconfident") {
+    globalConfidenceScale = Math.min(1.5, globalConfidenceScale + 0.02);
+  }
+
+  return globalConfidenceScale;
+}
+
+export function getForesightConfidenceScale(): number {
+  return globalConfidenceScale;
+}
+
+export function resetForesightCalibration(): void {
+  globalConfidenceScale = 1;
 }
