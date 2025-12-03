@@ -10,6 +10,7 @@
     "dev": "ts-node services/devCluster.ts",
     "dev:edge": "ts-node edge/edgeService.ts",
     "dev:interface": "ts-node interface/apiServer.ts",
+    "dev:retro": "tsx scripts/dev/retro-demo.ts",
     "build": "tsc -p tsconfig.json",
     "check": "tsc --noEmit",
     "watch:l4": "node examples/ontogenesis_l4_watch.js",
@@ -66,6 +67,7 @@
     "@types/uuid": "^10.0.0",
     "npm-run-all": "^4.1.5",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.9.3",
     "vitest": "^4.0.14"
   }
