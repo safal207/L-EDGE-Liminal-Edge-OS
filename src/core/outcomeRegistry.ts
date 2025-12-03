@@ -11,10 +11,14 @@ export interface RealizedOutcome {
   notes?: string;
 }
 
+const MAX_REALIZED_OUTCOMES = 10_000;
 const realizedOutcomes: RealizedOutcome[] = [];
 
 export function registerRealizedOutcome(outcome: RealizedOutcome): void {
   realizedOutcomes.push(outcome);
+  if (realizedOutcomes.length > MAX_REALIZED_OUTCOMES) {
+    realizedOutcomes.shift();
+  }
 }
 
 export function getRealizedOutcomeByDecisionId(
