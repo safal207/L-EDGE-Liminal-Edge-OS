@@ -10,9 +10,9 @@ describe('LIMINAL_LAYERS_MANIFEST', () => {
   const ids = LIMINAL_LAYERS_MANIFEST.map((layer) => layer.id);
   const idSet = new Set(ids);
 
-  it('contains L0 and L30 entries', () => {
+  it('contains L0 and L31 entries', () => {
     expect(idSet.has('L0')).toBe(true);
-    expect(idSet.has('L30')).toBe(true);
+    expect(idSet.has('L31')).toBe(true);
   });
 
   it('ensures every layer has required fields populated', () => {

@@ -24,6 +24,7 @@ export type LiminalLayerCategory =
   | 'execution'
   | 'circulation'
   | 'rhythm'
+  | 'foresight'
   | (string & {});
 
 export interface LiminalLayerSpec {
@@ -255,6 +256,14 @@ export const LIMINAL_LAYERS_MANIFEST: LiminalLayerManifest = [
     description: 'Insight layer that turns breath, nourishment, immunity, luck, and vision into flashes of new understanding.',
     category: 'insight',
     dependencies: ['L21', 'L25', 'L26', 'L27', 'L28', 'L29'],
+  },
+  {
+    id: 'L31',
+    name: 'Liminal Foresight Engine',
+    description:
+      'Foresight engine that senses weak future signals, projects branching trajectories, and gently steers toward coherent paths.',
+    category: 'foresight',
+    dependencies: ['L19', 'L20', 'L21', 'L30'],
   },
 ];
 
