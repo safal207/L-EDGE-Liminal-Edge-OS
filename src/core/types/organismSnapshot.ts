@@ -12,6 +12,7 @@ import type {
   TemporalSteeringDecision,
   TimeCrystalVector,
 } from '@/core/temporal/l17-types';
+import type { OrganismTone } from '@/layers/shared/organismTone';
 
 export interface TemporalSnapshotBundle {
   state: TemporalState;
@@ -29,6 +30,7 @@ export interface OrganismSnapshot {
   crystal?: L10CrystalSnapshot;
   growthMode?: GrowthModeSnapshot;
   responseFrame?: ResponseFrame;
+  tone?: OrganismTone;
   autopoietic?: AutopoieticSnapshot;
   temporal?: TemporalSnapshotBundle;
   timestamp: number;

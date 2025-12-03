@@ -1,11 +1,13 @@
 import type { OrganismSnapshot } from '@/core/types/organismSnapshot';
 import type { ExternalSignalsAggregate } from '@/nerve/L12_external_signals_types';
 import type { ActionIntent, ResponseFrame } from '@/nerve/L13_response_types';
+import type { OrganismTone } from '@/layers/shared/organismTone';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface ResponseContextInputs {
   snapshot: OrganismSnapshot;
   external?: ExternalSignalsAggregate;
+  tone?: OrganismTone;
 }
 
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
@@ -124,15 +126,63 @@ const buildStabilizingIntent = (
   ];
 };
 
+const applyToneToOverloadRisk = (overloadRisk: number, tone?: OrganismTone): number => {
+  if (!tone) return overloadRisk;
+
+  const overwhelmedBoost = tone.isOverwhelmed ? 0.12 : 0;
+  const recoveryBoost = tone.needsRecovery ? 0.08 : 0;
+
+  return clamp01(overloadRisk + overwhelmedBoost + recoveryBoost);
+};
+
+const buildToneSafetyIntents = (
+  tone: OrganismTone,
+  overloadRisk: number,
+  recoveryScore: number,
+): ActionIntent[] => {
+  const intents: ActionIntent[] = [];
+
+  if (tone.isOverwhelmed) {
+    intents.push({
+      id: uuidv4(),
+      scope: 'system',
+      kind: 'throttle',
+      urgency: 'high',
+      strength: 'hard_limit',
+      confidence: clamp01(0.6 + overloadRisk * 0.3),
+      reasonKey: 'overload_risk',
+      params: { max_load_factor: 0.5 },
+      ttlMs: 8000,
+    });
+  }
+
+  if (tone.needsRecovery && recoveryScore < 0.7) {
+    intents.push({
+      id: uuidv4(),
+      scope: 'scheduling',
+      kind: 'enter_recovery_mode',
+      urgency: 'normal',
+      strength: 'strong_recommendation',
+      confidence: clamp01(0.5 + (0.7 - recoveryScore)),
+      reasonKey: 'deep_recovery_needed',
+      params: { allow_only_essential: true, prefer_async: true },
+      ttlMs: 15000,
+    });
+  }
+
+  return intents;
+};
+
 export const computeResponseFrame = (
-  { snapshot, external }: ResponseContextInputs,
+  { snapshot, external, tone: toneFromContext }: ResponseContextInputs,
   now: number = Date.now(),
 ): ResponseFrame => {
   const metabolism = snapshot.metabolism;
   const crystal = snapshot.crystal;
   const growth = snapshot.growthMode;
+  const tone = toneFromContext ?? snapshot.tone;
 
-  const overloadRisk = metabolism?.overloadRisk ?? 0;
+  const overloadRisk = applyToneToOverloadRisk(metabolism?.overloadRisk ?? 0, tone);
   const stressIndex = metabolism?.stressIndex ?? 0.5;
   const recoveryScore = metabolism?.recoveryScore ?? 0.5;
   const harmonyIndex = crystal?.harmony.harmonyIndex ?? 0.5;
@@ -142,7 +192,9 @@ export const computeResponseFrame = (
   const growthConfidence = growth?.confidence ?? 0.6;
 
   const externalStress = external?.externalStress ?? 0;
-  const externalExploration = external?.externalExploration ?? 0;
+  const externalExploration = clamp01(
+    (external?.externalExploration ?? 0) + (tone?.isInFlow ? 0.05 : 0) - (tone?.needsRecovery ? 0.1 : 0),
+  );
 
   const intents: ActionIntent[] = [
     ...buildThrottleIntents(overloadRisk, externalStress),
@@ -155,6 +207,7 @@ export const computeResponseFrame = (
       externalExploration,
     ),
     ...buildStabilizingIntent(overloadRisk, harmonyIndex, stabilityIndex, growthMode),
+    ...(tone ? buildToneSafetyIntents(tone, overloadRisk, recoveryScore) : []),
   ];
 
   if (!intents.length) {
