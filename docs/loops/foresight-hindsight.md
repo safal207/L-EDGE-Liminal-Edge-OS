@@ -15,8 +15,14 @@ Calibration (L21/L31) + Meta-Insights (L30)
 ## How to run the demo
 
 ```
-pnpm install
-pnpm dev:retro
+npm install
+npm run dev:retro
+```
+
+To run the accompanying regression test for the loop mechanics:
+
+```
+npm run test:foresight-retro
 ```
 
 ## Example snapshot output
