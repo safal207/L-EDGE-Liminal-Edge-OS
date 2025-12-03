@@ -1,102 +1,111 @@
 import { buildEmotionalGradient } from './emotionalGradient';
+import { computeLuckResonance } from './luckResonance';
+import { deriveMoodFromGradient } from './mood';
 import { extractReceptorSignals } from './receptors';
-import { estimateLuckResonance } from './luckResonance';
+import { computeSystemReflection } from './systemReflection';
 import { detectTemporalDrift } from './temporalDrift';
-import { reflectSystem } from './systemReflection';
-import type {
-  EmotionalGradient,
-  LuckResonance,
-  SenseInput,
-  SenseState,
-  SystemReflection,
-  TemporalDrift,
-} from './types';
+import type { SenseInput, SenseState } from './types';
 
 const clamp = (value: number, min = 0, max = 1) => Math.min(Math.max(value, min), max);
 
-const deriveMood = (gradient: EmotionalGradient, drift: TemporalDrift): string => {
-  if (gradient.fatigue > 0.65) {
-    return gradient.focus > 0.5 ? 'tired-focus' : 'tired-soft';
-  }
-  if (gradient.tension > 0.6) {
-    return 'tight-guard';
-  }
-  if (gradient.uplift > 0.65 && gradient.curiosity > 0.55) {
-    return drift === 'rising' ? 'soft-rise' : 'bright-curious';
-  }
-  if (gradient.calm > 0.65 && gradient.groundedness > 0.55) {
-    return 'soft-calm';
-  }
-  return drift === 'oscillating' ? 'wavering-curious' : 'balanced-flow';
+export const BASELINE_STATE: SenseState = {
+  mood: 'neutral',
+  emotionalGradient: {
+    calm: 0.5,
+    tension: 0.3,
+    curiosity: 0.5,
+    fatigue: 0.2,
+    uplift: 0.5,
+    groundedness: 0.6,
+    focus: 0.5,
+    confidence: 0.55,
+  },
+  drift: 'stable',
+  luck: {
+    resonance: 0.4,
+    phase: 'neutral',
+  },
+  reflection: {
+    loadLevel: 0.3,
+    integrationHealth: 0.7,
+    suggestedMode: 'ground',
+  },
+  readiness: 'medium',
+  suggestion: 'stabilize',
 };
 
-const deriveReadiness = (
-  gradient: EmotionalGradient,
-  reflection: SystemReflection,
-  luck: LuckResonance,
-): SenseState['readiness'] => {
-  const readinessScore = clamp(
-    gradient.uplift * 0.25 +
-      gradient.focus * 0.2 +
-      gradient.confidence * 0.2 +
-      luck.resonance * 0.2 +
-      (1 - reflection.loadLevel) * 0.15 -
-      gradient.fatigue * 0.3,
-  );
+const cloneBaseline = (): SenseState => ({
+  ...BASELINE_STATE,
+  emotionalGradient: { ...BASELINE_STATE.emotionalGradient },
+  luck: { ...BASELINE_STATE.luck },
+  reflection: { ...BASELINE_STATE.reflection },
+});
+
+const isInputValid = (input: SenseInput): boolean => {
+  if (!input) return false;
+  if (typeof input.timestamp !== 'number' || Number.isNaN(input.timestamp)) return false;
+  if (input.userText && typeof input.userText !== 'string') return false;
+  if (input.entropyLevel !== undefined && (input.entropyLevel < 0 || input.entropyLevel > 1)) return false;
+  return true;
+};
+
+const deriveReadiness = (state: SenseState): SenseState['readiness'] => {
+  const { luck, reflection } = state;
+  const readinessScore = clamp(luck.resonance * 0.45 + reflection.integrationHealth * 0.4 - reflection.loadLevel * 0.25);
 
   if (readinessScore > 0.65) return 'high';
   if (readinessScore > 0.35) return 'medium';
   return 'low';
 };
 
-const deriveSuggestion = (
-  gradient: EmotionalGradient,
-  drift: TemporalDrift,
-  reflection: SystemReflection,
-  luck: LuckResonance,
-): SenseState['suggestion'] => {
-  if (gradient.fatigue > 0.65 || reflection.suggestedMode === 'ground') {
-    return 'grounding';
-  }
-
-  if (drift === 'falling' && gradient.tension > 0.5) {
+const deriveSuggestion = (state: SenseState): SenseState['suggestion'] => {
+  const { reflection, luck, drift } = state;
+  if (state.mood === 'neutral' && reflection.loadLevel <= 0.4 && luck.resonance <= 0.5) {
     return 'stabilize';
   }
-
-  if (gradient.uplift > 0.6 && gradient.curiosity > 0.45 && reflection.loadLevel < 0.7) {
-    return luck.resonance > 0.7 ? 'open-window' : 'gentle-expansion';
+  if (reflection.suggestedMode === 'ground' && reflection.loadLevel < 0.5) return 'stabilize';
+  if (reflection.suggestedMode === 'ground' || drift === 'falling') return 'grounding';
+  if (reflection.suggestedMode === 'expand') {
+    return luck.phase === 'opening' ? 'open-window' : 'gentle-expansion';
   }
-
-  if (luck.phase === 'opening' && gradient.curiosity > 0.55) {
-    return luck.resonance > 0.7 ? 'open-window' : 'gentle-expansion';
-  }
-
-  if (reflection.suggestedMode === 'reflect' || gradient.calm > 0.65) {
-    return 'deep-reflection';
-  }
-
-  return 'gentle-expansion';
+  if (reflection.loadLevel > 0.7) return 'stabilize';
+  return 'deep-reflection';
 };
 
 export class LiminalSense {
   static process(input: SenseInput): SenseState {
-    const signals = extractReceptorSignals(input);
-    const emotionalGradient = buildEmotionalGradient(input, signals);
-    const drift = detectTemporalDrift(input.previousStates, emotionalGradient);
-    const luck = estimateLuckResonance(input, emotionalGradient);
-    const reflection = reflectSystem(input, emotionalGradient, drift, luck);
-    const readiness = deriveReadiness(emotionalGradient, reflection, luck);
-    const suggestion = deriveSuggestion(emotionalGradient, drift, reflection, luck);
-    const mood = deriveMood(emotionalGradient, drift);
+    if (!isInputValid(input)) return cloneBaseline();
 
-    return {
-      mood,
-      emotionalGradient,
+    const state = cloneBaseline();
+
+    const signals = extractReceptorSignals(input);
+    const emotionalGradient = buildEmotionalGradient(signals, input.entropyLevel);
+    state.emotionalGradient = emotionalGradient;
+
+    const drift = detectTemporalDrift(input.previousStates, emotionalGradient);
+    state.drift = drift;
+
+    const luck = computeLuckResonance({
+      gradient: emotionalGradient,
+      entropyLevel: input.entropyLevel,
+      drift,
+      activeLayers: input.activeLayers,
+    });
+    state.luck = luck;
+
+    const reflection = computeSystemReflection({
+      gradient: emotionalGradient,
       drift,
       luck,
-      reflection,
-      readiness,
-      suggestion,
-    };
+      entropyLevel: input.entropyLevel,
+      activeLayers: input.activeLayers,
+    });
+    state.reflection = reflection;
+
+    state.mood = deriveMoodFromGradient(emotionalGradient);
+    state.readiness = deriveReadiness(state);
+    state.suggestion = deriveSuggestion(state);
+
+    return state;
   }
 }
