@@ -1,7 +1,18 @@
 import type { ReceptorSignals, SenseInput } from './types';
 
 const fatigueKeywords = ['tired', 'exhausted', 'fatigue', 'sleepy', 'drained'];
-const positiveKeywords = ['thank you', 'thanks', 'grateful', 'nice', 'love', 'appreciate'];
+const positiveKeywords = [
+  'thank you',
+  'thanks',
+  'grateful',
+  'nice',
+  'love',
+  'appreciate',
+  'excited',
+  'inspired',
+  'energized',
+  'optimistic',
+];
 const uncertaintyKeywords = ['maybe', 'not sure', 'unsure', 'perhaps', 'confused', 'doubt'];
 
 const clamp = (value: number, min = 0, max = 1) => Math.min(Math.max(value, min), max);

@@ -1,4 +1,17 @@
-import type { EmotionalGradient, LuckResonance, SenseInput, SystemReflection, TemporalDrift } from './types';
+import type {
+  EmotionalGradient,
+  LuckResonance,
+  SystemReflection,
+  TemporalDrift,
+} from './types';
+
+type ReflectionContext = {
+  gradient: EmotionalGradient;
+  drift: TemporalDrift;
+  luck: LuckResonance;
+  entropyLevel?: number;
+  activeLayers?: string[];
+};
 
 const clamp = (value: number, min = 0, max = 1) => Math.min(Math.max(value, min), max);
 
@@ -14,24 +27,32 @@ const computeBalanceSpread = (gradient: EmotionalGradient): number => {
   return Math.max(...axes) - Math.min(...axes);
 };
 
-export const reflectSystem = (
-  input: SenseInput,
-  gradient: EmotionalGradient,
-  drift: TemporalDrift,
-  luck: LuckResonance,
-): SystemReflection => {
-  const entropy = input.entropyLevel ?? 0.5;
-  const layerLoad = input.activeLayers ? Math.min(1, input.activeLayers.length / 8) : 0.25;
+export const computeSystemReflection = ({
+  gradient,
+  drift,
+  luck,
+  entropyLevel,
+  activeLayers,
+}: ReflectionContext): SystemReflection => {
+  const entropy = entropyLevel ?? 0.5;
+  const layerLoad = activeLayers ? Math.min(activeLayers.length / 10, 0.9) : 0.15;
   const loadLevel = clamp(0.5 * entropy + 0.5 * layerLoad);
 
-  const balance = computeBalanceSpread(gradient);
-  const driftBonus = drift === 'stable' ? 0.15 : drift === 'rising' ? 0.05 : -0.05;
-  const integrationHealth = clamp(1 - balance * 0.5 + driftBonus + luck.resonance * 0.1);
+  const balanceSpread = computeBalanceSpread(gradient);
+  const balancePenalty = clamp(balanceSpread * 0.45, 0, 0.5);
+  const driftPenalty = drift === 'oscillating' ? 0.15 : drift === 'falling' ? 0.1 : 0;
+  const phasePenalty = luck.phase === 'closing' ? 0.1 : 0;
+  const driftBonus = drift === 'rising' ? 0.05 : drift === 'stable' ? 0.03 : 0;
+
+  const integrationHealth = clamp(
+    1 - balancePenalty - driftPenalty - phasePenalty + driftBonus + luck.resonance * 0.1,
+  );
 
   let suggestedMode: SystemReflection['suggestedMode'] = 'reflect';
-  if (gradient.tension > 0.6 || gradient.fatigue > 0.65) {
+  const tensionFatigue = gradient.tension + gradient.fatigue;
+  if (tensionFatigue > 1 || loadLevel > 0.65) {
     suggestedMode = 'ground';
-  } else if (gradient.uplift > 0.6 && gradient.curiosity > 0.5 && loadLevel < 0.6) {
+  } else if (gradient.uplift > 0.5 && gradient.curiosity > 0.35 && loadLevel < 0.65) {
     suggestedMode = 'expand';
   }
 

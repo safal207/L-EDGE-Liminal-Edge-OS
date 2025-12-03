@@ -1,4 +1,4 @@
-import type { EmotionalGradient, ReceptorSignals, SenseInput } from './types';
+import type { EmotionalGradient, ReceptorSignals } from './types';
 
 const clamp = (value: number, min = 0, max = 1) => Math.min(Math.max(value, min), max);
 
@@ -9,16 +9,18 @@ const balanceScore = (signals: ReceptorSignals) => {
 };
 
 export const buildEmotionalGradient = (
-  input: SenseInput,
   signals: ReceptorSignals,
+  entropyLevel?: number,
 ): EmotionalGradient => {
-  const entropy = input.entropyLevel ?? 0.5;
+  const entropy = entropyLevel ?? 0.5;
   const energy = clamp((signals.tokenEstimate / 120) + signals.ideaBursts * 0.3 + (1 - entropy) * 0.2);
   const curiosity = clamp(
     signals.questionMarks * 0.2 +
       signals.uncertaintyHints * 0.3 +
-      energy * 0.2 +
-      signals.ideaBursts * 0.25,
+      energy * 0.25 +
+      signals.ideaBursts * 0.25 +
+      signals.positiveHints * 0.3 +
+      0.05,
   );
   const fatigue = clamp(signals.fatigueHints + (signals.tokenEstimate > 150 ? 0.2 : 0) + entropy * 0.15);
   const tension = clamp(signals.uncertaintyHints * 0.4 + entropy * 0.3 + signals.ellipsisCount * 0.05);
