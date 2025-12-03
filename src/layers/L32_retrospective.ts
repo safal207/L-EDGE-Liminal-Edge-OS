@@ -49,6 +49,11 @@ export function clearRetrospectives(): void {
   retrospectiveLog.length = 0;
 }
 
+// Alias for compatibility with scripts that expect a log-oriented name
+export function clearRetrospectiveLog(): void {
+  clearRetrospectives();
+}
+
 export function runRetrospectiveForDecision(
   decision: DecisionOutcome,
 ): RetrospectiveRecord | null {
