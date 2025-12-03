@@ -1,12 +1,5 @@
+import { CalibrationMatchQuality } from "../types";
 import { getRecentInsights, LiminalInsight } from "./L30_insights";
-
-type CalibrationMatchQuality =
-  | "well_calibrated"
-  | "overconfident"
-  | "underconfident"
-  | "missed"
-  | "lucky"
-  | "unlucky";
 
 export type ForesightImpactAxis = "risk" | "reward" | "stability" | "exploration";
 
@@ -43,6 +36,7 @@ export interface ForesightSignal {
   createdAt: number;
 }
 
+const MAX_FORESIGHT_REGISTRY = 10_000;
 let globalConfidenceScale = 1;
 const foresightByDecisionId = new Map<string, ForesightSignal>();
 
@@ -90,15 +84,14 @@ export function generateForesightSignal(decision: DecisionOutcome): ForesightSig
   const insightDirection =
     insightContext.positiveScore >= insightContext.negativeScore ? 1 : -1;
 
-  const baseConfidence = clamp01(
-    0.25 + 0.35 * Math.abs(riskLevel) + 0.2 * explorationLevel + 0.2 * clamp01(stabilityLevel),
-  );
+  const baseConfidence =
+    0.25 + 0.35 * Math.abs(riskLevel) + 0.2 * explorationLevel + 0.2 * clamp01(stabilityLevel);
 
   const insightBoost = 0.2 * insightContext.coherence * insightWeight;
   const insightPenalty = 0.15 * (1 - insightContext.coherence) * insightWeight;
 
-  let confidence = clamp01(baseConfidence + insightBoost - insightPenalty);
-  confidence = clamp01(confidence * globalConfidenceScale);
+  const scaledConfidence = (baseConfidence + insightBoost - insightPenalty) * globalConfidenceScale;
+  const confidence = clamp01(scaledConfidence);
 
   let expectedImpact: ForesightSignal["expectedImpact"] = riskLevel >= 0 ? "positive" : "negative";
   if (insightWeight > 0.2) {
@@ -172,6 +165,12 @@ function clampSigned(value: number): number {
 export function recordForesightSignal(signal: ForesightSignal): void {
   if (!signal?.sourceDecisionId) return;
   foresightByDecisionId.set(signal.sourceDecisionId, signal);
+  if (foresightByDecisionId.size > MAX_FORESIGHT_REGISTRY) {
+    const firstKey = foresightByDecisionId.keys().next().value;
+    if (firstKey) {
+      foresightByDecisionId.delete(firstKey);
+    }
+  }
 }
 
 export function getForesightByDecisionId(

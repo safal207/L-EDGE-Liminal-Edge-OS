@@ -1,3 +1,4 @@
+import { CalibrationMatchQuality } from "../types";
 import { recordInsight } from "./L30_insights";
 import {
   DecisionOutcome,
@@ -10,13 +11,7 @@ import {
   getRealizedOutcomeByDecisionId,
 } from "../core/outcomeRegistry";
 
-export type ForesightMatchQuality =
-  | "well_calibrated"
-  | "overconfident"
-  | "underconfident"
-  | "missed"
-  | "lucky"
-  | "unlucky";
+export type ForesightMatchQuality = CalibrationMatchQuality;
 
 export interface RetrospectiveRecord {
   id: string;
@@ -34,12 +29,16 @@ export interface RetrospectiveRecord {
   notes?: string;
 }
 
+const MAX_RETROSPECTIVE_LOG = 10_000;
 const retrospectiveLog: RetrospectiveRecord[] = [];
 
 let luckCalibrationBias = 0;
 
 export function recordRetrospective(entry: RetrospectiveRecord): void {
   retrospectiveLog.push(entry);
+  if (retrospectiveLog.length > MAX_RETROSPECTIVE_LOG) {
+    retrospectiveLog.shift();
+  }
 }
 
 export function getRecentRetrospectives(limit = 100): RetrospectiveRecord[] {
@@ -149,9 +148,9 @@ export function evaluateMatch(
     }
   }
 
-  const surpriseScore = 1 - realized.predictability;
+  const surpriseScore = clamp(1 - realized.predictability, 0, 1);
 
-  return { matchQuality, surpriseScore, learningSignal };
+  return { matchQuality, surpriseScore, learningSignal: clamp(learningSignal, -1, 1) };
 }
 
 export function applyLuckCalibration(record: RetrospectiveRecord): number {
