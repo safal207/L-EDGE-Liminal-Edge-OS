@@ -1,5 +1,6 @@
 import type { OrganismTone } from '@/layers/shared/organismTone';
 import { deriveOrganismTone, setCurrentOrganismTone } from '@/layers/shared/organismTone';
+import type { CorePulseState } from '../../layers/L22_CorePulse/types';
 
 export type BreathingPhase = "inhale" | "exhale" | "hold";
 
@@ -8,6 +9,32 @@ export interface RetrospectiveMetrics {
   avgLearningSignal: number;
   calibrationMismatchRate: number;
   outcomeVolatility: number;
+}
+
+export type BreathingMode = "ground" | "steady" | "expand";
+
+export type BreathingRate = "slow" | "medium" | "fast";
+
+export type BreathingCouplingLevel = "coherent" | "expansive" | "protective" | "neutral";
+
+export interface BreathingCoupling {
+  level: BreathingCouplingLevel;
+  stability: number;
+  suggestedMode: BreathingMode;
+  suggestedRate: BreathingRate;
+  patternTag: string;
+}
+
+export interface BreathingCouplingState {
+  level: BreathingCouplingLevel;
+  stability: number;
+}
+
+export interface BreathingInput extends RetrospectiveMetrics {
+  corePulse?: CorePulseState;
+  modeHint?: BreathingMode;
+  rateHint?: BreathingRate;
+  patternHint?: string;
 }
 
 export interface FuzzyState {
@@ -36,6 +63,12 @@ export interface BreathingSnapshot {
   fuzzFatigue: number;
 
   luckSynergyScore: number;
+
+  mode: BreathingMode;
+  rate: BreathingRate;
+  pattern: string;
+
+  coreCoupling: BreathingCouplingState;
 
   tone?: OrganismTone;
 
@@ -80,6 +113,56 @@ export function computeLuckSynergyScore(
     0.1 * chaosPenalty;
 
   return clamp01(raw);
+}
+
+/**
+ * Translate the current core pulse snapshot into a breathing-coupling suggestion.
+ * Keeps heuristics simple and deterministic so the breathing layer remains stable.
+ */
+export function deriveBreathingCouplingFromPulse(pulse: CorePulseState): BreathingCoupling {
+  const overload = clamp01(pulse.overloadLevel ?? pulse.current.overloadRisk ?? 0);
+  const drift = pulse.drift ?? "stable";
+  const phase = pulse.current.phase;
+  const readiness = clamp01(pulse.readiness);
+  const variability = clamp01(pulse.current.variability);
+
+  let level: BreathingCouplingLevel = "neutral";
+  let stability = 0.5;
+  let suggestedMode: BreathingMode = "steady";
+  let suggestedRate: BreathingRate = "medium";
+  let patternTag = "baseline";
+
+  // Overload or choppy variability biases toward grounding / protection.
+  if (overload > 0.7 || variability > 0.65 || phase === "recovery") {
+    level = "protective";
+    suggestedMode = "ground";
+    suggestedRate = "slow";
+    patternTag = "downshift";
+    stability = 0.4;
+  } else if ((drift === "rising" || phase === "rise" || phase === "peak") && overload < 0.5) {
+    // Opening pulse: allow breath to widen while keeping coherence.
+    level = "expansive";
+    suggestedMode = "expand";
+    suggestedRate = readiness > 0.65 ? "fast" : "medium";
+    patternTag = "wave-rise";
+    stability = 0.7;
+  } else if (drift === "stable" && overload < 0.4) {
+    // Calm pulse enables coherent steady breathing.
+    level = "coherent";
+    suggestedMode = "steady";
+    suggestedRate = "medium";
+    patternTag = "coherent-steady";
+    stability = 0.82;
+  } else if (drift === "irregular" || phase === "recovery") {
+    // Mildly unsettled or closing phases favor protection without fully slowing down.
+    level = "protective";
+    suggestedMode = "ground";
+    suggestedRate = "slow";
+    patternTag = "stabilize";
+    stability = 0.45;
+  }
+
+  return { level, stability, suggestedMode, suggestedRate, patternTag };
 }
 
 export function decidePhase(
@@ -131,15 +214,28 @@ function computeModulationFactors(
   return { confidenceScaleFactor, luckSensitivityFactor, insightThresholdFactor };
 }
 
-export function runBreathingCycle(metrics: RetrospectiveMetrics): BreathingSnapshot {
+export function computeBreathingState(
+  input: BreathingInput,
+  meta?: { cycleIndex?: number; createdAt?: string },
+): BreathingSnapshot {
+  const { corePulse, modeHint, rateHint, patternHint, ...metrics } = input;
   const fuzzy = computeFuzzyState(metrics);
   const luckSynergyScore = computeLuckSynergyScore(metrics, fuzzy);
   const phase = decidePhase(metrics, fuzzy);
   const modulation = computeModulationFactors(luckSynergyScore, fuzzy);
 
-  const snapshot: BreathingSnapshot = {
+  const coupling = corePulse ? deriveBreathingCouplingFromPulse(corePulse) : null;
+  const mode: BreathingMode = modeHint ?? coupling?.suggestedMode ?? "steady";
+  const rate: BreathingRate = rateHint ?? coupling?.suggestedRate ?? "medium";
+  const basePattern = patternHint ?? "baseline";
+  const pattern = coupling ? `${basePattern}:${coupling.patternTag}` : basePattern;
+  const coreCoupling: BreathingCouplingState = coupling
+    ? { level: coupling.level, stability: coupling.stability }
+    : { level: "neutral", stability: 0.5 };
+
+  return {
     phase,
-    cycleIndex: cycleCounter++,
+    cycleIndex: meta?.cycleIndex ?? 0,
     avgSurprise: clamp01(metrics.avgSurprise),
     avgLearningSignal: clamp(metrics.avgLearningSignal, -1, 1),
     calibrationMismatchRate: clamp01(metrics.calibrationMismatchRate),
@@ -147,8 +243,22 @@ export function runBreathingCycle(metrics: RetrospectiveMetrics): BreathingSnaps
     ...modulation,
     ...fuzzy,
     luckSynergyScore,
-    createdAt: new Date().toISOString(),
+    mode,
+    rate,
+    pattern,
+    coreCoupling,
+    createdAt: meta?.createdAt ?? new Date().toISOString(),
   };
+}
+
+export function runBreathingCycle(
+  metrics: RetrospectiveMetrics,
+  options?: Omit<BreathingInput, keyof RetrospectiveMetrics>,
+): BreathingSnapshot {
+  const snapshot = computeBreathingState({ ...metrics, ...options }, {
+    cycleIndex: cycleCounter++,
+    createdAt: new Date().toISOString(),
+  });
 
   const tone = deriveOrganismTone(snapshot);
   snapshot.tone = tone;
