@@ -2,6 +2,17 @@ export type PulsePhase = "rest" | "rise" | "peak" | "recovery";
 
 export type CorePulseDrift = "rising" | "stable" | "falling" | "irregular";
 
+export type BreathingCouplingMode = "coherent" | "expansive" | "protective" | "irregular" | "neutral";
+
+export interface BreathingCouplingSnapshot {
+  /** Mode reflecting how the breathing pattern is currently steering the organism. */
+  mode: BreathingCouplingMode;
+  /** Normalized breathing cadence (0..1, higher = faster / more activating). */
+  rate: number;
+  /** Stability / coherence of the breathing pattern (0..1). */
+  stability: number;
+}
+
 export interface CorePulseDriftContext {
   /** Ordered history of CorePulseState samples (oldest first). */
   history: CorePulseState[];
@@ -24,6 +35,8 @@ export interface CorePulseInput {
   overloadRisk?: number;
   /** Optional modulation input bundle from surrounding layers. */
   modulationInput?: PulseModulationInput;
+  /** Optional coupling snapshot from the breathing engine. */
+  breathing?: BreathingCouplingSnapshot;
 }
 
 export interface PulseBaseline {
@@ -83,8 +96,12 @@ export interface CorePulseState {
   modulation: PulseModulation;
   /** 0..1 readiness level for taking new commitments / decisions. */
   readiness: number;
+  /** Optional readiness band for quick qualitative consumption. */
+  readinessBand?: "low" | "medium" | "high";
   /** 0..1 perceived overload level (higher = closer to overload). */
   overloadLevel: number;
   /** Optional drift classification derived from a recent pulse history. */
   drift?: CorePulseDrift;
+  /** Last breathing coupling snapshot that influenced this state (if any). */
+  breathing?: BreathingCouplingSnapshot;
 }

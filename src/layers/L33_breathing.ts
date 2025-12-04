@@ -1,6 +1,6 @@
 import type { OrganismTone } from '@/layers/shared/organismTone';
 import { deriveOrganismTone, setCurrentOrganismTone } from '@/layers/shared/organismTone';
-import type { CorePulseState } from '../../layers/L22_CorePulse/types';
+import type { BreathingCouplingSnapshot, CorePulseState } from '../../layers/L22_CorePulse/types';
 
 export type BreathingPhase = "inhale" | "exhale" | "hold";
 
@@ -69,6 +69,8 @@ export interface BreathingSnapshot {
   pattern: string;
 
   coreCoupling: BreathingCouplingState;
+  /** Compact snapshot for coupling back into L22. */
+  coreCouplingSnapshot?: BreathingCouplingSnapshot;
 
   tone?: OrganismTone;
 
@@ -233,6 +235,13 @@ export function computeBreathingState(
     ? { level: coupling.level, stability: coupling.stability }
     : { level: "neutral", stability: 0.5 };
 
+  const coreCouplingSnapshot = toBreathingCouplingSnapshot({
+    coreCoupling,
+    rate,
+    fuzzChaos: fuzzy.fuzzChaos,
+    fuzzStability: fuzzy.fuzzStability,
+  });
+
   return {
     phase,
     cycleIndex: meta?.cycleIndex ?? 0,
@@ -247,8 +256,37 @@ export function computeBreathingState(
     rate,
     pattern,
     coreCoupling,
+    coreCouplingSnapshot,
     createdAt: meta?.createdAt ?? new Date().toISOString(),
   };
+}
+
+type BreathingCouplingSource = Pick<BreathingSnapshot, "coreCoupling" | "rate" | "fuzzChaos" | "fuzzStability">;
+
+/**
+ * Reduce a full breathing snapshot into the minimal coupling state expected by L22 CorePulse.
+ * Keeps the mapping deterministic and explained for reproducibility.
+ */
+export function toBreathingCouplingSnapshot(source: BreathingCouplingSource): BreathingCouplingSnapshot {
+  const rateValue: Record<BreathingRate, number> = {
+    slow: 0.35,
+    medium: 0.6,
+    fast: 0.85,
+  };
+
+  const mode: BreathingCouplingSnapshot["mode"] =
+    source.coreCoupling.level === "neutral"
+      ? source.fuzzChaos > 0.6
+        ? "irregular"
+        : "coherent"
+      : source.coreCoupling.level;
+
+  const rate = rateValue[source.rate];
+
+  // Stability leans on the core coupling stability but is tempered by fuzz stability to stay realistic.
+  const stability = clamp01(0.65 * source.coreCoupling.stability + 0.35 * clamp01(source.fuzzStability));
+
+  return { mode, rate, stability };
 }
 
 export function runBreathingCycle(
