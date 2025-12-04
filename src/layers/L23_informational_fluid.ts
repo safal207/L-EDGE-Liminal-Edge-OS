@@ -1,4 +1,70 @@
-import type { CorePulseSnapshot } from "./L22_core_pulse_bridge";
+import type { CorePulseSnapshot } from "./L22_core_pulse";
+import type { BreathingState } from "./L33_breathing";
+
+export interface InformationalFieldState {
+  viscosity: number; // 0..1, higher = thicker medium
+  coherence: number; // 0..1, higher = more aligned
+  phaseBias: "protective" | "expansive" | "neutral";
+}
+
+export interface InformationalFluidContext {
+  corePulse?: CorePulseSnapshot;
+  breathing?: BreathingState;
+}
+
+export function computeInformationalField(ctx: InformationalFluidContext): InformationalFieldState {
+  let state: InformationalFieldState = {
+    viscosity: 0.5,
+    coherence: 0.5,
+    phaseBias: "neutral",
+  };
+
+  if (ctx.corePulse) {
+    const overload = clamp(ctx.corePulse.overloadLevel ?? ctx.corePulse.current?.overloadRisk ?? 0);
+    const readiness = clamp(ctx.corePulse.readiness ?? 0.5);
+    const drift: CorePulseSnapshot["drift"] = ctx.corePulse.drift ?? "stable";
+
+    state.viscosity += overload * 0.35 - readiness * 0.2;
+    state.coherence += readiness * 0.25 - overload * 0.3;
+
+    if (overload > 0.6) {
+      state.phaseBias = "protective";
+    } else if (readiness > 0.6 && (drift === "rising" || drift === "stable")) {
+      state.phaseBias = "expansive";
+    }
+  }
+
+  if (ctx.breathing) {
+    const stance =
+      ctx.breathing.coreCoupling?.level ?? ctx.breathing.coreCouplingSnapshot?.mode ?? "neutral";
+    const coherence = ctx.breathing.coreCoupling?.stability ?? ctx.breathing.coreCouplingSnapshot?.stability;
+
+    if (stance === "protective" || stance === "irregular") {
+      state.viscosity += 0.12;
+      state.coherence -= 0.05;
+      state.phaseBias = "protective";
+    }
+
+    if (stance === "coherent" || stance === "expansive") {
+      state.viscosity -= 0.08;
+      state.coherence += 0.12;
+      if (state.phaseBias !== "protective") {
+        state.phaseBias = stance === "expansive" ? "expansive" : state.phaseBias;
+      }
+    }
+
+    if (stance === "neutral" && coherence && coherence > 0.55) {
+      state.coherence += 0.08 * coherence;
+      state.viscosity -= 0.05 * coherence;
+    }
+  }
+
+  return {
+    viscosity: clamp(state.viscosity),
+    coherence: clamp(state.coherence),
+    phaseBias: state.phaseBias,
+  };
+}
 
 export type PhaseState = "frozen" | "fluid" | "vapor" | "metastable";
 

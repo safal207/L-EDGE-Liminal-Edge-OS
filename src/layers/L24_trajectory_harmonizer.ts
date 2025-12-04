@@ -2,6 +2,7 @@ import type {
   FluidRegionState,
   InformationalFluidSnapshot,
 } from "./L23_informational_fluid";
+import type { FlowContext } from "./L24_decision";
 
 export interface LuckVector {
   // Вектор из L21: направление, куда "хочет" система
@@ -53,6 +54,7 @@ export interface TrajectoryDecision {
   ranked: Array<{ trajectory: TrajectoryCandidate; scores: TrajectoryScores }>;
   context: DecisionContext;
   reasonSummary: string;
+  flowContext?: FlowContext;
 }
 
 export interface TrajectoryHarmonizerConfig {
@@ -81,10 +83,11 @@ export class TrajectoryHarmonizer {
     context: DecisionContext,
     env: InformationalFluidSnapshot,
     luck: LuckVector,
+    flowContext?: FlowContext,
   ): TrajectoryDecision {
     const ranked = candidates
       .map((trajectory) => {
-        const scores = this.scoreTrajectory(trajectory, context, env, luck);
+        const scores = this.scoreTrajectory(trajectory, context, env, luck, flowContext);
         return { trajectory, scores };
       })
       .sort((a, b) => b.scores.combinedScore - a.scores.combinedScore);
@@ -96,6 +99,7 @@ export class TrajectoryHarmonizer {
       ranked,
       context,
       reasonSummary: this.buildReasonSummary(ranked),
+      flowContext,
     };
   }
 
@@ -106,6 +110,7 @@ export class TrajectoryHarmonizer {
     context: DecisionContext,
     env: InformationalFluidSnapshot,
     luck: LuckVector,
+    flowContext?: FlowContext,
   ): TrajectoryScores {
     const resonanceScore = this.computeResonance(trajectory, env);
     const luckAlignment = this.computeLuckAlignment(trajectory, luck);
@@ -116,12 +121,16 @@ export class TrajectoryHarmonizer {
     const gain = trajectory.predictedGain;
     const riskPenalty = ((environmentRisk + structuralRisk) / 2) * this.config.weightRisk;
 
-    const combined =
+    const combined = this.applyFlowContextBias(
+      trajectory,
       resonanceScore * this.config.weightResonance +
-      luckAlignment * this.config.weightLuck +
-      gain * this.config.weightGain -
-      riskPenalty -
-      contextPenalty;
+        luckAlignment * this.config.weightLuck +
+        gain * this.config.weightGain -
+        riskPenalty -
+        contextPenalty,
+      environmentRisk,
+      flowContext,
+    );
 
     return {
       resonanceScore,
@@ -130,6 +139,46 @@ export class TrajectoryHarmonizer {
       structuralRisk,
       combinedScore: combined,
     };
+  }
+
+  private applyFlowContextBias(
+    trajectory: TrajectoryCandidate,
+    baseScore: number,
+    environmentRisk: number,
+    flowContext?: FlowContext,
+  ): number {
+    if (!flowContext) return baseScore;
+
+    const overload = this.clamp01(
+      flowContext.corePulse?.overloadLevel ?? flowContext.corePulse?.current?.overloadRisk ?? 0,
+    );
+    const readiness = this.clamp01(flowContext.corePulse?.readiness ?? 0.5);
+    const drift = flowContext.corePulse?.drift ?? "stable";
+    const coherenceHint =
+      flowContext.informationalField?.coherence ??
+      flowContext.breathing?.coreCoupling?.stability ??
+      flowContext.breathing?.coreCouplingSnapshot?.stability;
+
+    let adjusted = baseScore;
+
+    const riskSignal = this.clamp01((environmentRisk + this.clamp01(trajectory.predictedRisk)) / 2);
+    const gainSignal = this.clamp01(trajectory.predictedGain);
+
+    if (flowContext.informationalField?.phaseBias === "protective" || overload > 0.6) {
+      adjusted -= riskSignal * 0.12;
+      adjusted += (1 - riskSignal) * 0.06;
+    }
+
+    const expansivePulse = readiness > 0.62 && (drift === "rising" || drift === "stable");
+    if (flowContext.informationalField?.phaseBias === "expansive" || expansivePulse) {
+      adjusted += gainSignal * 0.1;
+    }
+
+    if (coherenceHint && coherenceHint > 0.6) {
+      adjusted += (coherenceHint - 0.5) * 0.08;
+    }
+
+    return adjusted;
   }
 
   private computeResonance(

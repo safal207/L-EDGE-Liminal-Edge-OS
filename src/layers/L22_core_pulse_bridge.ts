@@ -1,11 +1,5 @@
 import type { CorePulseDrift, CorePulseState, PulsePhase } from "../../layers/L22_CorePulse/types";
-
-export interface CorePulseSnapshot {
-  phase: PulsePhase;
-  drift: CorePulseDrift;
-  modulationLevel: number; // 0..1
-  baselineLevel: number; // 0..1
-}
+import type { CorePulseSnapshot } from "./L22_core_pulse";
 
 function clamp(value: number, min = 0, max = 1): number {
   if (Number.isNaN(value)) return min;
@@ -37,5 +31,11 @@ export function toCorePulseSnapshot(pulse: CorePulseState): CorePulseSnapshot {
     drift: pulse.drift ?? "stable",
     modulationLevel,
     baselineLevel,
+    current: pulse.current,
+    baseline: pulse.baseline,
+    overloadLevel: clamp(pulse.overloadLevel ?? pulse.current.overloadRisk ?? 0),
+    readiness: clamp(pulse.readiness),
+    readinessBand: pulse.readinessBand,
+    breathing: pulse.breathing,
   };
 }
