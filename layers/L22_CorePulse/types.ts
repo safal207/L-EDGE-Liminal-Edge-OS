@@ -36,6 +36,30 @@ export interface PulseModulation {
   emotionalInfluence: number;
 }
 
+export interface PulseModulationInput {
+  /** Short-term tension signal from sense/interoception (0..1, higher = tighter). */
+  senseTension?: number;
+  /** Uplift / positive affect contribution from sense/interoception (0..1). */
+  senseUplift?: number;
+  /** Resonance signal from L21 luck/decision window (0..1). */
+  luckResonance?: number;
+  /** Breathing coherence from L29 / L33 (0..1, higher = more coherent). */
+  breathingCoherence?: number;
+  /** Phase emphasis from foresight layers L31-L34 (-1..1 normalized). */
+  foresightPhase?: number;
+}
+
+export interface PulseModulationState {
+  /** 0..1 modulation intensity after combining drift and external inputs. */
+  modulationLevel: number;
+  /** -1..1 phase coefficient steering toward contraction (-1) or expansion (+1). */
+  phaseCoefficient: number;
+  /** Whether modulation is stable/contained given breathing and coherence inputs. */
+  stabilized: boolean;
+  /** Recommended rhythm adjustment based on modulationLevel. */
+  recommendedRhythm: "slow" | "neutral" | "fast";
+}
+
 export interface CorePulseState {
   baseline: PulseBaseline;
   current: CorePulseSignal;

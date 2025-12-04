@@ -1,4 +1,9 @@
-import type { CorePulseState } from "../../../layers/L22_CorePulse/types";
+import { computePulseModulation } from "../../../layers/L22_CorePulse/modulation";
+import type {
+  CorePulseState,
+  PulseModulationInput,
+  PulseModulationState,
+} from "../../../layers/L22_CorePulse/types";
 
 export const CORE_PULSE_LAYER_ID = "L22_CorePulse";
 
@@ -28,3 +33,6 @@ export function createNeutralCorePulseState(): CorePulseState {
     drift: "stable",
   };
 }
+
+export { computePulseModulation };
+export type { PulseModulationInput, PulseModulationState };
