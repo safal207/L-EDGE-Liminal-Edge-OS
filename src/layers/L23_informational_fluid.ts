@@ -1,6 +1,10 @@
+import type { CorePulseSnapshot } from "./L22_core_pulse_bridge";
+
 export type PhaseState = "frozen" | "fluid" | "vapor" | "metastable";
 
 export type ImprintTone = "supportive" | "neutral" | "stress" | "conflict";
+
+export type InformationalFlowState = "stalled" | "normal" | "amplified";
 
 export interface Imprint {
   id: string;
@@ -43,6 +47,7 @@ export interface FluidRegionState {
 export interface InformationalFluidSnapshot {
   regions: Record<string, FluidRegionState>;
   lastGlobalUpdate: number;
+  flowState?: InformationalFlowState;
 }
 
 export interface InformationalFluidConfig {
@@ -60,13 +65,14 @@ export interface InformationalFluidConfig {
 export class InformationalFluid {
   private regions: Map<string, FluidRegionState> = new Map();
   private lastGlobalUpdate = Date.now();
+  private lastPulseSnapshot?: CorePulseSnapshot;
 
   constructor(private config: InformationalFluidConfig) {}
 
-  applyImprint(imprint: Imprint): void {
+  applyImprint(imprint: Imprint, pulse?: CorePulseSnapshot): void {
     const region = this.ensureRegion(imprint.regionId);
     region.recentImprints.push(imprint);
-    this.updatePattern(region);
+    this.updatePattern(region, pulse);
   }
 
   getRegionState(regionId: string): FluidRegionState | undefined {
@@ -74,9 +80,12 @@ export class InformationalFluid {
   }
 
   getSnapshot(): InformationalFluidSnapshot {
+    const averageCoherence = this.computeAverageCoherence();
+    const flowState = this.deriveFlowState(averageCoherence, this.lastPulseSnapshot);
     return {
       regions: Object.fromEntries(this.regions.entries()),
       lastGlobalUpdate: this.lastGlobalUpdate,
+      flowState,
     };
   }
 
@@ -111,7 +120,7 @@ export class InformationalFluid {
     };
   }
 
-  private updatePattern(region: FluidRegionState): void {
+  private updatePattern(region: FluidRegionState, pulse?: CorePulseSnapshot): void {
     const now = Date.now();
     const { pattern } = region;
 
@@ -124,9 +133,13 @@ export class InformationalFluid {
 
     // 3) Обновляем coherence (упорядоченность)
     this.updateCoherence(pattern);
+    this.applyCorePulseModulation(pattern, pulse);
 
     pattern.lastUpdated = now;
     this.lastGlobalUpdate = now;
+    if (pulse) {
+      this.lastPulseSnapshot = pulse;
+    }
   }
 
   private decayImprints(region: FluidRegionState, now: number): void {
@@ -211,4 +224,84 @@ export class InformationalFluid {
 
     pattern.coherence = maxWeight / total;
   }
+
+  private applyCorePulseModulation(pattern: CrystalPattern, pulse?: CorePulseSnapshot): void {
+    if (!pulse) return;
+
+    const modulationLevel = clamp(pulse.modulationLevel);
+    const baselineLevel = clamp(pulse.baselineLevel);
+
+    const phaseShift = this.derivePhaseShift(pulse.phase);
+
+    const driftStability = this.deriveDriftStability(pulse.drift);
+
+    // Responsiveness: plasticity follows modulation and phase.
+    pattern.plasticity = clamp(
+      pattern.plasticity + modulationLevel * 0.12 + phaseShift * 0.08 - driftStability * 0.05,
+    );
+
+    // Inertia is dampened when the pulse is rising and increased when falling/irregular.
+    pattern.inertia = clamp(pattern.inertia + driftStability * 0.1 - modulationLevel * 0.05);
+
+    // Coherence lightly follows baseline tone with a modulation accent.
+    pattern.coherence = clamp(pattern.coherence + baselineLevel * 0.05 + modulationLevel * 0.05);
+  }
+
+  private derivePhaseShift(phase: CorePulseSnapshot["phase"]): number {
+    switch (phase) {
+      case "rise":
+        return 0.4;
+      case "peak":
+        return 0.25;
+      case "recovery":
+        return -0.15;
+      default:
+        return 0;
+    }
+  }
+
+  private deriveDriftStability(drift: CorePulseSnapshot["drift"]): number {
+    switch (drift) {
+      case "rising":
+        return -0.1;
+      case "falling":
+        return 0.2;
+      case "irregular":
+        return 0.3;
+      default:
+        return 0;
+    }
+  }
+
+  private computeAverageCoherence(): number {
+    if (this.regions.size === 0) return 0;
+    let total = 0;
+    for (const region of this.regions.values()) {
+      total += region.pattern.coherence;
+    }
+    return total / this.regions.size;
+  }
+
+  private deriveFlowState(coherence: number, pulse?: CorePulseSnapshot): InformationalFlowState {
+    if (!pulse) return "normal";
+
+    const modulation = clamp(pulse.modulationLevel);
+    const stableFlow = pulse.drift !== "falling" && pulse.drift !== "irregular";
+
+    if (coherence > 0.6 && modulation > 0.6 && stableFlow && (pulse.phase === "rise" || pulse.phase === "peak")) {
+      return "amplified";
+    }
+
+    if (modulation < 0.25 && (pulse.drift === "falling" || pulse.drift === "irregular")) {
+      return "stalled";
+    }
+
+    return "normal";
+  }
 }
+
+function clamp(value: number, min = 0, max = 1): number {
+  if (Number.isNaN(value)) return min;
+  return Math.max(min, Math.min(max, value));
+}
+
