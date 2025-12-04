@@ -153,6 +153,7 @@
 - Основные сценарии, контуры данных и сигналы описаны в [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 - Скелет ранней реализации (Node/Rust + InfluxDB) — см. раздел **MVP layout** в архитектурном документе.
 - Полное объединение всех репозиториев LIMINAL (Edge, Runtime, Data, SOMA, DAO, LTP, LRI) подробно описано в [docs/UNIFIED_ARCHITECTURE.md](docs/UNIFIED_ARCHITECTURE.md).
+- L22 Core Pulse + LiminalSense form the organism's heart + feeling axis; см. [layers/L22_CorePulse/L22_CorePulseLayer.md](layers/L22_CorePulse/L22_CorePulseLayer.md) и [src/sense/README.md](src/sense/README.md).
 
 ---
 
