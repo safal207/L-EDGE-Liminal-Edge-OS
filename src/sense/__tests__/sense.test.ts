@@ -111,4 +111,29 @@ describe('LiminalSense.process', () => {
     expect(result.reflection.integrationHealth).toBeLessThan(0.7);
     expect(['deep-reflection', 'grounding', 'stabilize']).toContain(result.suggestion);
   });
+
+  it('softens integration health when core pulse signals instability', () => {
+    const baseInput = {
+      userText: 'Calm and present, feeling fairly steady.',
+      timestamp: 1700000000000,
+      entropyLevel: 0.35,
+      activeLayers: ['L10', 'L20'],
+    };
+
+    const baseState = LiminalSense.process(baseInput);
+
+    const pulse = {
+      baseline: { intensity: 0.5, stability: 0.55 },
+      current: { intensity: 0.6, variability: 0.2, phase: 'peak', overloadRisk: 0.35 },
+      modulation: { breathingInfluence: 0, luckInfluence: 0, emotionalInfluence: 0 },
+      readiness: 0.45,
+      overloadLevel: 0.4,
+      drift: 'falling' as const,
+    };
+
+    const withPulse = LiminalSense.process({ ...baseInput, corePulse: pulse });
+
+    expect(withPulse.reflection.integrationHealth).toBeLessThan(baseState.reflection.integrationHealth);
+    expect(['grounding', 'stabilize', 'deep-reflection']).toContain(withPulse.suggestion);
+  });
 });

@@ -67,6 +67,11 @@ export function computeCorePulseDrift(ctx: CorePulseDriftContext): CorePulseDrif
   return "stable";
 }
 
+export function analyzeCorePulseDrift(ctx: CorePulseDriftContext): CorePulseDrift {
+  // Thin alias kept for readability when core pulse is consumed externally.
+  return computeCorePulseDrift(ctx);
+}
+
 export function enrichPulseWithDrift(history: CorePulseState[]): CorePulseState {
   const drift = computeCorePulseDrift({ history });
   const latest = history[history.length - 1];

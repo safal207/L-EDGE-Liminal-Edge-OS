@@ -1,0 +1,1 @@
+export { computePulseModulation } from "./modulation";
