@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { CorePulseState } from "../../layers/L22_CorePulse/types";
-import { computeBreathingState } from "../L33_breathing";
+import { computeBreathingState, toBreathingCouplingSnapshot } from "../L33_breathing";
 
 describe("L33 breathing core coupling", () => {
   it("keeps breathing coherent and steady on a neutral pulse", () => {
@@ -74,5 +74,46 @@ describe("L33 breathing core coupling", () => {
     expect(state.mode).toBe("ground");
     expect(state.rate).toBe("slow");
     expect(state.pattern).toContain("downshift");
+  });
+
+  it("maps coherent breathing into a stable coupling snapshot", () => {
+    const snapshot = computeBreathingState({
+      avgSurprise: 0.35,
+      avgLearningSignal: 0.2,
+      calibrationMismatchRate: 0.1,
+      outcomeVolatility: 0.2,
+      corePulse: {
+        baseline: { intensity: 0.55, stability: 0.75 },
+        current: { intensity: 0.52, variability: 0.15, phase: "rest", overloadRisk: 0.12 },
+        modulation: { breathingInfluence: 0, luckInfluence: 0, emotionalInfluence: 0 },
+        readiness: 0.62,
+        overloadLevel: 0.18,
+        drift: "stable",
+      },
+    });
+
+    const coupling = toBreathingCouplingSnapshot({
+      coreCoupling: snapshot.coreCoupling,
+      rate: snapshot.rate,
+      fuzzChaos: snapshot.fuzzChaos,
+      fuzzStability: snapshot.fuzzStability,
+    });
+
+    expect(coupling.mode).toBe("coherent");
+    expect(coupling.stability).toBeGreaterThan(0.6);
+    expect(coupling.rate).toBeCloseTo(0.6, 2);
+  });
+
+  it("maps protective breathing with chaos into an irregular warning", () => {
+    const coupling = toBreathingCouplingSnapshot({
+      coreCoupling: { level: "neutral", stability: 0.35 },
+      rate: "fast",
+      fuzzChaos: 0.8,
+      fuzzStability: 0.2,
+    });
+
+    expect(coupling.mode).toBe("irregular");
+    expect(coupling.stability).toBeLessThan(0.4);
+    expect(coupling.rate).toBeGreaterThan(0.8 - 0.01);
   });
 });
