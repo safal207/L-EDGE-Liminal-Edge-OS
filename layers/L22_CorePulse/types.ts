@@ -9,6 +9,23 @@ export interface CorePulseDriftContext {
   maxWindow?: number;
 }
 
+export interface CorePulseInput {
+  /** Incoming baseline hint for the pulse; defaults to a neutral resting tone. */
+  baselineIntensity?: number;
+  /** Incoming stability hint; defaults to a calm but responsive band. */
+  baselineStability?: number;
+  /** Instantaneous intensity sample (0..1). */
+  intensity: number;
+  /** Short-term variability sample (0..1). */
+  variability?: number;
+  /** Phase of the pulse cycle. */
+  phase?: PulsePhase;
+  /** Optional overload risk hint from upstream layers. */
+  overloadRisk?: number;
+  /** Optional modulation input bundle from surrounding layers. */
+  modulationInput?: PulseModulationInput;
+}
+
 export interface PulseBaseline {
   /** 0..1 normalized baseline intensity (resting tone). */
   intensity: number;

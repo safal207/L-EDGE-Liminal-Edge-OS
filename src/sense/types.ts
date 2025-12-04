@@ -1,3 +1,5 @@
+import type { CorePulseState } from '../layers/L22_core_pulse/types';
+
 export interface SenseInput {
   userText?: string;
   timestamp: number;
@@ -8,6 +10,7 @@ export interface SenseInput {
   contextTags?: string[];
   activeLayers?: string[];
   entropyLevel?: number;
+  corePulse?: CorePulseState;
 }
 
 export interface EmotionalGradient {
