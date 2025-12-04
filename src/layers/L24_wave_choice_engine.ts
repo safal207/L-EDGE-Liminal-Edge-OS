@@ -2,6 +2,7 @@
 // Wave-Choice Engine — слой органической удачи и резонансного выбора пути
 
 import type { FluidRegionState, InformationalFluidSnapshot } from "./L23_informational_fluid";
+import type { FlowContext } from "./L24_decision";
 import type { LuckVector } from "./L24_trajectory_harmonizer";
 import { DecisionBus } from "../core/DecisionBus";
 import type { ResonantSignal } from "../core/ResonantSignal";
@@ -14,6 +15,9 @@ export interface WaveOption {
   predictedGain: number; // 0..1
   predictedRisk: number; // 0..1
   timeHorizonMs: number;
+
+  expansionScore?: number; // 0..1 optional explicit exploration weight
+  safetyBias?: number; // 0..1 optional hint that option is inherently safer
 
   targetRegions?: string[];
   tags?: string[];
@@ -48,6 +52,7 @@ export interface WaveDecision {
   ranked: RankedWaveOption[];
   context: WaveContext;
   reasonSummary: string;
+  flowContext?: FlowContext;
 }
 
 export interface WaveChoiceConfig {
@@ -78,6 +83,7 @@ export class WaveChoiceEngine {
     context: WaveContext,
     luck: LuckVector,
     fluid: InformationalFluidSnapshot,
+    flowContext?: FlowContext,
   ): WaveDecision {
     if (!options || options.length === 0) {
       return {
@@ -85,11 +91,12 @@ export class WaveChoiceEngine {
         ranked: [],
         context,
         reasonSummary: "No options provided — nothing to decide.",
+        flowContext,
       };
     }
 
     const ranked = options.map((option) => {
-      const score = this.scoreOption(option, context, luck, fluid);
+      const score = this.scoreOption(option, context, luck, fluid, flowContext);
       return { option, score };
     });
 
@@ -109,6 +116,7 @@ export class WaveChoiceEngine {
       ranked,
       context,
       reasonSummary,
+      flowContext,
     };
   }
 
@@ -117,6 +125,7 @@ export class WaveChoiceEngine {
     context: WaveContext,
     luck: LuckVector,
     fluid: InformationalFluidSnapshot,
+    flowContext?: FlowContext,
   ): WaveScore {
     const { environmentRisk, resonanceScore } = this.evaluateEnvironment(option, fluid);
 
@@ -126,11 +135,15 @@ export class WaveChoiceEngine {
 
     const riskPenalty = ((environmentRisk + structuralRisk) / 2) * this.config.weightRisk;
 
-    const combinedScore =
+    const combinedScore = this.applyFlowBias(
+      option,
+      flowContext,
       resonanceScore * this.config.weightResonance +
-      luckAlignment * this.config.weightLuck +
-      clamp01(option.predictedGain) * this.config.weightGain -
-      riskPenalty;
+        luckAlignment * this.config.weightLuck +
+        clamp01(option.predictedGain) * this.config.weightGain -
+        riskPenalty,
+      environmentRisk,
+    );
 
     return {
       resonanceScore,
@@ -139,6 +152,38 @@ export class WaveChoiceEngine {
       structuralRisk,
       combinedScore,
     };
+  }
+
+  private applyFlowBias(
+    option: WaveOption,
+    flowContext: FlowContext | undefined,
+    baseScore: number,
+    environmentRisk: number,
+  ): number {
+    if (!flowContext) return baseScore;
+
+    const { protectiveTilt, expansiveTilt, coherenceBonus } = deriveFlowBias(flowContext);
+
+    let adjusted = baseScore + coherenceBonus;
+    const riskSignal = clamp01((environmentRisk + clamp01(option.predictedRisk)) / 2);
+    const safetyHint = clamp01(option.safetyBias ?? 0.5);
+
+    if (protectiveTilt > 0) {
+      // Favor safer options when overload or protective breathing is detected.
+      adjusted -= riskSignal * protectiveTilt * 1.2;
+      adjusted += (1 - riskSignal) * (protectiveTilt * 0.75);
+      adjusted += safetyHint * protectiveTilt * 0.6;
+      adjusted -= clamp01(option.expansionScore ?? option.predictedGain) * protectiveTilt * 0.3;
+    }
+
+    if (expansiveTilt > 0) {
+      const expansionSignal = clamp01(option.expansionScore ?? option.predictedGain);
+      // Encourage expansive / exploratory moves when drift is rising and breathing is coherent.
+      adjusted += expansionSignal * expansiveTilt;
+      adjusted -= (1 - expansionSignal) * (expansiveTilt * 0.35);
+    }
+
+    return adjusted;
   }
 
   private evaluateEnvironment(
@@ -277,6 +322,64 @@ export class WaveChoiceEngine {
   }
 }
 
+function deriveFlowBias(flowContext: FlowContext): {
+  protectiveTilt: number;
+  expansiveTilt: number;
+  coherenceBonus: number;
+} {
+  const field = flowContext.informationalField;
+  const pulse = flowContext.corePulse;
+  const breathing = flowContext.breathing;
+
+  let protectiveTilt = 0;
+  let expansiveTilt = 0;
+  let coherenceBonus = 0;
+
+  if (field?.phaseBias === "protective") {
+    protectiveTilt += 0.08;
+  }
+  if (field?.phaseBias === "expansive") {
+    expansiveTilt += 0.08;
+  }
+
+  const overload = clamp01(pulse?.overloadLevel ?? pulse?.current?.overloadRisk ?? 0);
+  const readiness = clamp01(pulse?.readiness ?? 0.5);
+  const drift = pulse?.drift ?? "stable";
+
+  if (overload > 0.55) {
+    protectiveTilt += 0.07;
+  }
+
+  const breathingMode = breathing?.coreCouplingSnapshot?.mode ?? breathing?.coreCoupling?.level;
+  const breathingCoherence = breathing?.coreCoupling?.stability ?? breathing?.coreCouplingSnapshot?.stability;
+
+  if (breathingMode === "protective" || breathingMode === "irregular") {
+    protectiveTilt += 0.05;
+  }
+
+  if ((breathingMode === "expansive" || breathingMode === "coherent") && (breathingCoherence ?? 0) > 0.6) {
+    expansiveTilt += 0.05;
+  }
+
+  if (readiness > 0.62 && (drift === "rising" || drift === "stable")) {
+    expansiveTilt += 0.06;
+  }
+
+  if ((breathingMode === "coherent" || breathingMode === "expansive") && (breathingCoherence ?? 0) > 0.55) {
+    coherenceBonus += 0.05 * (breathingCoherence ?? 0.6);
+  }
+
+  if (field?.coherence !== undefined) {
+    coherenceBonus += Math.max(0, field.coherence - 0.5) * 0.08;
+  }
+
+  return {
+    protectiveTilt: clampTilt(protectiveTilt),
+    expansiveTilt: clampTilt(expansiveTilt),
+    coherenceBonus,
+  };
+}
+
 // Пример интеграции L24 с DecisionBus: отправляем решение как волновой сигнал
 export function emitWaveDecision(decision: WaveDecision): void {
   if (!decision.chosen) {
@@ -305,6 +408,10 @@ function clamp01(x: number): number {
   if (x < 0) return 0;
   if (x > 1) return 1;
   return x;
+}
+
+function clampTilt(value: number): number {
+  return Math.min(0.2, Math.max(0, value));
 }
 
 function jaccardIndex(a: string[], b: string[]): number {

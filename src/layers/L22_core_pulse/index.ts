@@ -212,5 +212,23 @@ function adjustReadinessWithBreathing(
   return clamp01(readiness);
 }
 
+export interface CorePulseSnapshot {
+  drift?: CorePulseDrift;
+  overloadLevel?: number;
+  readiness?: number;
+  readinessBand?: CorePulseState["readinessBand"];
+  modulationLevel?: number;
+  baselineLevel?: number;
+  phase?: CorePulseState["current"]["phase"];
+  current?: CorePulseState["current"];
+  baseline?: CorePulseState["baseline"];
+  breathing?: BreathingCouplingSnapshot;
+}
+
 export { computePulseModulation };
-export type { PulseModulationInput, PulseModulationState };
+export type {
+  BreathingCouplingSnapshot,
+  CorePulseState,
+  PulseModulationInput,
+  PulseModulationState,
+};

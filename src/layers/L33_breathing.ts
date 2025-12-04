@@ -77,6 +77,11 @@ export interface BreathingSnapshot {
   createdAt: string;
 }
 
+export type BreathingState = Pick<
+  BreathingSnapshot,
+  "mode" | "rate" | "coreCoupling" | "coreCouplingSnapshot" | "phase"
+>;
+
 const breathingLog: BreathingSnapshot[] = [];
 let cycleCounter = 0;
 
