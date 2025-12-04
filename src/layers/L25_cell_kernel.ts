@@ -1,3 +1,148 @@
+import type { CorePulseSnapshot } from "./L22_core_pulse";
+import type { InformationalFieldState } from "./L23_informational_fluid";
+import type { DecisionOutcome } from "./L31_foresight_engine";
+import type { BreathingState } from "./L33_breathing";
+
+export interface ResourceState {
+  energy: number; // 0..1, usable energy right now
+  mineralReserve: number; // 0..1, short-term view of the buffer
+  strain: number; // 0..1, how overloaded the system feels
+  regenerationTendency: number; // 0..1, how much the system leans into recovery
+}
+
+export type DecisionEnvelope = DecisionOutcome & { intensity?: number };
+
+export interface ResourceContext {
+  corePulse?: CorePulseSnapshot;
+  breathing?: BreathingState;
+  informationalField?: InformationalFieldState;
+  lastDecision?: DecisionEnvelope | null;
+  previousState?: ResourceState;
+}
+
+export function computeResourceState(ctx: ResourceContext): ResourceState {
+  let state: ResourceState = {
+    energy: 0.7,
+    mineralReserve: 0.7,
+    strain: 0.3,
+    regenerationTendency: 0.5,
+  };
+
+  if (ctx.corePulse) {
+    const overload = clamp01(ctx.corePulse.overloadLevel ?? ctx.corePulse.current?.overloadRisk ?? 0);
+    const readiness = clamp01(ctx.corePulse.readiness ?? 0.5);
+    const drift: CorePulseSnapshot["drift"] = ctx.corePulse.drift ?? "stable";
+
+    state.strain += overload * 0.5;
+    state.energy -= overload * 0.25;
+    state.regenerationTendency += (1 - overload) * 0.05;
+
+    if (readiness > 0.6 && (drift === "rising" || drift === "stable")) {
+      // Healthy, rising pulse lets the system spend a bit more without feeling strained.
+      state.energy += 0.1 * readiness;
+      state.strain -= 0.05 * readiness;
+    }
+
+    if (drift === "irregular") {
+      // Irregular drift is a caution flag: raise strain and dampen recovery.
+      state.strain += 0.08;
+      state.regenerationTendency -= 0.05;
+    }
+
+    if (overload > 0.7) {
+      // When overload spikes, dip into short-term reserves slightly.
+      state.mineralReserve -= 0.05 + overload * 0.05;
+    }
+  }
+
+  if (ctx.informationalField) {
+    const { viscosity, coherence, phaseBias } = ctx.informationalField;
+    const visc = clamp01(viscosity);
+    const coh = clamp01(coherence);
+
+    if (phaseBias === "protective") {
+      // Protective and viscous fields feel heavier to move through.
+      state.strain += visc * 0.25 + (1 - coh) * 0.1;
+      state.energy -= visc * 0.15;
+      state.regenerationTendency -= 0.05;
+    }
+
+    if (phaseBias === "expansive" && coh > 0.55) {
+      // Expansive coherence supports smoother flow.
+      state.strain -= 0.1 * coh;
+      state.energy += 0.05 * coh;
+      state.regenerationTendency += 0.08 * coh;
+    }
+  }
+
+  if (ctx.breathing) {
+    const couplingLevel =
+      ctx.breathing.coreCoupling?.level ?? ctx.breathing.coreCouplingSnapshot?.mode ?? "neutral";
+    const couplingStability = ctx.breathing.coreCoupling?.stability ?? ctx.breathing.coreCouplingSnapshot?.stability ?? 0.5;
+
+    if (couplingLevel === "protective" || couplingLevel === "irregular") {
+      // Protective or irregular breathing signals strain and slows recovery.
+      state.strain += 0.12;
+      state.energy -= 0.06;
+      state.regenerationTendency -= 0.1 - couplingStability * 0.05;
+    }
+
+    if (couplingLevel === "coherent" || couplingLevel === "expansive") {
+      // Coherent / expansive breathing lifts recovery and eases tension.
+      state.regenerationTendency += 0.15 * couplingStability;
+      state.strain -= 0.08 * couplingStability;
+      state.energy += 0.06 * couplingStability;
+    }
+
+    if (ctx.breathing.mode === "ground" || ctx.breathing.mode === "steady") {
+      // Grounding cadence gently tops up the near-term reserve.
+      state.mineralReserve += 0.04 * couplingStability;
+    }
+  }
+
+  if (ctx.lastDecision) {
+    const decisionIntensity = clamp01(
+      Math.max(
+        ctx.lastDecision.intensity ?? 0,
+        ctx.lastDecision.tension ?? 0,
+        Math.abs(ctx.lastDecision.reward ?? 0),
+        Math.abs(ctx.lastDecision.risk ?? 0),
+      ),
+    );
+
+    if (decisionIntensity > 0.6) {
+      // Recent heavy decision keeps the system braced.
+      state.strain += 0.1 + decisionIntensity * 0.1;
+      state.energy -= 0.08;
+      state.regenerationTendency -= 0.05;
+    } else if (decisionIntensity < 0.35) {
+      state.regenerationTendency += 0.04;
+    }
+  }
+
+  // Regeneration gently nudges mineralReserve unless strain dominates.
+  state.mineralReserve += (state.regenerationTendency - state.strain) * 0.08;
+
+  if (ctx.previousState) {
+    // Temporal smoothing to avoid abrupt jumps between ticks.
+    const blend = 0.65;
+    state = {
+      energy: ctx.previousState.energy * (1 - blend) + state.energy * blend,
+      mineralReserve: ctx.previousState.mineralReserve * (1 - blend) + state.mineralReserve * blend,
+      strain: ctx.previousState.strain * (1 - blend) + state.strain * blend,
+      regenerationTendency:
+        ctx.previousState.regenerationTendency * (1 - blend) + state.regenerationTendency * blend,
+    };
+  }
+
+  return {
+    energy: clamp01(state.energy),
+    mineralReserve: clamp01(state.mineralReserve),
+    strain: clamp01(state.strain),
+    regenerationTendency: clamp01(state.regenerationTendency),
+  } satisfies ResourceState;
+}
+
 export type EnergyLevel = "LOW" | "NORMAL" | "HIGH" | "OVERDRIVE";
 
 export interface EnergyState {

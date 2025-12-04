@@ -62,3 +62,18 @@ export interface MineralState {
    */
   mineralBalance: number;
 }
+
+export interface MineralProfile {
+  /**
+   * Базовый резерв минералов (структурный буфер).
+   */
+  baselineReserve: number;
+  /**
+   * Текущее значение долгосрочного запаса.
+   */
+  currentReserve: number;
+  /**
+   * 0..1 — насколько исчерпан буфер относительно базовой ёмкости.
+   */
+  depletionLevel: number;
+}
