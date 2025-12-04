@@ -8,6 +8,7 @@ import {
   profileFabric,
   profileLink,
   toFuzzy,
+  STABILITY_BRAID_MEANING,
   type FuzzyResonanceTag,
 } from '@/layers/L35_fuzzy_resonance';
 
@@ -53,7 +54,12 @@ describe('L35 fuzzy resonance', () => {
   });
 
   it('profiles stabilizing links as stability braids', () => {
-    const link: TantraLink = mockLink({ tension: 0.1, strength: 0.92, resonance: 0.55, meaning: 'stability braid' });
+    const link: TantraLink = mockLink({
+      tension: 0.1,
+      strength: 0.92,
+      resonance: 0.55,
+      meaning: STABILITY_BRAID_MEANING,
+    });
     const profile = profileLink(link, baseTone);
 
     expect(profile.tag).toBe('stability_braid');

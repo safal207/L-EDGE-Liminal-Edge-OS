@@ -8,6 +8,7 @@
 - `profileLink` превращает `TantraLink` + `OrganismTone` в мягкий профиль с тегом (`lucky_corridor`, `stability_braid`,
   `chaotic_bridge`, `deep_insight_thread`, `latent_potential`, `shallow_noise`) и коротким комментарием.
 - `profileFabric` собирает доминирующие теги по ткани, усредняет удачу (`overallLuck`) и даёт готовую карту для UI/агента.
+- Ясность связи в v1 читается через `strength` линка, а удача линки = `0.7 * resonance + 0.3 * tone.luckSynergyScore`.
 
 **Использование:**
 - UI: подсветить связи по тегам (зелёный коридор, синий стабилизатор, янтарный хаос-мост).

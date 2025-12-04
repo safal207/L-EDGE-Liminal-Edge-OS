@@ -3,6 +3,8 @@ import type { TantraFabric, TantraLink } from '@/layers/L35_tantra';
 
 export type FuzzyLevelLabel = 'low' | 'medium' | 'high';
 
+export const STABILITY_BRAID_MEANING = 'stability braid' as const;
+
 export interface FuzzyValue {
   value: number; // 0..1
   label: FuzzyLevelLabel;
@@ -58,7 +60,7 @@ export function deriveFuzzyTag(ctx: TagContext): FuzzyResonanceTag {
   }
 
   if (
-    meaning === 'stability braid' ||
+    meaning === STABILITY_BRAID_MEANING ||
     (tension.label === 'low' && clarity.label === 'high' && (tone.fuzzStability ?? 0) > (tone.fuzzChaos ?? 0))
   ) {
     return 'stability_braid';
