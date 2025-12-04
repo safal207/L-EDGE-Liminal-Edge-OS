@@ -25,5 +25,6 @@ export function createNeutralCorePulseState(): CorePulseState {
     },
     readiness: 0.6,
     overloadLevel: 0.1,
+    drift: "stable",
   };
 }

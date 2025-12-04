@@ -1,5 +1,14 @@
 export type PulsePhase = "rest" | "rise" | "peak" | "recovery";
 
+export type CorePulseDrift = "rising" | "stable" | "falling" | "irregular";
+
+export interface CorePulseDriftContext {
+  /** Ordered history of CorePulseState samples (oldest first). */
+  history: CorePulseState[];
+  /** Optional cap on how many recent samples are considered when computing drift. */
+  maxWindow?: number;
+}
+
 export interface PulseBaseline {
   /** 0..1 normalized baseline intensity (resting tone). */
   intensity: number;
@@ -35,4 +44,6 @@ export interface CorePulseState {
   readiness: number;
   /** 0..1 perceived overload level (higher = closer to overload). */
   overloadLevel: number;
+  /** Optional drift classification derived from a recent pulse history. */
+  drift?: CorePulseDrift;
 }

@@ -27,6 +27,7 @@ L22 is the **Core Pulse** layer. It keeps a steady internal rhythm between **L21
   - `modulation`: how breathing, luck/flow, and emotional tone adjust the pulse.
   - `readiness`: 0..1 readiness for new commitments/decisions (used by L24/L25).
   - `overloadLevel`: perceived overload risk that upstream layers (e.g., L28/L29) can drain.
+  - `drift`: optional qualitative drift tag (`rising` | `stable` | `falling` | `irregular`) derived from recent history.
 - **Readiness/overload hints:** simple flags or thresholds derived from `CorePulseState` (e.g., “cooldown”, “ready to surge”).
 - **Phase tags:** qualitative descriptors (`rest`, `rise`, `peak`, `recovery`) for synchronization with L23/L33 rhythms.
 
