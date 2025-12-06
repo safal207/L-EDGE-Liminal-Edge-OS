@@ -180,8 +180,16 @@ export class DreamReplayEngine extends EventEmitter {
 
   private processEpisode(episode: ReplayEpisode): ReplayResult {
     const signalStrength = this.deps.transmutation?.getMetrics().signalStrength ?? 0.5;
-    const recoveryFocus = this.currentPlan?.mode === 'deep' ? 0.85 : 0.5;
-    const replayFocus = this.currentPlan?.mode === 'integrative' && this.currentPlan.cognitiveOpen ? 0.75 : 0.4;
+    let recoveryFocus = this.currentPlan?.recoveryEmphasis ?? 0.5;
+    let replayFocus = this.currentPlan?.replayEmphasis ?? 0.4;
+
+    if (this.currentPlan?.mode === 'deep') {
+      recoveryFocus = 0.85;
+    }
+
+    if (this.currentPlan?.mode === 'integrative' && this.currentPlan.cognitiveOpen) {
+      replayFocus = 0.75;
+    }
 
     const integrationScore = clamp(
       episode.noveltyScore * (0.25 + replayFocus * 0.15) +

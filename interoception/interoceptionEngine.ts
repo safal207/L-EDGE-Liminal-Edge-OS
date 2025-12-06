@@ -3,12 +3,33 @@ import { clamp } from '../meta/patternDetector';
 import { CirculationSnapshot, HeartbeatState } from '../core/types';
 import { computeBodyFatigueSnapshot } from './bodyFatigueSnapshot';
 import {
-  BodyFatigueSnapshot,
-  InteroceptionContext,
-  InteroceptionSignal,
-  InteroceptionState,
-  InteroceptionStatus,
+  computeBodyFatigueSnapshot,
+  type FatigueContext,
+} from './bodyFatigueSnapshot';
+import {
+  type BodyFatigueSnapshot,
+  type InteroceptionContext,
+  type InteroceptionSignal,
+  type InteroceptionState,
+  type InteroceptionStatus,
 } from './contracts';
+
+const toFatigueContext = (ctx: InteroceptionContext): FatigueContext => ({
+  resources: ctx.resources
+    ? {
+        energy: ctx.resources.energy,
+        stability: ctx.resources.mineralReserve ?? 0.6,
+      }
+    : undefined,
+  minerals: ctx.minerals
+    ? {
+        trace: ctx.minerals.baselineReserve ?? 0.5,
+        density: ctx.minerals.currentReserve ?? 0.6,
+      }
+    : undefined,
+  emotionalLoad: ctx.emotionalLoad,
+  entropyLevel: ctx.entropyLevel,
+});
 
 interface InteroceptionEngineOptions {
   maxSignals?: number;
@@ -72,16 +93,7 @@ export class InteroceptionEngine {
 
   private computeSummary(context: InteroceptionContext) {
     const now = Date.now();
-    const bodyFatigue = computeBodyFatigueSnapshot({
-      resources: context.resources
-        ? { energy: context.resources.energy, stability: 1 - context.resources.strain }
-        : undefined,
-      minerals: context.minerals
-        ? { trace: context.minerals.currentReserve, density: 1 - context.minerals.depletionLevel }
-        : undefined,
-      emotionalLoad: context.emotionalLoad,
-      entropyLevel: context.entropyLevel,
-    });
+    const bodyFatigue = computeBodyFatigueSnapshot(toFatigueContext(context));
     const fatigue = clamp(this.computeFatigue(context.sleep, now) * 0.6 + bodyFatigue.fatigueLevel * 0.4);
     const tension = this.computeTension(context.homeostasis.stressScore, context.reflex.lastActions.length, context.intent.mode);
     const entropyPressure = this.computeEntropyPressure(context.transmutation.discardedEntropy, context.transmutation.purifiedEvents, context.perception.noiseLevel);

@@ -1,12 +1,12 @@
 import assert from 'assert';
 import { computeBodyFatigueSnapshot } from '../bodyFatigueSnapshot';
 import { InteroceptionEngine } from '../interoceptionEngine';
-import { InteroceptionContext } from '../contracts';
-import { ReflexState } from '../../reflex/types';
-import { ReplayState } from '../../replay/types';
-import { PerceptionSummary } from '../../perception/types';
-import { MemoryState } from '../../memory/memoryTypes';
-import { MetaState } from '../../meta/types';
+import type { InteroceptionContext } from '../contracts';
+import type { ReflexState } from '../../reflex/types';
+import type { ReplayState } from '../../replay/types';
+import type { PerceptionSummary } from '../../perception/types';
+import type { MemoryState } from '../../memory/memoryTypes';
+import type { MetaState } from '../../meta/types';
 
 const buildContext = (overrides?: Partial<InteroceptionContext>): InteroceptionContext => {
   const reflex: ReflexState = overrides?.reflex ?? { lastActions: [], lastEvents: [] };
@@ -154,6 +154,7 @@ const buildContext = (overrides?: Partial<InteroceptionContext>): InteroceptionC
     entropyLevel: 0.6,
   });
   assert(highStrainSnapshot.fatigueLevel > 0.7, 'high strain should raise fatigue perception');
+  assert(highStrainSnapshot.depletionLevel > 0.7, 'low reserves increase depletion perception');
   assert.strictEqual(highStrainSnapshot.recoveryNeed, 'high', 'high strain + depletion increases recovery urgency');
   assert.strictEqual(highStrainSnapshot.suggestedSleepMode, 'deep', 'critical strain biases toward deep sleep');
 
@@ -163,7 +164,19 @@ const buildContext = (overrides?: Partial<InteroceptionContext>): InteroceptionC
     emotionalLoad: 0.35,
     entropyLevel: 0.35,
   });
-  assert(regenerativeSnapshot.fatigueLevel < 0.65, 'low strain keeps fatigue moderate');
+  assert(regenerativeSnapshot.fatigueLevel > 0.4 && regenerativeSnapshot.fatigueLevel < 0.7, 'mixed state yields moderate fatigue');
+  assert(regenerativeSnapshot.depletionLevel > 0.35 && regenerativeSnapshot.depletionLevel < 0.7, 'mixed state yields moderate depletion');
   assert.strictEqual(regenerativeSnapshot.recoveryNeed, 'medium', 'recovery need stays moderate');
   assert.strictEqual(regenerativeSnapshot.suggestedSleepMode, 'integrative');
+
+  const restedSnapshot = computeBodyFatigueSnapshot({
+    resources: { energy: 0.9, stability: 0.9 },
+    minerals: { trace: 0.85, density: 0.85 },
+    emotionalLoad: 0.1,
+    entropyLevel: 0.1,
+  });
+  assert(restedSnapshot.fatigueLevel < 0.35, 'well-resourced state keeps fatigue low');
+  assert(restedSnapshot.depletionLevel < 0.35, 'healthy reserves keep depletion low');
+  assert.strictEqual(restedSnapshot.recoveryNeed, 'low');
+  assert.strictEqual(restedSnapshot.suggestedSleepMode, 'light');
 })();

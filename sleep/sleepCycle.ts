@@ -22,6 +22,8 @@ export interface SleepPlan {
   mode: 'light' | 'deep' | 'integrative';
   durationFactor: number; // 0.5..2.0
   cognitiveOpen: boolean; // whether replay should explore new patterns
+  recoveryEmphasis?: number; // optional weighting for restoration focus
+  replayEmphasis?: number; // optional weighting for replay focus
 }
 
 export function planSleep(fatigue?: BodyFatigueSnapshot): SleepPlan {
