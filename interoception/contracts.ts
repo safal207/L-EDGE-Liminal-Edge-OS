@@ -9,6 +9,8 @@ import { SleepMetrics } from '../sleep/sleepCycle';
 import { CirculationSnapshot } from '../core/types';
 import { TransmutationMetrics } from '../transmutation/contracts';
 import { MetaState } from '../meta/types';
+import type { ResourceState } from '../src/layers/L25_cell_kernel';
+import type { MineralProfile } from '../src/layers/L27_mineral_buffer';
 
 export type InteroceptionStatus = 'stable' | 'strained' | 'depleted' | 'critical';
 
@@ -31,6 +33,7 @@ export interface InteroceptionSummary {
   status: InteroceptionStatus;
   annotations: string[];
   lastUpdated: number;
+  bodyFatigue?: BodyFatigueSnapshot;
 }
 
 export interface InteroceptionState {
@@ -50,4 +53,13 @@ export interface InteroceptionContext {
   memory?: MemoryState;
   heartbeat?: HeartbeatState;
   meta?: MetaState;
+  resources?: ResourceState;
+  minerals?: MineralProfile;
+}
+
+export interface BodyFatigueSnapshot {
+  fatigueLevel: number; // 0..1 — subjective tiredness
+  depletionLevel: number; // 0..1 — longer-term reserve burn
+  recoveryNeed: number; // 0..1 — urgency for restorative sleep
+  suggestedSleepMode: 'light' | 'deep' | 'integrative' | 'emergency';
 }

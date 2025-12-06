@@ -3,12 +3,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { MemoryEngine } from '../memory/memoryEngine';
 import { MemorySnapshot } from '../memory/memoryTypes';
 import { TransmutationEngine } from '../transmutation/transmutationEngine';
+import type { SleepPlan } from '../sleep/sleepCycle';
 import { ReplayConfig, ReplayEpisode, ReplayResult, ReplaySelectionContext, ReplayState } from './types';
 
 interface DreamReplayDeps {
   memory: MemoryEngine;
   transmutation?: TransmutationEngine;
   config?: ReplayConfig;
+}
+
+export interface DreamReplayContext {
+  sleepPlan: SleepPlan;
 }
 
 export interface ReplayEvents {
@@ -19,6 +24,7 @@ export class DreamReplayEngine extends EventEmitter {
   private readonly maxEpisodes: number;
   private readonly minStressThreshold: number;
   private readonly noveltyBias: number;
+  private currentPlan?: SleepPlan;
   private state: ReplayState = {
     status: 'idle',
     lastRunAt: 0,
@@ -44,13 +50,15 @@ export class DreamReplayEngine extends EventEmitter {
     return super.emit(event, ...args);
   }
 
-  runReplayCycle(trigger: 'sleep' | 'manual' | 'external' = 'manual'): ReplayState {
+  runReplayCycle(trigger: 'sleep' | 'manual' | 'external' = 'manual', ctx?: DreamReplayContext): ReplayState {
+    this.currentPlan = ctx?.sleepPlan ?? this.currentPlan;
     const snapshots = this.deps.memory.getState().longTerm;
     const episodes = this.selectEpisodes({
       snapshots,
-      limit: this.maxEpisodes,
+      limit: this.resolveEpisodeLimit(),
       minStressThreshold: this.minStressThreshold,
       noveltyBias: this.noveltyBias,
+      sleepPlan: this.currentPlan,
     });
 
     if (episodes.length === 0) {
@@ -101,8 +109,8 @@ export class DreamReplayEngine extends EventEmitter {
     }
   }
 
-  scheduleReplay(trigger: 'sleep' | 'manual' | 'external' = 'manual'): ReplayState {
-    return this.runReplayCycle(trigger);
+  scheduleReplay(trigger: 'sleep' | 'manual' | 'external' = 'manual', ctx?: DreamReplayContext): ReplayState {
+    return this.runReplayCycle(trigger, ctx);
   }
 
   getState(): ReplayState {
@@ -127,12 +135,24 @@ export class DreamReplayEngine extends EventEmitter {
     };
   }
 
-  private selectEpisodes(context: ReplaySelectionContext): ReplayEpisode[] {
-    const ranked = [...context.snapshots]
-      .filter((snap) => (snap.stressScore ?? 0) >= context.minStressThreshold)
-      .sort((a, b) => (b.stressScore ?? 0) - (a.stressScore ?? 0) || (b.lastEventAt ?? 0) - (a.lastEventAt ?? 0));
+  private selectEpisodes(context: ReplaySelectionContext & { sleepPlan?: SleepPlan }): ReplayEpisode[] {
+    const rankedSnapshots = [...context.snapshots].filter((snap) => (snap.stressScore ?? 0) >= context.minStressThreshold);
+    const plan = context.sleepPlan;
 
-    const picked = ranked.slice(0, context.limit).map((snapshot) => this.toEpisode(snapshot));
+    let episodes = rankedSnapshots.map((snapshot) => this.toEpisode(snapshot));
+
+    if (plan?.recoveryEmphasis && plan.recoveryEmphasis > 0.7) {
+      // Under recovery-focused sleep, prefer calmer, stabilizing episodes and avoid overload spikes.
+      episodes = episodes.filter((episode) => episode.stressScore < 0.85);
+      episodes.sort((a, b) => a.stressScore - b.stressScore || b.noveltyScore - a.noveltyScore);
+    } else if (plan?.mode === 'integrative' && plan.replayEmphasis > 0.6) {
+      // Integrative windows encourage recombination and novelty mixing.
+      episodes.sort((a, b) => b.noveltyScore - a.noveltyScore || a.stressScore - b.stressScore);
+    } else {
+      episodes.sort((a, b) => (b.stressScore ?? 0) - (a.stressScore ?? 0) || (b.noveltyScore ?? 0) - (a.noveltyScore ?? 0));
+    }
+
+    const picked = episodes.slice(0, context.limit);
     if (picked.length > 0) {
       return picked;
     }
@@ -160,10 +180,18 @@ export class DreamReplayEngine extends EventEmitter {
 
   private processEpisode(episode: ReplayEpisode): ReplayResult {
     const signalStrength = this.deps.transmutation?.getMetrics().signalStrength ?? 0.5;
+    const recoveryFocus = this.currentPlan?.recoveryEmphasis ?? 0.5;
+    const replayFocus = this.currentPlan?.replayEmphasis ?? 0.5;
+
     const integrationScore = clamp(
-      episode.noveltyScore * 0.2 + (1 - episode.stressScore) * 0.3 + signalStrength * 0.5 + this.noveltyBias * 0.1
+      episode.noveltyScore * (0.25 + replayFocus * 0.15) +
+        (1 - episode.stressScore) * (0.25 + recoveryFocus * 0.15) +
+        signalStrength * 0.4 +
+        this.noveltyBias * 0.1
     );
-    const reducedStress = clamp(Math.max(0, episode.stressScore - integrationScore * 0.6));
+
+    const reliefMultiplier = 0.6 + recoveryFocus * 0.25 + (this.currentPlan?.mode === 'deep' ? 0.05 : 0);
+    const reducedStress = clamp(Math.max(0, episode.stressScore - integrationScore * reliefMultiplier));
 
     return {
       episodeId: episode.id,
@@ -172,6 +200,22 @@ export class DreamReplayEngine extends EventEmitter {
       integrationScore,
       patternTags: [...new Set([...(episode.tags ?? []), ...episode.dominantSources])].slice(0, 5),
     } satisfies ReplayResult;
+  }
+
+  private resolveEpisodeLimit(): number {
+    if (!this.currentPlan) {
+      return this.maxEpisodes;
+    }
+
+    if (this.currentPlan.mode === 'deep' && this.currentPlan.replayEmphasis < 0.3) {
+      return Math.max(1, Math.round(this.maxEpisodes * 0.6));
+    }
+
+    if (this.currentPlan.mode === 'integrative' && this.currentPlan.replayEmphasis > 0.6) {
+      return Math.max(1, this.maxEpisodes + 1);
+    }
+
+    return this.maxEpisodes;
   }
 }
 
