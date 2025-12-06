@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { InteroceptionEngine } from '../interoceptionEngine';
+import { InteroceptionEngine, computeBodyFatigueSnapshot } from '../interoceptionEngine';
 import { InteroceptionContext } from '../contracts';
 import { ReflexState } from '../../reflex/types';
 import { ReplayState } from '../../replay/types';
@@ -70,12 +70,14 @@ const buildContext = (overrides?: Partial<InteroceptionContext>): InteroceptionC
           memory,
           perception,
         },
-        overrideActive: false,
-      } satisfies InteroceptionContext['intent']),
+      overrideActive: false,
+    } satisfies InteroceptionContext['intent']),
     circulation: overrides?.circulation,
     heartbeat: overrides?.heartbeat,
     memory,
     meta,
+    resources: overrides?.resources,
+    minerals: overrides?.minerals,
   };
 };
 
@@ -143,4 +145,27 @@ const buildContext = (overrides?: Partial<InteroceptionContext>): InteroceptionC
   assert(engine.getState().signals.length <= 5, 'history should be trimmed to maxSignals');
 
   console.log('interoception engine tests passed');
+
+  const highStrainSnapshot = computeBodyFatigueSnapshot(
+    buildContext({
+      resources: { energy: 0.4, mineralReserve: 0.4, strain: 0.8, regenerationTendency: 0.3 },
+      minerals: { baselineReserve: 1, currentReserve: 0.3, depletionLevel: 0.7 },
+    })
+  );
+  assert(highStrainSnapshot.fatigueLevel > 0.7, 'high strain should raise fatigue perception');
+  assert(highStrainSnapshot.recoveryNeed > 0.7, 'high strain + depletion increases recovery urgency');
+  assert(
+    ['deep', 'emergency'].includes(highStrainSnapshot.suggestedSleepMode),
+    'critical strain biases toward deep/emergency sleep'
+  );
+
+  const regenerativeSnapshot = computeBodyFatigueSnapshot(
+    buildContext({
+      resources: { energy: 0.75, mineralReserve: 0.7, strain: 0.2, regenerationTendency: 0.8 },
+      minerals: { baselineReserve: 1, currentReserve: 0.7, depletionLevel: 0.3 },
+    })
+  );
+  assert(regenerativeSnapshot.fatigueLevel < 0.65, 'low strain keeps fatigue moderate');
+  assert(regenerativeSnapshot.recoveryNeed >= 0.4 && regenerativeSnapshot.recoveryNeed < 0.75, 'recovery need stays moderate');
+  assert.strictEqual(regenerativeSnapshot.suggestedSleepMode, 'integrative');
 })();
