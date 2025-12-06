@@ -141,11 +141,11 @@ export class DreamReplayEngine extends EventEmitter {
 
     let episodes = rankedSnapshots.map((snapshot) => this.toEpisode(snapshot));
 
-    if (plan?.recoveryEmphasis && plan.recoveryEmphasis > 0.7) {
-      // Under recovery-focused sleep, prefer calmer, stabilizing episodes and avoid overload spikes.
+    if (plan?.mode === 'deep') {
+      // Recovery-focused deep sleep prioritises calmer content.
       episodes = episodes.filter((episode) => episode.stressScore < 0.85);
       episodes.sort((a, b) => a.stressScore - b.stressScore || b.noveltyScore - a.noveltyScore);
-    } else if (plan?.mode === 'integrative' && plan.replayEmphasis > 0.6) {
+    } else if (plan?.mode === 'integrative') {
       // Integrative windows encourage recombination and novelty mixing.
       episodes.sort((a, b) => b.noveltyScore - a.noveltyScore || a.stressScore - b.stressScore);
     } else {
@@ -180,8 +180,16 @@ export class DreamReplayEngine extends EventEmitter {
 
   private processEpisode(episode: ReplayEpisode): ReplayResult {
     const signalStrength = this.deps.transmutation?.getMetrics().signalStrength ?? 0.5;
-    const recoveryFocus = this.currentPlan?.recoveryEmphasis ?? 0.5;
-    const replayFocus = this.currentPlan?.replayEmphasis ?? 0.5;
+    let recoveryFocus = this.currentPlan?.recoveryEmphasis ?? 0.5;
+    let replayFocus = this.currentPlan?.replayEmphasis ?? 0.4;
+
+    if (this.currentPlan?.mode === 'deep') {
+      recoveryFocus = 0.85;
+    }
+
+    if (this.currentPlan?.mode === 'integrative' && this.currentPlan.cognitiveOpen) {
+      replayFocus = 0.75;
+    }
 
     const integrationScore = clamp(
       episode.noveltyScore * (0.25 + replayFocus * 0.15) +
@@ -207,11 +215,11 @@ export class DreamReplayEngine extends EventEmitter {
       return this.maxEpisodes;
     }
 
-    if (this.currentPlan.mode === 'deep' && this.currentPlan.replayEmphasis < 0.3) {
+    if (this.currentPlan.mode === 'deep' && !this.currentPlan.cognitiveOpen) {
       return Math.max(1, Math.round(this.maxEpisodes * 0.6));
     }
 
-    if (this.currentPlan.mode === 'integrative' && this.currentPlan.replayEmphasis > 0.6) {
+    if (this.currentPlan.mode === 'integrative' && this.currentPlan.cognitiveOpen) {
       return Math.max(1, this.maxEpisodes + 1);
     }
 

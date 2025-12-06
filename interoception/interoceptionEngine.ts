@@ -2,12 +2,33 @@ import { v4 as uuidv4 } from 'uuid';
 import { clamp } from '../meta/patternDetector';
 import { CirculationSnapshot, HeartbeatState } from '../core/types';
 import {
-  BodyFatigueSnapshot,
-  InteroceptionContext,
-  InteroceptionSignal,
-  InteroceptionState,
-  InteroceptionStatus,
+  computeBodyFatigueSnapshot,
+  type FatigueContext,
+} from './bodyFatigueSnapshot';
+import {
+  type BodyFatigueSnapshot,
+  type InteroceptionContext,
+  type InteroceptionSignal,
+  type InteroceptionState,
+  type InteroceptionStatus,
 } from './contracts';
+
+const toFatigueContext = (ctx: InteroceptionContext): FatigueContext => ({
+  resources: ctx.resources
+    ? {
+        energy: ctx.resources.energy,
+        stability: ctx.resources.mineralReserve ?? 0.6,
+      }
+    : undefined,
+  minerals: ctx.minerals
+    ? {
+        trace: ctx.minerals.baselineReserve ?? 0.5,
+        density: ctx.minerals.currentReserve ?? 0.6,
+      }
+    : undefined,
+  emotionalLoad: ctx.emotionalLoad,
+  entropyLevel: ctx.entropyLevel,
+});
 
 interface InteroceptionEngineOptions {
   maxSignals?: number;
@@ -64,13 +85,14 @@ export class InteroceptionEngine {
         status: 'stable',
         annotations: [],
         lastUpdated: Date.now(),
+        bodyFatigue: undefined,
       },
     };
   }
 
   private computeSummary(context: InteroceptionContext) {
     const now = Date.now();
-    const bodyFatigue = computeBodyFatigueSnapshot(context);
+    const bodyFatigue = computeBodyFatigueSnapshot(toFatigueContext(context));
     const fatigue = clamp(this.computeFatigue(context.sleep, now) * 0.6 + bodyFatigue.fatigueLevel * 0.4);
     const tension = this.computeTension(context.homeostasis.stressScore, context.reflex.lastActions.length, context.intent.mode);
     const entropyPressure = this.computeEntropyPressure(context.transmutation.discardedEntropy, context.transmutation.purifiedEvents, context.perception.noiseLevel);
@@ -169,59 +191,4 @@ export class InteroceptionEngine {
     if (items.length <= this.maxSignals) return items;
     return items.slice(items.length - this.maxSignals);
   }
-}
-
-export function computeBodyFatigueSnapshot(ctx: InteroceptionContext): BodyFatigueSnapshot {
-  let fatigueLevel = 0.3;
-  let depletionLevel = 0;
-  let recoveryNeed = 0.3;
-  let suggestedSleepMode: BodyFatigueSnapshot['suggestedSleepMode'] = 'light';
-
-  const resource = ctx.resources;
-  if (resource) {
-    const strain = clamp(resource.strain);
-    const energyGap = clamp(1 - resource.energy);
-    const regeneration = clamp(resource.regenerationTendency);
-
-    // Strain and low energy drive acute fatigue; regeneration tempers the urgency slightly.
-    fatigueLevel = clamp(fatigueLevel + strain * 0.6 + energyGap * 0.25);
-    recoveryNeed = clamp(recoveryNeed + strain * 0.4 + energyGap * 0.35 - regeneration * 0.1);
-
-    // Integrative bias when system is calm but ready to replenish.
-    if (strain < 0.45 && regeneration > 0.6) {
-      suggestedSleepMode = 'integrative';
-    }
-  }
-
-  if (ctx.minerals) {
-    depletionLevel = clamp(ctx.minerals.depletionLevel);
-    fatigueLevel = Math.max(fatigueLevel, clamp(depletionLevel * 0.7));
-    recoveryNeed = clamp(recoveryNeed + depletionLevel * 0.5);
-
-    if (depletionLevel > 0.65) {
-      suggestedSleepMode = 'deep';
-    }
-  }
-
-  // Deep or emergency sleep is suggested when depletion is critical or both fatigue and recovery need spike.
-  if (depletionLevel > 0.85 || (fatigueLevel > 0.8 && recoveryNeed > 0.75)) {
-    suggestedSleepMode = 'emergency';
-  } else if (fatigueLevel > 0.7 && recoveryNeed > 0.65 && suggestedSleepMode !== 'integrative') {
-    suggestedSleepMode = 'deep';
-  } else if (suggestedSleepMode === 'integrative' && recoveryNeed > 0.65) {
-    // Keep integrative but acknowledge recovery pull.
-    recoveryNeed = clamp(recoveryNeed + 0.05);
-  }
-
-  // Clamp final scores and keep them consistent with the suggested mode.
-  fatigueLevel = clamp(fatigueLevel);
-  depletionLevel = clamp(depletionLevel);
-  recoveryNeed = clamp(recoveryNeed);
-
-  return {
-    fatigueLevel,
-    depletionLevel,
-    recoveryNeed,
-    suggestedSleepMode,
-  } satisfies BodyFatigueSnapshot;
 }
