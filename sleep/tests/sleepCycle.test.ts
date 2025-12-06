@@ -26,16 +26,16 @@ async function run() {
   assert.ok(dreamReport.iterations >= 2, 'dream runs at least base iterations');
   assert.ok(dreamReport.imaginedLinks > 0, 'dream generates imagined links');
 
-  const emergencyFatigue: BodyFatigueSnapshot = { fatigueLevel: 0.9, depletionLevel: 0.8, recoveryNeed: 0.95, suggestedSleepMode: 'emergency' };
-  const emergencyFatiguePlan = planSleep({ bodyFatigue: emergencyFatigue });
+  const emergencyFatigue: BodyFatigueSnapshot = { fatigueLevel: 0.9, depletionLevel: 0.8, recoveryNeed: 'high', suggestedSleepMode: 'deep' };
+  const emergencyFatiguePlan = planSleep(emergencyFatigue);
   assert.strictEqual(emergencyFatiguePlan.mode, 'deep');
-  assert(emergencyFatiguePlan.recoveryEmphasis > 0.85, 'emergency drives high recovery emphasis');
-  assert(emergencyFatiguePlan.replayEmphasis < 0.2, 'emergency limits replay load');
+  assert(emergencyFatiguePlan.durationFactor > 1.3, 'deep fatigue extends duration');
+  assert.strictEqual(emergencyFatiguePlan.cognitiveOpen, false, 'deep recovery limits replay load');
 
-  const integrativePlan = planSleep({ bodyFatigue: { fatigueLevel: 0.45, depletionLevel: 0.3, recoveryNeed: 0.55, suggestedSleepMode: 'integrative' } });
+  const integrativePlan = planSleep({ fatigueLevel: 0.45, depletionLevel: 0.3, recoveryNeed: 'medium', suggestedSleepMode: 'integrative' });
   assert.strictEqual(integrativePlan.mode, 'integrative');
-  assert(integrativePlan.replayEmphasis > 0.5, 'integrative mode allows more replay');
-  assert(integrativePlan.recoveryEmphasis >= 0.6, 'integrative sleep still cares about recovery');
+  assert.strictEqual(integrativePlan.durationFactor, 1.0, 'integrative stays balanced');
+  assert.strictEqual(integrativePlan.cognitiveOpen, true, 'integrative mode allows exploration');
 
   const storage = createInMemoryLiminalStorage();
   for (const event of events) {
