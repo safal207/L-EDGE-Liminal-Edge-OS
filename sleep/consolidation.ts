@@ -10,7 +10,7 @@ const isNoise = (event: EdgeEvent): boolean => {
   return payloadNoise > 0.7 || event.payload.noise === true;
 };
 
-export const consolidateEvents = (events: EdgeEvent[], plan?: { recoveryEmphasis: number }): ConsolidationResult => {
+export const consolidateEvents = (events: EdgeEvent[], plan?: { mode: string; durationFactor?: number }): ConsolidationResult => {
   let noiseCleared = 0;
   events.forEach((event) => {
     if (isNoise(event)) {
@@ -20,8 +20,8 @@ export const consolidateEvents = (events: EdgeEvent[], plan?: { recoveryEmphasis
 
   // Recovery emphasis biases toward clearing more overload/noise.
   if (plan) {
-    const stabilityBoost = plan.recoveryEmphasis;
-    noiseCleared = Math.min(events.length, Math.round(noiseCleared * (1 + stabilityBoost * 0.3)));
+    const durationBias = plan.durationFactor ?? (plan.mode === 'deep' ? 1.4 : 1);
+    noiseCleared = Math.min(events.length, Math.round(noiseCleared * (1 + durationBias * 0.2)));
   }
 
   return {

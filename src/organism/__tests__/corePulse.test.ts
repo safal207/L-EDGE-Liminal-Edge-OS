@@ -4,7 +4,7 @@ import type { BodyFatigueSnapshot } from '../../../interoception/contracts';
 import type { SleepPlan } from '../../../sleep/sleepCycle';
 import { runPulse } from '../corePulse';
 import { LiminalSense } from '../../sense/sense';
-import { computeBodyFatigueSnapshot } from '../../../interoception/interoceptionEngine';
+import { computeBodyFatigueSnapshot } from '../../../interoception/bodyFatigueSnapshot';
 import { planSleep } from '../../../sleep/sleepCycle';
 
 type Mocked<T> = T & { mock: ReturnType<typeof vi.fn> };
@@ -13,7 +13,7 @@ vi.mock('../../sense/sense', () => ({
   LiminalSense: { process: vi.fn() },
 }));
 
-vi.mock('../../../interoception/interoceptionEngine', () => ({
+vi.mock('../../../interoception/bodyFatigueSnapshot', () => ({
   computeBodyFatigueSnapshot: vi.fn(),
 }));
 
@@ -54,7 +54,7 @@ describe('runPulse', () => {
     const fatigueSnapshot: BodyFatigueSnapshot = {
       fatigueLevel: 0.3,
       depletionLevel: 0.2,
-      recoveryNeed: 0.3,
+      recoveryNeed: 'low',
       suggestedSleepMode: 'light',
     };
     fatigueMock.mockReturnValue(fatigueSnapshot);
@@ -70,16 +70,15 @@ describe('runPulse', () => {
     const fatigueSnapshot: BodyFatigueSnapshot = {
       fatigueLevel: 0.75,
       depletionLevel: 0.5,
-      recoveryNeed: 0.7,
+      recoveryNeed: 'medium',
       suggestedSleepMode: 'deep',
     };
     fatigueMock.mockReturnValue(fatigueSnapshot);
 
     const sleepPlan: SleepPlan = {
       mode: 'integrative',
-      cycles: 3,
-      recoveryEmphasis: 0.6,
-      replayEmphasis: 0.7,
+      durationFactor: 1.0,
+      cognitiveOpen: true,
     };
     planSleepMock.mockReturnValue(sleepPlan);
 
@@ -93,16 +92,15 @@ describe('runPulse', () => {
     const fatigueSnapshot: BodyFatigueSnapshot = {
       fatigueLevel: 0.9,
       depletionLevel: 0.9,
-      recoveryNeed: 0.9,
-      suggestedSleepMode: 'emergency',
+      recoveryNeed: 'high',
+      suggestedSleepMode: 'deep',
     };
     fatigueMock.mockReturnValue(fatigueSnapshot);
 
     const sleepPlan: SleepPlan = {
       mode: 'deep',
-      cycles: 4,
-      recoveryEmphasis: 0.8,
-      replayEmphasis: 0.1,
+      durationFactor: 1.6,
+      cognitiveOpen: false,
     };
     planSleepMock.mockReturnValue(sleepPlan);
 

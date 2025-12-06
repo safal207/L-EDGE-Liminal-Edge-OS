@@ -36,13 +36,13 @@ async function run() {
   assert.ok(memoryAfter.longTerm.length >= 1, 'replay results recorded into long-term');
 
   // simulate sleep trigger path
-  const recoveryPlan: SleepPlan = { mode: 'deep', cycles: 4, recoveryEmphasis: 0.9, replayEmphasis: 0.1 };
+  const recoveryPlan: SleepPlan = { mode: 'deep', durationFactor: 1.6, cognitiveOpen: false };
   const recoveryRun = replay.runReplayCycle('sleep', { sleepPlan: recoveryPlan });
   assert.ok(recoveryRun.lastTrigger === 'sleep');
   assert.ok(recoveryRun.reliefScore >= 0, 'relief score computed');
   assert.ok(recoveryRun.lastEpisodes.every((episode) => episode.stressScore < 0.85), 'recovery plan avoids overload episodes');
 
-  const integrativePlan: SleepPlan = { mode: 'integrative', cycles: 3, recoveryEmphasis: 0.6, replayEmphasis: 0.8 };
+  const integrativePlan: SleepPlan = { mode: 'integrative', durationFactor: 1.0, cognitiveOpen: true };
   const integrativeRun = replay.runReplayCycle('sleep', { sleepPlan: integrativePlan });
   assert.ok(integrativeRun.lastEpisodes.length >= recoveryRun.lastEpisodes.length, 'integrative mode can allow more replay');
   assert.ok(integrativeRun.avgIntegrationScore >= 0, 'integration still computed');
