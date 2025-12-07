@@ -93,7 +93,9 @@ export class InteroceptionEngine {
 
   private computeSummary(context: InteroceptionContext) {
     const now = Date.now();
-    const bodyFatigue = computeBodyFatigueSnapshot(toFatigueContext(context));
+    const bodyFatigue: BodyFatigueSnapshot = computeBodyFatigueSnapshot(
+      toFatigueContext(context),
+    );
     const fatigue = clamp(this.computeFatigue(context.sleep, now) * 0.6 + bodyFatigue.fatigueLevel * 0.4);
     const tension = this.computeTension(context.homeostasis.stressScore, context.reflex.lastActions.length, context.intent.mode);
     const entropyPressure = this.computeEntropyPressure(context.transmutation.discardedEntropy, context.transmutation.purifiedEvents, context.perception.noiseLevel);
