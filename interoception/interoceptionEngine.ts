@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { clamp } from '../meta/patternDetector';
 import { CirculationSnapshot, HeartbeatState } from '../core/types';
+import { computeBodyFatigueSnapshot } from './bodyFatigueSnapshot';
 import {
   computeBodyFatigueSnapshot,
   type FatigueContext,
