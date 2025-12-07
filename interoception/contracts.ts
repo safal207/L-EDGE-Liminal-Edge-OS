@@ -11,6 +11,7 @@ import { TransmutationMetrics } from '../transmutation/contracts';
 import { MetaState } from '../meta/types';
 import type { ResourceState } from '../src/layers/L25_cell_kernel';
 import type { MineralProfile } from '../src/layers/L27_mineral_buffer';
+import type { BodyFatigueSnapshot } from './bodyFatigueSnapshot';
 
 export type InteroceptionStatus = 'stable' | 'strained' | 'depleted' | 'critical';
 
@@ -55,11 +56,8 @@ export interface InteroceptionContext {
   meta?: MetaState;
   resources?: ResourceState;
   minerals?: MineralProfile;
+  emotionalLoad?: number;
+  entropyLevel?: number;
 }
 
-export interface BodyFatigueSnapshot {
-  fatigueLevel: number; // 0..1 — subjective tiredness
-  depletionLevel: number; // 0..1 — longer-term reserve burn
-  recoveryNeed: number; // 0..1 — urgency for restorative sleep
-  suggestedSleepMode: 'light' | 'deep' | 'integrative' | 'emergency';
-}
+export type { BodyFatigueSnapshot };

@@ -20,52 +20,27 @@ export interface SleepContext {
 
 export interface SleepPlan {
   mode: 'light' | 'deep' | 'integrative';
-  cycles: number;
-  recoveryEmphasis: number; // 0..1
-  replayEmphasis: number; // 0..1
+  durationFactor: number; // 0.5..2.0
+  cognitiveOpen: boolean; // whether replay should explore new patterns
+  recoveryEmphasis?: number; // optional weighting for restoration focus
+  replayEmphasis?: number; // optional weighting for replay focus
 }
 
-export function planSleep(ctx: SleepContext): SleepPlan {
-  const defaultPlan: SleepPlan = {
-    mode: 'light',
-    cycles: 2,
-    recoveryEmphasis: 0.5,
-    replayEmphasis: 0.5,
-  };
+export function planSleep(fatigue?: BodyFatigueSnapshot): SleepPlan {
+  const base: SleepPlan = { mode: 'light', durationFactor: 0.8, cognitiveOpen: false };
+  if (!fatigue) return base;
 
-  const fatigue = ctx.bodyFatigue;
-  if (!fatigue) {
-    return defaultPlan;
+  const mode = fatigue.suggestedSleepMode;
+
+  if (mode === 'deep' || fatigue.fatigueLevel > 0.7 || fatigue.recoveryNeed === 'high') {
+    return { mode: 'deep', durationFactor: 1.5, cognitiveOpen: false } satisfies SleepPlan;
   }
 
-  if (fatigue.recoveryNeed > 0.85 || fatigue.depletionLevel > 0.75 || fatigue.suggestedSleepMode === 'emergency') {
-    return {
-      mode: 'deep',
-      cycles: 5,
-      recoveryEmphasis: 0.9,
-      replayEmphasis: 0.1,
-    } satisfies SleepPlan;
+  if (mode === 'integrative' || fatigue.recoveryNeed === 'medium') {
+    return { mode: 'integrative', durationFactor: 1.0, cognitiveOpen: true } satisfies SleepPlan;
   }
 
-  if (fatigue.suggestedSleepMode === 'integrative') {
-    return {
-      mode: 'integrative',
-      cycles: 3,
-      recoveryEmphasis: 0.6,
-      replayEmphasis: 0.7,
-    } satisfies SleepPlan;
-  }
-
-  if (fatigue.suggestedSleepMode === 'deep' || fatigue.fatigueLevel > 0.65) {
-    return {
-      mode: 'deep',
-      cycles: 4,
-      recoveryEmphasis: 0.8,
-      replayEmphasis: 0.25,
-    } satisfies SleepPlan;
-  }
-
-  return defaultPlan;
+  return base;
 }
 
 interface SleepCycleDeps {
@@ -116,9 +91,13 @@ export class SleepCycle extends EventEmitter {
 
   async trigger(mode: 'manual' | 'auto' = 'manual', ctx?: SleepContext): Promise<SleepMetrics> {
     const events = await this.deps.storage.queryEdgeEvents({ limit: 50 });
-    const sleepPlan = planSleep(ctx ?? {});
+    const sleepPlan = planSleep(ctx?.bodyFatigue);
     const consolidation = consolidateEvents(events, sleepPlan);
-    const baseIterations = sleepPlan.mode === 'integrative' ? 4 : sleepPlan.mode === 'deep' ? 2 + Math.round(sleepPlan.recoveryEmphasis * 2) : 3;
+    const baseIterations = sleepPlan.mode === 'integrative'
+      ? 4
+      : sleepPlan.mode === 'deep'
+        ? Math.round(3 * sleepPlan.durationFactor)
+        : 2;
     const dreamReport = runDreamSandbox(this.lastSignalStrength || 0.5, baseIterations);
     this.metrics = this.buildMetrics(consolidation, dreamReport, sleepPlan);
     if (mode === 'manual') {

@@ -1,11 +1,12 @@
 import assert from 'assert';
-import { InteroceptionEngine, computeBodyFatigueSnapshot } from '../interoceptionEngine';
-import { InteroceptionContext } from '../contracts';
-import { ReflexState } from '../../reflex/types';
-import { ReplayState } from '../../replay/types';
-import { PerceptionSummary } from '../../perception/types';
-import { MemoryState } from '../../memory/memoryTypes';
-import { MetaState } from '../../meta/types';
+import { computeBodyFatigueSnapshot } from '../bodyFatigueSnapshot';
+import { InteroceptionEngine } from '../interoceptionEngine';
+import type { InteroceptionContext } from '../contracts';
+import type { ReflexState } from '../../reflex/types';
+import type { ReplayState } from '../../replay/types';
+import type { PerceptionSummary } from '../../perception/types';
+import type { MemoryState } from '../../memory/memoryTypes';
+import type { MetaState } from '../../meta/types';
 
 const buildContext = (overrides?: Partial<InteroceptionContext>): InteroceptionContext => {
   const reflex: ReflexState = overrides?.reflex ?? { lastActions: [], lastEvents: [] };
@@ -146,26 +147,36 @@ const buildContext = (overrides?: Partial<InteroceptionContext>): InteroceptionC
 
   console.log('interoception engine tests passed');
 
-  const highStrainSnapshot = computeBodyFatigueSnapshot(
-    buildContext({
-      resources: { energy: 0.4, mineralReserve: 0.4, strain: 0.8, regenerationTendency: 0.3 },
-      minerals: { baselineReserve: 1, currentReserve: 0.3, depletionLevel: 0.7 },
-    })
-  );
+  const highStrainSnapshot = computeBodyFatigueSnapshot({
+    resources: { energy: 0.25, stability: 0.2 },
+    minerals: { trace: 0.3, density: 0.25 },
+    emotionalLoad: 0.8,
+    entropyLevel: 0.6,
+  });
   assert(highStrainSnapshot.fatigueLevel > 0.7, 'high strain should raise fatigue perception');
-  assert(highStrainSnapshot.recoveryNeed > 0.7, 'high strain + depletion increases recovery urgency');
-  assert(
-    ['deep', 'emergency'].includes(highStrainSnapshot.suggestedSleepMode),
-    'critical strain biases toward deep/emergency sleep'
-  );
+  assert(highStrainSnapshot.depletionLevel > 0.7, 'low reserves increase depletion perception');
+  assert.strictEqual(highStrainSnapshot.recoveryNeed, 'high', 'high strain + depletion increases recovery urgency');
+  assert.strictEqual(highStrainSnapshot.suggestedSleepMode, 'deep', 'critical strain biases toward deep sleep');
 
-  const regenerativeSnapshot = computeBodyFatigueSnapshot(
-    buildContext({
-      resources: { energy: 0.75, mineralReserve: 0.7, strain: 0.2, regenerationTendency: 0.8 },
-      minerals: { baselineReserve: 1, currentReserve: 0.7, depletionLevel: 0.3 },
-    })
-  );
-  assert(regenerativeSnapshot.fatigueLevel < 0.65, 'low strain keeps fatigue moderate');
-  assert(regenerativeSnapshot.recoveryNeed >= 0.4 && regenerativeSnapshot.recoveryNeed < 0.75, 'recovery need stays moderate');
+  const regenerativeSnapshot = computeBodyFatigueSnapshot({
+    resources: { energy: 0.75, stability: 0.85 },
+    minerals: { trace: 0.7, density: 0.7 },
+    emotionalLoad: 0.35,
+    entropyLevel: 0.35,
+  });
+  assert(regenerativeSnapshot.fatigueLevel > 0.4 && regenerativeSnapshot.fatigueLevel < 0.7, 'mixed state yields moderate fatigue');
+  assert(regenerativeSnapshot.depletionLevel > 0.35 && regenerativeSnapshot.depletionLevel < 0.7, 'mixed state yields moderate depletion');
+  assert.strictEqual(regenerativeSnapshot.recoveryNeed, 'medium', 'recovery need stays moderate');
   assert.strictEqual(regenerativeSnapshot.suggestedSleepMode, 'integrative');
+
+  const restedSnapshot = computeBodyFatigueSnapshot({
+    resources: { energy: 0.9, stability: 0.9 },
+    minerals: { trace: 0.85, density: 0.85 },
+    emotionalLoad: 0.1,
+    entropyLevel: 0.1,
+  });
+  assert(restedSnapshot.fatigueLevel < 0.35, 'well-resourced state keeps fatigue low');
+  assert(restedSnapshot.depletionLevel < 0.35, 'healthy reserves keep depletion low');
+  assert.strictEqual(restedSnapshot.recoveryNeed, 'low');
+  assert.strictEqual(restedSnapshot.suggestedSleepMode, 'light');
 })();

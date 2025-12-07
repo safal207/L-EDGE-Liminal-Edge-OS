@@ -1,7 +1,7 @@
 import { LiminalSense } from "../sense/sense";
 import type { SenseState } from "../sense/types";
 import type { BodyFatigueSnapshot, InteroceptionContext } from "../../interoception/contracts";
-import { computeBodyFatigueSnapshot } from "../../interoception/interoceptionEngine";
+import { computeBodyFatigueSnapshot } from "../../interoception/bodyFatigueSnapshot";
 import type { MineralProfile } from "../layers/L27_mineral_buffer";
 import type { ResourceState } from "../layers/L25_cell_kernel";
 import type { SleepPlan } from "../../sleep/sleepCycle";
@@ -28,11 +28,11 @@ export interface PulseContext {
 export function decidePulseTone(fatigue: BodyFatigueSnapshot): PulseTone {
   const { fatigueLevel, depletionLevel, recoveryNeed } = fatigue;
 
-  if (recoveryNeed > 0.85 || depletionLevel > 0.85 || fatigueLevel > 0.9) {
+  if (recoveryNeed === "high" || depletionLevel > 0.85 || fatigueLevel > 0.9) {
     return "sleeping";
   }
 
-  if (recoveryNeed > 0.6 || fatigueLevel > 0.7 || depletionLevel > 0.6) {
+  if (recoveryNeed === "medium" || fatigueLevel > 0.7 || depletionLevel > 0.6) {
     return "restoration";
   }
 
@@ -65,7 +65,7 @@ export async function runPulse(ctx: PulseContext): Promise<PulseState> {
 
   let sleepPlan: SleepPlan | undefined;
   if (tone === "sleeping" || tone === "restoration") {
-    sleepPlan = planSleep({ bodyFatigue: fatigue });
+    sleepPlan = planSleep(fatigue);
   }
 
   return {
